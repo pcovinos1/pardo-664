@@ -1,0 +1,296 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color: #201826;
+  background: #fbf7f1;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgba(97, 36, 143, 0.35);
+  outline-offset: 2px;
+}
+
+@layer components {
+  .page-wrap {
+    @apply mx-auto w-full max-w-[1520px] px-5 py-8 md:px-10 md:py-12;
+  }
+
+  .screen-section {
+    @apply min-h-screen animate-[fadeIn_520ms_ease_both];
+  }
+
+  .editorial-page {
+    @apply min-h-screen animate-[fadeIn_520ms_ease_both] px-5 pb-32 pt-8 md:px-10 md:pt-10;
+  }
+
+  .editorial-title {
+    @apply font-display text-5xl leading-[0.95] md:text-7xl xl:text-8xl;
+  }
+
+  .editorial-lead {
+    @apply mt-6 max-w-2xl text-xl leading-relaxed text-ink/70 md:text-2xl;
+  }
+
+  .editorial-link {
+    @apply inline-flex min-h-12 items-center gap-2 border-b border-morada pb-1 text-sm font-semibold uppercase tracking-[0.22em] text-morada;
+  }
+
+  .editorial-hero {
+    @apply mx-auto grid min-h-[calc(100vh-9rem)] max-w-[1680px] items-center gap-10 lg:grid-cols-[1.15fr_0.85fr];
+  }
+
+  .editorial-hero__image {
+    @apply relative block h-[48vh] min-h-[360px] overflow-hidden rounded-none bg-white lg:h-[76vh];
+  }
+
+  .editorial-hero__image img,
+  .architecture-image img,
+  .photobook-main img {
+    @apply h-full w-full object-cover transition duration-700;
+  }
+
+  .editorial-hero__image:hover img,
+  .architecture-image:hover img,
+  .photobook-main:hover img {
+    transform: scale(1.025);
+  }
+
+  .editorial-hero__copy {
+    @apply max-w-3xl lg:pr-8;
+  }
+
+  .editorial-stats {
+    @apply mt-10 grid gap-x-8 gap-y-5 border-y border-ink/10 py-6 sm:grid-cols-2;
+  }
+
+  .editorial-stats p,
+  .contact-lines p {
+    @apply m-0;
+  }
+
+  .editorial-stats span,
+  .contact-lines span {
+    @apply mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-morada;
+  }
+
+  .editorial-stats strong {
+    @apply block text-lg font-medium text-ink;
+  }
+
+  .editorial-band {
+    @apply mx-auto mt-12 grid max-w-[1680px] gap-8 border-t border-ink/10 pt-10 lg:grid-cols-[0.9fr_1.1fr];
+  }
+
+  .editorial-list {
+    @apply columns-1 gap-10 md:columns-2;
+  }
+
+  .editorial-list p {
+    @apply break-inside-avoid border-b border-ink/10 py-4 text-lg text-ink/70;
+  }
+
+  .architecture-layout {
+    @apply mx-auto grid min-h-[calc(100vh-9rem)] max-w-[1680px] items-center gap-10 lg:grid-cols-[0.95fr_1.05fr];
+  }
+
+  .architecture-image {
+    @apply order-2 block h-[48vh] min-h-[360px] overflow-hidden lg:order-1 lg:h-[78vh];
+  }
+
+  .architecture-copy {
+    @apply order-1 max-w-3xl lg:order-2;
+  }
+
+  .photobook {
+    @apply mx-auto grid min-h-[calc(100vh-9rem)] max-w-[1680px] items-center gap-10 xl:grid-cols-[0.62fr_1.38fr];
+  }
+
+  .photobook-copy {
+    @apply max-w-2xl;
+  }
+
+  .photobook-labels {
+    @apply mt-8 flex flex-wrap gap-x-4 gap-y-3;
+  }
+
+  .photobook-labels span {
+    @apply border-b border-ink/20 pb-1 text-sm uppercase tracking-[0.18em] text-ink/60;
+  }
+
+  .photobook-stage {
+    @apply min-w-0;
+  }
+
+  .photobook-main {
+    @apply relative block h-[55vh] min-h-[410px] w-full overflow-hidden bg-white md:h-[68vh];
+  }
+
+  .photobook-main span {
+    @apply absolute bottom-5 left-5 bg-paper/90 px-4 py-2 text-sm font-semibold text-ink backdrop-blur;
+  }
+
+  .photobook-controls {
+    @apply mt-5 flex items-center justify-between gap-4;
+  }
+
+  .photobook-controls > button {
+    @apply grid min-h-12 min-w-12 place-items-center rounded-full border border-ink/10 bg-transparent text-ink;
+  }
+
+  .photobook-controls div {
+    @apply flex items-center gap-2;
+  }
+
+  .photobook-controls div button {
+    @apply size-2.5 rounded-full bg-ink/20 transition;
+  }
+
+  .photobook-controls div button.is-active {
+    @apply w-8 bg-morada;
+  }
+
+  .photobook-thumbs {
+    @apply mt-5 flex snap-x gap-3 overflow-x-auto pb-2;
+  }
+
+  .photobook-thumbs button {
+    @apply h-20 w-32 shrink-0 snap-start overflow-hidden opacity-60 transition;
+  }
+
+  .photobook-thumbs button.is-active {
+    @apply opacity-100 ring-2 ring-morada;
+  }
+
+  .photobook-thumbs img {
+    @apply h-full w-full object-cover;
+  }
+
+  .location-scene {
+    @apply relative mx-auto min-h-[calc(100vh-9rem)] max-w-[1680px] overflow-hidden;
+  }
+
+  .location-copy {
+    @apply relative z-10 max-w-3xl pt-2;
+  }
+
+  .location-map {
+    @apply relative mt-8 h-[58vh] min-h-[430px] w-full bg-white lg:absolute lg:bottom-0 lg:right-0 lg:mt-0 lg:h-[78vh] lg:w-[76%];
+  }
+
+  .location-filters {
+    @apply relative z-20 mt-5 flex max-w-5xl flex-wrap gap-2 lg:absolute lg:bottom-8 lg:left-8 lg:mt-0;
+  }
+
+  .location-list {
+    @apply relative z-20 mt-6 grid max-w-3xl gap-x-8 gap-y-2 md:grid-cols-2 lg:absolute lg:right-8 lg:top-8 lg:w-80 lg:bg-paper/90 lg:p-5 lg:backdrop-blur;
+  }
+
+  .location-list p {
+    @apply flex justify-between gap-4 border-b border-ink/10 pb-2 text-sm;
+  }
+
+  .location-list em {
+    @apply not-italic text-morada;
+  }
+
+  .contact-layout {
+    @apply mx-auto grid min-h-[calc(100vh-9rem)] max-w-[1380px] items-center gap-12 lg:grid-cols-[1.05fr_0.95fr];
+  }
+
+  .contact-lines {
+    @apply border-y border-ink/10 py-5;
+  }
+
+  .contact-lines p {
+    @apply border-b border-ink/10 py-5 text-2xl font-medium last:border-b-0;
+  }
+
+  .eyebrow {
+    @apply mb-3 text-sm font-semibold uppercase tracking-[0.28em] text-morada;
+  }
+
+  .primary-touch {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-morada px-6 py-3 font-semibold text-white transition active:scale-95;
+  }
+
+  .secondary-touch {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-ink/10 bg-porcelain px-5 py-3 font-semibold text-ink transition active:scale-95;
+  }
+
+  .icon-button {
+    @apply grid min-h-11 min-w-11 place-items-center rounded-full border border-ink/10 bg-white text-ink transition active:scale-95;
+  }
+
+  .pill {
+    @apply min-h-11 rounded-full border border-ink/10 bg-porcelain px-4 text-sm font-medium transition active:scale-95;
+  }
+
+  .pill-active {
+    @apply border-morada bg-morada text-white;
+  }
+
+  .image-panel {
+    @apply relative block overflow-hidden rounded border border-ink/10 bg-white text-left;
+  }
+
+  .image-panel img {
+    @apply h-full min-h-[360px] w-full object-cover transition duration-500;
+  }
+
+  .image-panel:hover img {
+    transform: scale(1.02);
+  }
+
+  .section-title {
+    @apply mb-4 font-display text-3xl;
+  }
+
+  .field {
+    @apply mt-1 w-full rounded border border-ink/10 bg-white px-4 py-3 text-ink;
+  }
+}
+
+@media (orientation: portrait) {
+  .page-wrap {
+    padding-bottom: 7rem;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
