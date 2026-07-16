@@ -1,4 +1,4 @@
-import { ArrowRight, Building2, Check, ChevronLeft, ChevronRight, Download, FileUp, Grid3X3, Lock, RotateCcw, Save, Search, Upload } from "lucide-react";
+import { ArrowRight, ArrowUp, ArrowDown, Building2, Check, ChevronLeft, ChevronRight, Download, FileUp, Grid3X3, Lock, Plus, RotateCcw, Save, Search, Trash2, Upload } from "lucide-react";
 import { useState } from "react";
 import { FloorPlanInteractive } from "./components/FloorPlanInteractive";
 import { GalleryModal } from "./components/GalleryModal";
@@ -117,6 +117,7 @@ function MenuPage({ onNavigate }: { onNavigate: (view: ViewKey) => void }) {
 
 function ProjectPage({ project, onOpenGallery }: { project: Project; onOpenGallery: (value: { images: GalleryImage[]; index: number }) => void }) {
   const images = project.galleries.find((item) => item.id === "fachada")?.images ?? [];
+  const section = getSection(project, "project");
   return (
     <section className="editorial-page">
       <div className="editorial-hero">
@@ -124,7 +125,7 @@ function ProjectPage({ project, onOpenGallery }: { project: Project; onOpenGalle
           <img src={images[0]?.src} alt="Pardo 664" />
         </button>
         <div className="editorial-hero__copy">
-          <p className="eyebrow">El proyecto</p>
+          <p className="eyebrow">{section.title}</p>
           <h1 className="editorial-title">{project.name}</h1>
           <p className="editorial-lead">{project.shortDescription}</p>
           <div className="editorial-stats">
@@ -137,8 +138,8 @@ function ProjectPage({ project, onOpenGallery }: { project: Project; onOpenGalle
       </div>
       <div className="editorial-band">
         <div>
-          <p className="eyebrow">Morada es verde</p>
-          <h2 className="font-display text-4xl md:text-6xl">Un edificio de prestaciones ecoamigables.</h2>
+          <p className="eyebrow">{project.certification}</p>
+          <h2 className="font-display text-4xl md:text-6xl">{section.summary}</h2>
         </div>
         <div className="editorial-list">
           {[...project.leedAttributes, "10 ambientes compartidos", project.typologySummary].map((item) => (
@@ -152,12 +153,13 @@ function ProjectPage({ project, onOpenGallery }: { project: Project; onOpenGalle
 
 function AmenitiesPage({ project, onOpenGallery }: { project: Project; onOpenGallery: (value: { images: GalleryImage[]; index: number }) => void }) {
   const gallery = project.galleries.find((item) => item.id === "areas");
+  const section = getSection(project, "amenities");
   return (
     <section className="editorial-page">
       <Photobook
-        eyebrow="Áreas comunes"
-        title="Diez espacios para habitar el día de otra manera."
-        text="Desde una terraza con piscina en el rooftop hasta espacios para trabajar, entrenar y compartir."
+        eyebrow={section.title}
+        title={gallery?.title ?? section.title}
+        text={section.summary}
         gallery={gallery}
         labels={project.sharedAreas}
         onOpenGallery={onOpenGallery}
@@ -169,6 +171,7 @@ function AmenitiesPage({ project, onOpenGallery }: { project: Project; onOpenGal
 function ArchitecturePage({ project, onOpenGallery }: { project: Project; onOpenGallery: (value: { images: GalleryImage[]; index: number }) => void }) {
   const gallery = project.galleries.find((item) => item.id === "arquitectura");
   const image = gallery?.images[0];
+  const section = getSection(project, "architecture");
   return (
     <section className="editorial-page">
       <div className="architecture-layout">
@@ -176,14 +179,10 @@ function ArchitecturePage({ project, onOpenGallery }: { project: Project; onOpen
           <img src={image?.src} alt="Nómena Arquitectura" />
         </button>
         <article className="architecture-copy">
-          <p className="eyebrow">Arquitectura</p>
-          <h1 className="editorial-title">Diseñado por Nómena Arquitectura.</h1>
-          <p className="editorial-lead">
-            Pardo 664 propone una fachada con profundidad tridimensional y una relación abierta con la avenida José Pardo.
-          </p>
-          <p className="mt-8 max-w-xl text-lg leading-relaxed text-ink/70">
-            El proyecto integra escala peatonal, transición de alturas y visuales cambiantes en una pieza residencial contemporánea para Miraflores.
-          </p>
+          <p className="eyebrow">{section.title}</p>
+          <h1 className="editorial-title">{project.architect}</h1>
+          <p className="editorial-lead">{section.summary}</p>
+          {image?.description ? <p className="mt-8 max-w-xl text-lg leading-relaxed text-ink/70">{image.description}</p> : null}
           <button className="editorial-link mt-8" onClick={() => gallery && onOpenGallery({ images: gallery.images, index: 0 })} type="button">
             Ver arquitectura <ArrowRight className="size-4" />
           </button>
@@ -195,6 +194,7 @@ function ArchitecturePage({ project, onOpenGallery }: { project: Project; onOpen
 
 function InteriorsPage({ project, onOpenGallery }: { project: Project; onOpenGallery: (value: { images: GalleryImage[]; index: number }) => void }) {
   const baseGallery = project.galleries.find((item) => item.id === "interiores");
+  const section = getSection(project, "interiors");
   const gallery = baseGallery
     ? {
         ...baseGallery,
@@ -214,9 +214,9 @@ function InteriorsPage({ project, onOpenGallery }: { project: Project; onOpenGal
   return (
     <section className="editorial-page">
       <Photobook
-        eyebrow="Interiores"
-        title="Una experiencia inmersiva de materiales, luz y escala."
-        text="Puna Estudio y Morada Home llevan al proyecto una propuesta de interiorismo vanguardista y funcional."
+        eyebrow={section.title}
+        title={baseGallery?.title ?? section.title}
+        text={section.summary}
         gallery={gallery}
         labels={["Sala", "Comedor", "Cocina", "Dormitorio principal", "Dormitorio secundario", "Baño", "Detalles de materiales"]}
         onOpenGallery={onOpenGallery}
@@ -229,13 +229,14 @@ function LocationPage({ project, filter, setFilter, onOpenGallery }: { project: 
   const categories = ["Todos", "Gastronomía", "Cafés", "Parques", "Educación", "Tiendas", "Entretenimiento"];
   const gallery = project.galleries.find((item) => item.id === "barrio");
   const visible = filter === "Todos" ? project.pointsOfInterest : project.pointsOfInterest.filter((poi) => poi.category === filter);
+  const section = getSection(project, "location");
   return (
     <section className="editorial-page">
       <div className="location-scene">
         <div className="location-copy">
-          <p className="eyebrow">Ubicación</p>
+          <p className="eyebrow">{section.title}</p>
           <h1 className="editorial-title">{project.address}</h1>
-          <p className="editorial-lead">Miraflores a escala caminable, con gastronomía, parques, cafés y servicios cerca de casa.</p>
+          <p className="editorial-lead">{section.summary}</p>
         </div>
         <div className="location-map">
           <button className="block h-full w-full" onClick={() => gallery && onOpenGallery({ images: gallery.images, index: 0 })} type="button">
@@ -338,13 +339,13 @@ function DepartmentsPage({ project, selectedTypologyId, setSelectedTypologyId, o
         {filtered.map((typology) => (
           <article key={typology.id} className={`rounded border bg-porcelain p-4 ${selectedTypologyId === typology.id ? "border-morada" : "border-ink/10"}`}>
             <img className="h-44 w-full rounded border border-ink/10 bg-white object-contain" src={typology.thumbnailSrc} alt={`Plano ${typology.code}`} />
-            <div className="mt-4 flex items-start justify-between">
-              <div>
-                <h2 className="font-display text-4xl">{typology.code}</h2>
-                <p className="text-ink/70">{typology.areaM2} m² · {typology.bedrooms} dorm. · {typology.bathrooms ?? "s/d"} baños</p>
-              </div>
-              <span className="rounded-full bg-morada/10 px-3 py-1 text-sm text-morada">{typology.format}</span>
+          <div className="mt-4 flex items-start justify-between">
+            <div>
+              <h2 className="font-display text-4xl">{typology.code}</h2>
+              <p className="text-ink/70">Plano en alta resolución</p>
             </div>
+            <span className="rounded-full bg-morada/10 px-3 py-1 text-sm text-morada">{typology.format}</span>
+          </div>
             <div className="mt-4 flex gap-2">
               <button className="primary-touch flex-1" onClick={() => { setSelectedTypologyId(typology.id); onNavigate("typology"); }} type="button">
                 Ver plano
@@ -372,8 +373,8 @@ function FloorPage({ project, selectedTypologyId, setSelectedTypologyId, onNavig
             <>
               <p className="text-sm uppercase tracking-[0.25em] text-morada">Seleccionado</p>
               <h2 className="mt-3 font-display text-6xl">{typology.code}</h2>
-              <p className="mt-2 text-xl">{typology.areaM2} m² · {typology.bedrooms} dorm.</p>
-              <p className="mt-5 text-ink/70">{typology.apartments.length} departamentos asociados en el PDF.</p>
+              <p className="mt-2 text-xl">Tipología activa en planta</p>
+              <img className="mt-5 h-48 w-full rounded bg-white object-contain" src={typology.thumbnailSrc} alt={`Miniatura ${typology.code}`} />
               <button className="primary-touch mt-6 w-full" onClick={() => onNavigate("typology")} type="button">
                 Ver plano <ArrowRight />
               </button>
@@ -395,19 +396,15 @@ function TypologyPage({ project, typology, setSelectedTypologyId, onNavigate }: 
   return (
     <section className="page-wrap">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <PageHeading eyebrow="Detalle de tipología" title={`Tipología ${typology.code}`} text={`${typology.areaM2} m² · ${typology.bedrooms} dormitorio(s) · ${typology.bathrooms ?? "s/d"} baño(s)`} />
+        <PageHeading eyebrow="Detalle de tipología" title={`Tipología ${typology.code}`} text="La imagen del plano contiene la información técnica vigente." />
         <div className="flex gap-2">
           <button className="secondary-touch" onClick={() => move(-1)} type="button"><ChevronLeft /> Anterior</button>
           <button className="secondary-touch" onClick={() => move(1)} type="button">Siguiente <ChevronRight /></button>
           <button className="primary-touch" onClick={() => onNavigate("floor")} type="button">Regresar a planta</button>
         </div>
       </div>
-      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+      <div className="grid gap-6">
         <PlanViewer src={typology.planSrc} title={`Plano ${typology.code}`} />
-        <aside className="space-y-4">
-          <InfoBlock title="Ambientes" items={typology.rooms.map((room) => `${room.name}${room.dimensions ? ` (${room.dimensions})` : ""}`)} />
-          <InfoBlock title="Departamentos asociados" items={typology.apartments.map((apartment) => apartment.label)} compact />
-        </aside>
       </div>
     </section>
   );
@@ -431,14 +428,7 @@ function ComparePage({ project }: { project: Project }) {
         {items.map((typology) => (
           <article key={typology.id} className="rounded border border-ink/10 bg-porcelain p-4">
             <h2 className="font-display text-5xl">{typology.code}</h2>
-            <div className="my-4 grid grid-cols-2 gap-2 text-sm">
-              <Fact label="Área" value={`${typology.areaM2} m²`} />
-              <Fact label="Dormitorios" value={`${typology.bedrooms}`} />
-              <Fact label="Baños" value={`${typology.bathrooms ?? "s/d"}`} />
-              <Fact label="Terraza" value={typology.features.terrace ? "Sí" : "No"} />
-              <Fact label="Estudio" value={typology.features.study ? "Sí" : "No"} />
-              <Fact label="Walk-in closet" value={typology.features.walkInCloset ? "Sí" : "No"} />
-            </div>
+            <p className="my-4 text-ink/70">Comparación visual basada en las imágenes oficiales de cada plano.</p>
             <img className="h-[420px] w-full rounded bg-white object-contain" src={typology.planSrc} alt={`Plano ${typology.code}`} />
           </article>
         ))}
@@ -500,6 +490,9 @@ function AdminPage({ project, updateProject, reload }: { project: Project; updat
       <div className="grid gap-6 xl:grid-cols-[1fr_0.85fr]">
         <div className="space-y-5">
           <AdminGeneral project={project} updateProject={updateProject} />
+          <AdminEditorialContent project={project} updateProject={updateProject} />
+          <AdminGalleries project={project} updateProject={updateProject} />
+          <AdminLocation project={project} updateProject={updateProject} />
           <div className="rounded border border-ink/10 bg-porcelain p-5">
             <h2 className="section-title">Tipologías y planos</h2>
             <select className="field mb-4" value={selected} onChange={(event) => setSelected(event.target.value)}>
@@ -577,20 +570,303 @@ function AdminGeneral({ project, updateProject }: { project: Project; updateProj
   );
 }
 
-function AdminTypology({ typology, updateProject }: { typology: Typology; updateProject: (updater: (project: Project) => Project) => Promise<void> }) {
-  const update = (patch: Partial<Typology>) => updateProject((project) => ({ ...project, typologies: project.typologies.map((item) => item.id === typology.id ? { ...item, ...patch } : item) }));
+function AdminEditorialContent({ project, updateProject }: { project: Project; updateProject: (updater: (project: Project) => Project) => Promise<void> }) {
+  const updateList = (field: "sharedAreas" | "leedAttributes", value: string) =>
+    updateProject((current) => ({
+      ...current,
+      [field]: value.split("\n").map((item) => item.trim()).filter(Boolean)
+    }));
+
   return (
-    <div className="grid gap-4 lg:grid-cols-[240px_1fr]">
-      <img className="h-64 w-full rounded bg-white object-contain" src={typology.planSrc} alt={`Plano ${typology.code}`} />
-      <div className="grid gap-3 md:grid-cols-3">
+    <div className="rounded border border-ink/10 bg-porcelain p-5">
+      <h2 className="section-title">Contenido editorial</h2>
+      <div className="grid gap-3 md:grid-cols-2">
+        <label>Frase de portada<input className="field" value={project.tagline} onChange={(event) => updateProject((current) => ({ ...current, tagline: event.target.value }))} /></label>
+        <label>Dirección<input className="field" value={project.address} onChange={(event) => updateProject((current) => ({ ...current, address: event.target.value }))} /></label>
+        <label>Rango de áreas<input className="field" value={project.areaRange} onChange={(event) => updateProject((current) => ({ ...current, areaRange: event.target.value }))} /></label>
+        <label>Resumen tipologías<input className="field" value={project.typologySummary} onChange={(event) => updateProject((current) => ({ ...current, typologySummary: event.target.value }))} /></label>
+        <label className="md:col-span-2">Áreas comunes<textarea className="field min-h-28" value={project.sharedAreas.join("\n")} onChange={(event) => updateList("sharedAreas", event.target.value)} /></label>
+        <label className="md:col-span-2">Atributos sostenibles<textarea className="field min-h-24" value={project.leedAttributes.join("\n")} onChange={(event) => updateList("leedAttributes", event.target.value)} /></label>
+      </div>
+      <div className="mt-6 border-t border-ink/10 pt-5">
+        <h3 className="mb-3 font-display text-2xl">Capítulos de la experiencia</h3>
+        <div className="grid gap-3 md:grid-cols-2">
+          {project.sections.map((section) => (
+            <div key={section.id} className="rounded border border-ink/10 bg-white p-3">
+              <input
+                className="field mt-0"
+                value={section.title}
+                onChange={(event) =>
+                  updateProject((current) => ({
+                    ...current,
+                    sections: current.sections.map((item) => (item.id === section.id ? { ...item, title: event.target.value } : item))
+                  }))
+                }
+              />
+              <textarea
+                className="field min-h-20"
+                value={section.summary}
+                onChange={(event) =>
+                  updateProject((current) => ({
+                    ...current,
+                    sections: current.sections.map((item) => (item.id === section.id ? { ...item, summary: event.target.value } : item))
+                  }))
+                }
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AdminGalleries({ project, updateProject }: { project: Project; updateProject: (updater: (project: Project) => Project) => Promise<void> }) {
+  const [status, setStatus] = useState("");
+
+  const updateGalleryImage = (galleryId: string, imageId: string, patch: Partial<GalleryImage>) =>
+    updateProject((current) => ({
+      ...current,
+      galleries: current.galleries.map((gallery) =>
+        gallery.id === galleryId
+          ? { ...gallery, images: gallery.images.map((image) => (image.id === imageId ? { ...image, ...patch } : image)) }
+          : gallery
+      )
+    }));
+
+  const replaceImage = async (galleryId: string, imageId: string, file: File) => {
+    if (!isAllowedAsset(file) || file.type === "application/pdf") {
+      setStatus("Usa PNG, JPG o SVG para galerías.");
+      return;
+    }
+    const src = await fileToDataUrl(file);
+    setStatus(`${file.name} · ${formatBytes(file.size)} · imagen actualizada`);
+    await updateGalleryImage(galleryId, imageId, { src, updatedAt: new Date().toISOString() });
+  };
+
+  const addImage = async (galleryId: string, file: File) => {
+    if (!isAllowedAsset(file) || file.type === "application/pdf") {
+      setStatus("Usa PNG, JPG o SVG para galerías.");
+      return;
+    }
+    const src = await fileToDataUrl(file);
+    await updateProject((current) => ({
+      ...current,
+      galleries: current.galleries.map((gallery) =>
+        gallery.id === galleryId
+          ? {
+              ...gallery,
+              images: [
+                ...gallery.images,
+                {
+                  id: crypto.randomUUID(),
+                  title: file.name.replace(/\.[^.]+$/, ""),
+                  src,
+                  category: gallery.category,
+                  updatedAt: new Date().toISOString()
+                }
+              ]
+            }
+          : gallery
+      )
+    }));
+    setStatus(`${file.name} · ${formatBytes(file.size)} · imagen agregada`);
+  };
+
+  const removeImage = (galleryId: string, imageId: string) =>
+    updateProject((current) => ({
+      ...current,
+      galleries: current.galleries.map((gallery) =>
+        gallery.id === galleryId ? { ...gallery, images: gallery.images.filter((image) => image.id !== imageId) } : gallery
+      )
+    }));
+
+  const moveImage = (galleryId: string, imageId: string, direction: number) =>
+    updateProject((current) => ({
+      ...current,
+      galleries: current.galleries.map((gallery) => {
+        if (gallery.id !== galleryId) return gallery;
+        const index = gallery.images.findIndex((image) => image.id === imageId);
+        const nextIndex = index + direction;
+        if (index < 0 || nextIndex < 0 || nextIndex >= gallery.images.length) return gallery;
+        const images = [...gallery.images];
+        const [image] = images.splice(index, 1);
+        images.splice(nextIndex, 0, image);
+        return { ...gallery, images };
+      })
+    }));
+
+  return (
+    <div className="rounded border border-ink/10 bg-porcelain p-5">
+      <h2 className="section-title">Fotos y galerías</h2>
+      {status ? <p className="mb-4 rounded bg-white p-3 text-sm text-ink/70">{status}</p> : null}
+      <div className="space-y-6">
+        {project.galleries.map((gallery) => (
+          <section key={gallery.id} className="border-t border-ink/10 pt-5">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="eyebrow mb-1">{gallery.category}</p>
+                <input
+                  className="field mt-0 max-w-md"
+                  value={gallery.title}
+                  onChange={(event) =>
+                    updateProject((current) => ({
+                      ...current,
+                      galleries: current.galleries.map((item) => (item.id === gallery.id ? { ...item, title: event.target.value } : item))
+                    }))
+                  }
+                />
+                <p className="text-sm text-ink/70">{gallery.images.length} imagen(es)</p>
+              </div>
+              <label className="secondary-touch cursor-pointer">
+                <Plus className="size-4" /> Agregar foto
+                <input className="hidden" type="file" accept="image/png,image/jpeg,image/svg+xml" onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) void addImage(gallery.id, file);
+                  event.currentTarget.value = "";
+                }} />
+              </label>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              {gallery.images.map((image, index) => (
+                <article key={image.id} className="grid gap-3 rounded border border-ink/10 bg-white p-3 md:grid-cols-[140px_1fr]">
+                  <img className="h-32 w-full rounded object-cover" src={image.src} alt={image.title} />
+                  <div className="space-y-2">
+                    <input className="field mt-0" value={image.title} onChange={(event) => updateGalleryImage(gallery.id, image.id, { title: event.target.value })} />
+                    <textarea className="field min-h-20" value={image.description ?? ""} placeholder="Descripción opcional" onChange={(event) => updateGalleryImage(gallery.id, image.id, { description: event.target.value })} />
+                    <div className="flex flex-wrap gap-2">
+                      <button className="secondary-touch" onClick={() => moveImage(gallery.id, image.id, -1)} disabled={index === 0} type="button">
+                        <ArrowUp className="size-4" /> Subir
+                      </button>
+                      <button className="secondary-touch" onClick={() => moveImage(gallery.id, image.id, 1)} disabled={index === gallery.images.length - 1} type="button">
+                        <ArrowDown className="size-4" /> Bajar
+                      </button>
+                      <label className="secondary-touch cursor-pointer">
+                        <Upload className="size-4" /> Reemplazar
+                        <input className="hidden" type="file" accept="image/png,image/jpeg,image/svg+xml" onChange={(event) => {
+                          const file = event.target.files?.[0];
+                          if (file) void replaceImage(gallery.id, image.id, file);
+                          event.currentTarget.value = "";
+                        }} />
+                      </label>
+                      <button className="secondary-touch" onClick={() => confirm("Eliminar esta imagen?") && void removeImage(gallery.id, image.id)} type="button">
+                        <Trash2 className="size-4" /> Quitar
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AdminLocation({ project, updateProject }: { project: Project; updateProject: (updater: (project: Project) => Project) => Promise<void> }) {
+  const [status, setStatus] = useState("");
+  const categories: Array<Project["pointsOfInterest"][number]["category"]> = ["Gastronomía", "Cafés", "Parques", "Educación", "Tiendas", "Entretenimiento"];
+  const barrioGallery = project.galleries.find((gallery) => gallery.id === "barrio");
+  const mapImage = barrioGallery?.images[0];
+
+  const replaceMap = async (file: File) => {
+    if (!isAllowedAsset(file) || file.type === "application/pdf") {
+      setStatus("Usa PNG, JPG o SVG para el mapa.");
+      return;
+    }
+    const src = await fileToDataUrl(file);
+    await updateProject((current) => ({
+      ...current,
+      galleries: current.galleries.map((gallery) =>
+        gallery.id === "barrio"
+          ? { ...gallery, images: gallery.images.map((image, index) => (index === 0 ? { ...image, src, updatedAt: new Date().toISOString() } : image)) }
+          : gallery
+      )
+    }));
+    setStatus(`${file.name} · ${formatBytes(file.size)} · mapa actualizado`);
+  };
+
+  const updatePoi = (id: string, patch: Partial<Project["pointsOfInterest"][number]>) =>
+    updateProject((current) => ({
+      ...current,
+      pointsOfInterest: current.pointsOfInterest.map((poi) => (poi.id === id ? { ...poi, ...patch } : poi))
+    }));
+
+  const addPoi = () =>
+    updateProject((current) => ({
+      ...current,
+      pointsOfInterest: [...current.pointsOfInterest, { id: crypto.randomUUID(), name: "Nuevo punto", category: "Gastronomía", x: 50, y: 50 }]
+    }));
+
+  return (
+    <div className="rounded border border-ink/10 bg-porcelain p-5">
+      <h2 className="section-title">Ubicación y mapa</h2>
+      {status ? <p className="mb-4 rounded bg-white p-3 text-sm text-ink/70">{status}</p> : null}
+      <div className="grid gap-5 lg:grid-cols-[320px_1fr]">
+        <div>
+          {mapImage ? <img className="mb-3 h-56 w-full rounded bg-white object-contain" src={mapImage.src} alt={mapImage.title} /> : null}
+          <label className="secondary-touch w-full cursor-pointer justify-center">
+            <Upload className="size-4" /> Reemplazar mapa
+            <input className="hidden" type="file" accept="image/png,image/jpeg,image/svg+xml" onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) void replaceMap(file);
+              event.currentTarget.value = "";
+            }} />
+          </label>
+          <button className="primary-touch mt-3 w-full" onClick={addPoi} type="button">
+            <Plus className="size-4" /> Agregar punto
+          </button>
+        </div>
+        <div className="space-y-3">
+          {project.pointsOfInterest.map((poi) => (
+            <div key={poi.id} className="grid gap-2 rounded border border-ink/10 bg-white p-3 md:grid-cols-[1fr_150px_90px_90px_44px]">
+              <input className="field mt-0" value={poi.name} onChange={(event) => updatePoi(poi.id, { name: event.target.value })} />
+              <select className="field mt-0" value={poi.category} onChange={(event) => updatePoi(poi.id, { category: event.target.value as typeof poi.category })}>
+                {categories.map((category) => <option key={category} value={category}>{category}</option>)}
+              </select>
+              <label className="text-xs">X %<input className="field" type="number" min="0" max="100" value={poi.x} onChange={(event) => updatePoi(poi.id, { x: Number(event.target.value) })} /></label>
+              <label className="text-xs">Y %<input className="field" type="number" min="0" max="100" value={poi.y} onChange={(event) => updatePoi(poi.id, { y: Number(event.target.value) })} /></label>
+              <button className="icon-button self-end" onClick={() => confirm("Eliminar punto?") && void updateProject((current) => ({ ...current, pointsOfInterest: current.pointsOfInterest.filter((item) => item.id !== poi.id) }))} type="button" aria-label="Eliminar punto">
+                <Trash2 className="size-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AdminTypology({ typology, updateProject }: { typology: Typology; updateProject: (updater: (project: Project) => Project) => Promise<void> }) {
+  const [fileInfo, setFileInfo] = useState("");
+  const update = (patch: Partial<Typology>) => updateProject((project) => ({ ...project, typologies: project.typologies.map((item) => item.id === typology.id ? { ...item, ...patch } : item) }));
+  const replacePlan = async (file: File) => {
+    if (!isAllowedAsset(file) || file.type === "application/pdf") {
+      setFileInfo("Usa PNG, JPG o SVG para el plano de la tipología.");
+      return;
+    }
+    const dataUrl = await fileToDataUrl(file);
+    setFileInfo(`${file.name} · ${formatBytes(file.size)} · vista previa actualizada`);
+    await update({ planSrc: dataUrl, thumbnailSrc: dataUrl, updatedAt: new Date().toISOString() });
+  };
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
+      <img className="h-80 w-full rounded bg-white object-contain" src={typology.planSrc} alt={`Plano ${typology.code}`} />
+      <div className="space-y-3">
         <label>Código<input className="field" value={typology.code} onChange={(event) => update({ code: event.target.value })} /></label>
-        <label>Área m²<input className="field" type="number" value={typology.areaM2} onChange={(event) => update({ areaM2: Number(event.target.value) })} /></label>
-        <label>Dormitorios<input className="field" type="number" value={typology.bedrooms} onChange={(event) => update({ bedrooms: Number(event.target.value) })} /></label>
-        <label>Baños<input className="field" type="number" value={typology.bathrooms ?? 0} onChange={(event) => update({ bathrooms: Number(event.target.value) })} /></label>
-        <label>Formato<input className="field" value={typology.format} onChange={(event) => update({ format: event.target.value as Typology["format"] })} /></label>
-        <label className="flex items-center gap-2 pt-7"><input type="checkbox" checked={typology.active} onChange={(event) => update({ active: event.target.checked })} /> Activa</label>
-        <label className="md:col-span-3">Ambientes<textarea className="field min-h-24" value={typology.rooms.map((room) => `${room.name}${room.dimensions ? ` (${room.dimensions})` : ""}`).join("\n")} onChange={(event) => update({ rooms: event.target.value.split("\n").filter(Boolean).map((line, index) => ({ id: `${index + 1}`, name: line })) })} /></label>
-        <label className="md:col-span-3">Departamentos<textarea className="field min-h-20" value={typology.apartments.map((item) => item.label).join(", ")} onChange={(event) => update({ apartments: event.target.value.split(",").map((label) => label.trim()).filter(Boolean).map((label) => ({ id: label, label })) })} /></label>
+        <label className="flex items-center gap-2"><input type="checkbox" checked={typology.active} onChange={(event) => update({ active: event.target.checked })} /> Tipología activa</label>
+        <label className="secondary-touch w-full cursor-pointer justify-center">
+          <Upload className="size-4" /> Reemplazar plano
+          <input className="hidden" type="file" accept="image/png,image/jpeg,image/svg+xml" onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (file) void replacePlan(file);
+            event.currentTarget.value = "";
+          }} />
+        </label>
+        <p className="text-sm text-ink/70">La imagen del plano es la única fuente de información técnica para esta tipología. La miniatura se actualiza automáticamente.</p>
+        {fileInfo ? <p className="rounded bg-white p-3 text-sm text-ink/70">{fileInfo}</p> : null}
       </div>
     </div>
   );
@@ -598,29 +874,32 @@ function AdminTypology({ typology, updateProject }: { typology: Typology; update
 
 function AdminFiles({ project, selectedTypologyId, updateProject }: { project: Project; selectedTypologyId: string; updateProject: (updater: (project: Project) => Project) => Promise<void> }) {
   const [fileInfo, setFileInfo] = useState("");
-  const replaceTypologyPlan = async (typologyId: string, file: File) => {
-    if (!isAllowedAsset(file)) {
-      setFileInfo("Tipo de archivo no permitido. Usa PNG, JPG, SVG o PDF.");
+  const replaceFloorPlan = async (file: File) => {
+    if (!isAllowedAsset(file) || file.type === "application/pdf") {
+      setFileInfo("Usa PNG, JPG o SVG para la planta típica.");
       return;
     }
     const dataUrl = await fileToDataUrl(file);
-    setFileInfo(`${file.name} · ${formatBytes(file.size)} · listo para vista previa`);
+    setFileInfo(`${file.name} · ${formatBytes(file.size)} · planta típica actualizada`);
     await updateProject((project) => ({
       ...project,
-      typologies: project.typologies.map((item) => item.id === typologyId ? { ...item, planSrc: dataUrl, thumbnailSrc: dataUrl, updatedAt: new Date().toISOString() } : item)
+      floorPlan: { ...project.floorPlan, imageSrc: dataUrl, updatedAt: new Date().toISOString() },
+      typologies: project.typologies.map((item) => ({ ...item, floorThumbnailSrc: dataUrl }))
     }));
   };
   return (
     <div className="rounded border border-ink/10 bg-porcelain p-5">
-      <h2 className="section-title">Gestión de archivos</h2>
+      <h2 className="section-title">Planta típica</h2>
+      <img className="mb-3 h-56 w-full rounded bg-white object-contain" src={project.floorPlan.imageSrc} alt={project.floorPlan.title} />
       <label className="field mb-3 block cursor-pointer text-center">
-        <Upload className="mx-auto mb-2" /> Reemplazar plano de tipología
+        <Upload className="mx-auto mb-2" /> Reemplazar planta típica
         <input className="hidden" type="file" accept="image/png,image/jpeg,image/svg+xml,application/pdf" onChange={(event) => {
           const file = event.target.files?.[0];
-          if (file) void replaceTypologyPlan(selectedTypologyId, file);
+          if (file) void replaceFloorPlan(file);
+          event.currentTarget.value = "";
         }} />
       </label>
-      <p className="text-sm text-ink/70">El archivo reemplaza el plano de la tipología seleccionada en el bloque principal. La versión anterior permanece en memoria hasta publicar o exportar.</p>
+      <p className="text-sm text-ink/70">La planta típica se actualiza en el explorador, miniaturas de ubicación y herramienta de zonas clicables.</p>
       {fileInfo ? <p className="mt-3 rounded bg-white p-3 text-sm">{fileInfo}</p> : null}
     </div>
   );
@@ -648,6 +927,10 @@ function PageHeading({ eyebrow, title, text }: { eyebrow: string; title: string;
       {text ? <p className="mt-4 max-w-3xl text-lg leading-relaxed text-ink/70">{text}</p> : null}
     </header>
   );
+}
+
+function getSection(project: Project, id: string) {
+  return project.sections.find((section) => section.id === id) ?? { id, title: id, summary: "", order: 0, enabled: true };
 }
 
 function Fact({ label, value }: { label: string; value: string }) {
