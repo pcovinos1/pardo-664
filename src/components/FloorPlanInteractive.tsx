@@ -1,4 +1,5 @@
 import { Move, Maximize2 } from "lucide-react";
+import { useState } from "react";
 import type { FloorPlan, Hotspot, Typology } from "../types/project";
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
 
 export function FloorPlanInteractive({ floorPlan, typologies, selectedId, editable, onSelect, onHotspotChange }: Props) {
   const byId = new Map(typologies.map((typology) => [typology.id, typology]));
+  const [imageRatio, setImageRatio] = useState<number | null>(null);
 
   function update(hotspot: Hotspot, patch: Partial<Hotspot>) {
     onHotspotChange?.({
@@ -25,32 +27,50 @@ export function FloorPlanInteractive({ floorPlan, typologies, selectedId, editab
   }
 
   return (
-    <div className="relative overflow-hidden rounded border border-ink/10 bg-white">
-      <img className="block w-full select-none" src={floorPlan.imageSrc} alt={floorPlan.title} draggable={false} />
-      {floorPlan.hotspots.map((hotspot) => {
-        const typology = byId.get(hotspot.typologyId);
-        const active = selectedId === hotspot.typologyId;
-        if (!typology) return null;
-        return (
-          <button
-            key={hotspot.id}
-            className={`absolute min-h-11 border-2 text-xs font-bold transition ${
-              active ? "border-morada bg-morada/30 text-white ring-4 ring-morada/25" : "border-morada/60 bg-morada/10 text-morada hover:bg-morada/20"
-            } ${selectedId && !active ? "opacity-35" : "opacity-100"}`}
-            style={{ left: `${hotspot.x}%`, top: `${hotspot.y}%`, width: `${hotspot.width}%`, height: `${hotspot.height}%` }}
-            onClick={() => onSelect(hotspot.typologyId)}
-            type="button"
-          >
-            {typology.code}
-            {editable ? (
-              <span className="absolute -bottom-9 left-0 flex gap-1 rounded-full bg-ink px-2 py-1 text-white">
-                <Move className="size-3" />
-                <Maximize2 className="size-3" />
-              </span>
-            ) : null}
-          </button>
-        );
-      })}
+    <div className="overflow-hidden rounded border border-ink/10 bg-white">
+      <div className="relative mx-auto w-full" style={imageRatio ? { aspectRatio: `${imageRatio}` } : undefined}>
+        <img
+          className="absolute inset-0 h-full w-full select-none object-contain"
+          src={floorPlan.imageSrc}
+          alt={floorPlan.title}
+          draggable={false}
+          onLoad={(event) => {
+            const image = event.currentTarget;
+            if (image.naturalWidth && image.naturalHeight) setImageRatio(image.naturalWidth / image.naturalHeight);
+          }}
+        />
+        {floorPlan.hotspots.map((hotspot) => {
+          const typology = byId.get(hotspot.typologyId);
+          const active = selectedId === hotspot.typologyId;
+          if (!typology) return null;
+          return (
+            <button
+              key={hotspot.id}
+              className={
+                editable
+                  ? `absolute border-2 text-xs font-bold transition ${
+                      active ? "border-morada bg-morada/25 text-ink ring-4 ring-morada/20" : "border-morada/50 bg-morada/10 text-morada hover:bg-morada/15"
+                    }`
+                  : `absolute border-0 bg-transparent text-transparent outline-none transition ${
+                      active ? "ring-4 ring-morada/80 ring-offset-2 ring-offset-transparent" : ""
+                    }`
+              }
+              style={{ left: `${hotspot.x}%`, top: `${hotspot.y}%`, width: `${hotspot.width}%`, height: `${hotspot.height}%` }}
+              onClick={() => onSelect(hotspot.typologyId)}
+              type="button"
+              aria-label={`Seleccionar tipología ${typology.code}`}
+            >
+              {editable ? typology.code : null}
+              {editable ? (
+                <span className="absolute -bottom-9 left-0 flex gap-1 rounded-full bg-ink px-2 py-1 text-white">
+                  <Move className="size-3" />
+                  <Maximize2 className="size-3" />
+                </span>
+              ) : null}
+            </button>
+          );
+        })}
+      </div>
       {editable ? (
         <div className="grid gap-3 border-t border-ink/10 bg-paper p-4 md:grid-cols-2 xl:grid-cols-4">
           {floorPlan.hotspots.map((hotspot) => {
