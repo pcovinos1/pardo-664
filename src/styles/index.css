@@ -304,31 +304,88 @@ textarea:focus-visible {
   }
 
   .location-scene {
-    @apply relative mx-auto min-h-[calc(100vh-9rem)] max-w-[1680px] overflow-hidden;
+    @apply mx-auto grid min-h-[calc(100vh-9rem)] max-w-[1680px] gap-6 overflow-hidden lg:grid-cols-[0.78fr_1.45fr_0.77fr];
   }
 
   .location-copy {
-    @apply relative z-10 max-w-3xl pt-2;
+    @apply relative z-10 pt-2;
   }
 
   .location-map {
-    @apply relative mt-8 h-[58vh] min-h-[430px] w-full bg-white lg:absolute lg:bottom-0 lg:right-0 lg:mt-0 lg:h-[78vh] lg:w-[76%];
+    @apply relative h-[68vh] min-h-[520px] overflow-hidden bg-white;
+  }
+
+  .location-marker {
+    @apply absolute z-10 grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-morada text-xs font-bold text-white ring-4 ring-paper/90 transition duration-200;
+  }
+
+  .location-marker span {
+    @apply leading-none;
+  }
+
+  .location-marker em {
+    @apply pointer-events-none absolute bottom-full left-1/2 mb-2 hidden -translate-x-1/2 whitespace-nowrap rounded-full bg-ink px-3 py-1 text-xs font-medium not-italic text-white shadow-soft;
+  }
+
+  .location-marker:hover,
+  .location-marker:focus-visible,
+  .location-marker.is-active {
+    transform: translate(-50%, -50%) scale(1.16);
+    @apply ring-morada/40;
+  }
+
+  .location-marker:hover em,
+  .location-marker:focus-visible em,
+  .location-marker.is-active em {
+    @apply block;
+  }
+
+  .location-project-marker {
+    @apply absolute z-20 -translate-x-1/2 -translate-y-1/2 rounded-full bg-ink px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white ring-4 ring-morada/30 shadow-soft;
   }
 
   .location-filters {
-    @apply relative z-20 mt-5 flex max-w-5xl flex-wrap gap-2 lg:absolute lg:bottom-8 lg:left-8 lg:mt-0;
+    @apply mt-8 flex flex-wrap gap-2;
   }
 
   .location-list {
-    @apply relative z-20 mt-6 grid max-w-3xl gap-x-8 gap-y-2 md:grid-cols-2 lg:absolute lg:right-8 lg:top-8 lg:w-80 lg:bg-paper/90 lg:p-5 lg:backdrop-blur;
+    @apply relative z-20 bg-paper/90 p-5 backdrop-blur;
   }
 
-  .location-list p {
-    @apply flex justify-between gap-4 border-b border-ink/10 pb-2 text-sm;
+  .location-list-scroll {
+    @apply max-h-[64vh] space-y-1 overflow-auto pr-1;
   }
 
-  .location-list em {
-    @apply not-italic text-morada;
+  .location-list button {
+    @apply flex w-full items-center gap-3 border-b border-ink/10 py-2 text-left text-sm transition duration-200;
+  }
+
+  .location-list button span {
+    @apply grid size-7 shrink-0 place-items-center rounded-full border border-ink/10 text-xs text-morada;
+  }
+
+  .location-list button strong {
+    @apply font-medium text-ink/75;
+  }
+
+  .location-list button:hover,
+  .location-list button:focus-visible,
+  .location-list button.is-active {
+    @apply pl-2 text-morada;
+  }
+
+  .location-list button.is-active span,
+  .location-list button:hover span {
+    @apply border-morada bg-morada text-white;
+  }
+
+  .location-list button.is-active strong,
+  .location-list button:hover strong {
+    @apply text-morada;
+  }
+
+  .location-active-name {
+    @apply mt-4 border-t border-ink/10 pt-4 text-sm font-semibold text-morada;
   }
 
   .contact-layout {

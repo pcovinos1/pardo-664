@@ -50,5 +50,13 @@ function normalizeProject(project: Project): Project {
     }
   }
 
-  return { ...project, galleries, sections };
+  const pointsOfInterest = project.pointsOfInterest
+    .map((point, index) => ({
+      ...point,
+      visible: typeof point.visible === "boolean" ? point.visible : true,
+      order: typeof point.order === "number" ? point.order : index + 1
+    }))
+    .sort((a, b) => a.order - b.order);
+
+  return { ...project, galleries, sections, pointsOfInterest };
 }

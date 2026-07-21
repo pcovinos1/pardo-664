@@ -28,6 +28,7 @@ export default function App() {
 
   const selectedTypology = project?.typologies.find((item) => item.id === selectedTypologyId) ?? project?.typologies[0];
   const navigate = (next: ViewKey) => {
+    if (next === "location") setPoiFilter("Todos");
     setView(next);
   };
 
@@ -230,43 +231,89 @@ function InteriorsPage({ project, onOpenGallery }: { project: Project; onOpenGal
 }
 
 function LocationPage({ project, filter, setFilter, onOpenGallery }: { project: Project; filter: string; setFilter: (value: string) => void; onOpenGallery: (value: { images: GalleryImage[]; index: number }) => void }) {
+  const [hoveredPoiId, setHoveredPoiId] = useState<string | null>(null);
+  const [selectedPoiId, setSelectedPoiId] = useState<string | null>(null);
   const categories = ["Todos", "Gastronomía", "Cafés", "Parques", "Educación", "Tiendas", "Entretenimiento"];
   const gallery = project.galleries.find((item) => item.id === "barrio");
-  const visible = filter === "Todos" ? project.pointsOfInterest : project.pointsOfInterest.filter((poi) => poi.category === filter);
+  const visible = project.pointsOfInterest
+    .filter((poi) => poi.visible)
+    .filter((poi) => filter === "Todos" || poi.category === filter)
+    .sort((a, b) => a.order - b.order);
   const section = getSection(project, "location");
+  const activePoiId = hoveredPoiId ?? selectedPoiId;
+  const activePoi = visible.find((poi) => poi.id === activePoiId);
   return (
     <section className="editorial-page">
       <div className="location-scene">
-        <div className="location-copy">
+        <aside className="location-copy">
           <p className="eyebrow">{section.title}</p>
           <h1 className="editorial-title">{project.address}</h1>
           <p className="editorial-lead">{section.summary}</p>
+          <div className="location-filters">
+            {categories.map((category) => (
+              <button key={category} className={`pill ${filter === category ? "pill-active" : ""}`} onClick={() => { setFilter(category); setHoveredPoiId(null); setSelectedPoiId(null); }} type="button">
+                {category}
+              </button>
+            ))}
+          </div>
+        </aside>
+        <div className="location-map" aria-label="Mapa interactivo de puntos de interés">
+          <img className="h-full w-full object-contain" src={gallery?.images[0]?.src} alt="Mapa ilustrado offline" />
+          <span className="location-project-marker" style={{ left: "50%", top: "50%" }}>
+            Pardo 664
+          </span>
+          {visible.map((poi) => {
+            const active = activePoiId === poi.id;
+            return (
+              <button
+                key={poi.id}
+                className={`location-marker ${active ? "is-active" : ""}`}
+                style={{ left: `${poi.x}%`, top: `${poi.y}%` }}
+                onMouseEnter={() => setHoveredPoiId(poi.id)}
+                onMouseLeave={() => setHoveredPoiId(null)}
+                onFocus={() => setHoveredPoiId(poi.id)}
+                onBlur={() => setHoveredPoiId(null)}
+                onClick={() => setSelectedPoiId((current) => (current === poi.id ? null : poi.id))}
+                type="button"
+                aria-label={poi.name}
+              >
+                <span>{poi.order}</span>
+                <em>{poi.name}</em>
+              </button>
+            );
+          })}
         </div>
-        <div className="location-map">
-          <button className="block h-full w-full" onClick={() => gallery && onOpenGallery({ images: gallery.images, index: 0 })} type="button">
-            <img className="h-full w-full object-contain" src={gallery?.images[0]?.src} alt="Mapa ilustrado offline" />
-          </button>
-          {visible.map((poi) => (
-            <span key={poi.id} className="absolute grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-morada text-xs font-bold text-white ring-4 ring-paper/90 transition duration-300" style={{ left: `${poi.x}%`, top: `${poi.y}%` }}>
-              {poi.name.slice(0, 1)}
-            </span>
-          ))}
-        </div>
-        <div className="location-filters">
+        <aside className="location-list">
+          <p className="eyebrow mb-2">Puntos de interés</p>
+          <div className="location-list-scroll">
+            {visible.map((poi) => {
+              const active = activePoiId === poi.id;
+              return (
+                <button
+                  key={poi.id}
+                  className={active ? "is-active" : ""}
+                  onMouseEnter={() => setHoveredPoiId(poi.id)}
+                  onMouseLeave={() => setHoveredPoiId(null)}
+                  onFocus={() => setHoveredPoiId(poi.id)}
+                  onBlur={() => setHoveredPoiId(null)}
+                  onClick={() => setSelectedPoiId((current) => (current === poi.id ? null : poi.id))}
+                  type="button"
+                >
+                  <span>{poi.order}</span>
+                  <strong>{poi.name}</strong>
+                </button>
+              );
+            })}
+          </div>
+          {activePoi ? <p className="location-active-name">{activePoi.name}</p> : null}
+        </aside>
+        {/* <div className="location-filters">
           {categories.map((category) => (
             <button key={category} className={`pill ${filter === category ? "pill-active" : ""}`} onClick={() => setFilter(category)} type="button">
               {category}
             </button>
           ))}
-        </div>
-        <div className="location-list">
-          {visible.slice(0, 8).map((poi) => (
-            <p key={poi.id}>
-              <span>{poi.name}</span>
-              <em>{poi.category}</em>
-            </p>
-          ))}
-        </div>
+        </div> */}
       </div>
     </section>
   );
@@ -916,7 +963,7 @@ function AdminLocation({ project, updateProject }: { project: Project; updatePro
   const addPoi = () =>
     updateProject((current) => ({
       ...current,
-      pointsOfInterest: [...current.pointsOfInterest, { id: crypto.randomUUID(), name: "Nuevo punto", category: "Gastronomía", x: 50, y: 50 }]
+      pointsOfInterest: [...current.pointsOfInterest, { id: crypto.randomUUID(), name: "Nuevo punto", category: "Gastronomía", x: 50, y: 50, visible: true, order: current.pointsOfInterest.length + 1 }]
     }));
 
   return (
@@ -942,14 +989,16 @@ function AdminLocation({ project, updateProject }: { project: Project; updatePro
           </button>
         </div>
         <div className="space-y-3">
-          {project.pointsOfInterest.map((poi) => (
-            <div key={poi.id} className="grid gap-2 rounded border border-ink/10 bg-white p-3 md:grid-cols-[1fr_150px_90px_90px_44px]">
+          {[...project.pointsOfInterest].sort((a, b) => a.order - b.order).map((poi) => (
+            <div key={poi.id} className="grid gap-2 rounded border border-ink/10 bg-white p-3 md:grid-cols-[80px_1fr_150px_90px_90px_90px_44px]">
+              <label className="text-xs">Orden<input className="field" type="number" min="1" value={poi.order} onChange={(event) => updatePoi(poi.id, { order: Number(event.target.value) })} /></label>
               <input className="field mt-0" value={poi.name} onChange={(event) => updatePoi(poi.id, { name: event.target.value })} />
               <select className="field mt-0" value={poi.category} onChange={(event) => updatePoi(poi.id, { category: event.target.value as typeof poi.category })}>
                 {categories.map((category) => <option key={category} value={category}>{category}</option>)}
               </select>
               <label className="text-xs">X %<input className="field" type="number" min="0" max="100" value={poi.x} onChange={(event) => updatePoi(poi.id, { x: Number(event.target.value) })} /></label>
               <label className="text-xs">Y %<input className="field" type="number" min="0" max="100" value={poi.y} onChange={(event) => updatePoi(poi.id, { y: Number(event.target.value) })} /></label>
+              <label className="flex items-center gap-2 self-end pb-3 text-xs"><input type="checkbox" checked={poi.visible} onChange={(event) => updatePoi(poi.id, { visible: event.target.checked })} /> Visible</label>
               <button className="icon-button self-end" onClick={() => confirm("Eliminar punto?") && void updateProject((current) => ({ ...current, pointsOfInterest: current.pointsOfInterest.filter((item) => item.id !== poi.id) }))} type="button" aria-label="Eliminar punto">
                 <Trash2 className="size-4" />
               </button>

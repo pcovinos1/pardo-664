@@ -93,6 +93,8 @@ export interface PointOfInterest {
   category: "Gastronomía" | "Cafés" | "Parques" | "Educación" | "Tiendas" | "Entretenimiento";
   x: number;
   y: number;
+  visible: boolean;
+  order: number;
 }
 
 export interface ChangeLog {
