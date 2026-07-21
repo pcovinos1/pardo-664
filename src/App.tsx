@@ -117,6 +117,11 @@ function MenuPage({ onNavigate }: { onNavigate: (view: ViewKey) => void }) {
 
 function ProjectPage({ project, onOpenGallery }: { project: Project; onOpenGallery: (value: { images: GalleryImage[]; index: number }) => void }) {
   const images = project.galleries.find((item) => item.id === "fachada")?.images ?? [];
+  const interiorsGallery = project.galleries.find((item) => item.id === "interiores");
+  const architectureGallery = project.galleries.find((item) => item.id === "arquitectura");
+  const architectureSection = getSection(project, "architecture");
+  const interiorImages = interiorsGallery?.images.slice(0, 3) ?? [];
+  const architectureImage = architectureGallery?.images[0];
   const section = getSection(project, "project");
   return (
     <section className="editorial-page">
@@ -136,17 +141,32 @@ function ProjectPage({ project, onOpenGallery }: { project: Project; onOpenGalle
           </div>
         </div>
       </div>
-      <div className="editorial-band">
-        <div>
-          <p className="eyebrow">{project.certification}</p>
-          <h2 className="font-display text-4xl md:text-6xl">{section.summary}</h2>
+      <section className="project-interiors">
+        <div className="project-section-heading">
+          <p className="eyebrow">{interiorsGallery?.title ?? "Interiores"}</p>
+          <h2 className="font-display text-4xl leading-tight md:text-6xl">Tres miradas al interior de Pardo 664.</h2>
+          <p>{getSection(project, "interiors").summary}</p>
         </div>
-        <div className="editorial-list">
-          {[...project.leedAttributes, "10 ambientes compartidos", project.typologySummary].map((item) => (
-            <p key={item}>{item}</p>
+        <div className="project-interior-grid">
+          {interiorImages.map((image, index) => (
+            <button key={image.id} className={index === 0 ? "is-large" : ""} onClick={() => interiorsGallery && onOpenGallery({ images: interiorsGallery.images, index })} type="button">
+              <img src={image.src} alt={image.title} />
+              <span>{image.title}</span>
+            </button>
           ))}
         </div>
-      </div>
+      </section>
+      <section className="project-architects">
+        <button className="project-architects__image" onClick={() => architectureGallery && onOpenGallery({ images: architectureGallery.images, index: 0 })} type="button">
+          <img src={architectureImage?.src} alt={architectureImage?.title ?? project.architect} />
+        </button>
+        <article>
+          <p className="eyebrow">{architectureSection.title}</p>
+          <h2 className="font-display text-4xl leading-tight md:text-6xl">{project.architect}</h2>
+          <p>{architectureSection.summary}</p>
+          {architectureImage?.description ? <p>{architectureImage.description}</p> : null}
+        </article>
+      </section>
     </section>
   );
 }
@@ -193,32 +213,16 @@ function ArchitecturePage({ project, onOpenGallery }: { project: Project; onOpen
 }
 
 function InteriorsPage({ project, onOpenGallery }: { project: Project; onOpenGallery: (value: { images: GalleryImage[]; index: number }) => void }) {
-  const baseGallery = project.galleries.find((item) => item.id === "interiores");
+  const gallery = project.galleries.find((item) => item.id === "interiores");
   const section = getSection(project, "interiors");
-  const gallery = baseGallery
-    ? {
-        ...baseGallery,
-        images: [
-          ...baseGallery.images.map((image, index) => ({
-            ...image,
-            title: ["Sala", "Comedor", "Cocina"][index] ?? image.title
-          })),
-          ...baseGallery.images.map((image, index) => ({
-            ...image,
-            id: `${image.id}-detail-${index}`,
-            title: ["Dormitorio principal", "Dormitorio secundario", "Baño"][index] ?? "Detalle de materiales"
-          }))
-        ]
-      }
-    : undefined;
   return (
     <section className="story-page">
       <ParallaxStory
         eyebrow={section.title}
-        title={baseGallery?.title ?? section.title}
+        title={gallery?.title ?? section.title}
         text={section.summary}
         gallery={gallery}
-        labels={["Sala", "Comedor", "Cocina", "Dormitorio principal", "Dormitorio secundario", "Baño", "Detalles de materiales"]}
+        labels={gallery?.images.map((image) => image.title) ?? ["Sala", "Comedor", "Cocina", "Dormitorio principal", "Dormitorio secundario", "Baño", "Detalles de materiales"]}
         onOpenGallery={onOpenGallery}
       />
     </section>
@@ -701,6 +705,14 @@ function AdminGalleries({ project, updateProject }: { project: Project; updatePr
     setStatus(`${file.name} · ${formatBytes(file.size)} · imagen agregada`);
   };
 
+  const addImages = async (galleryId: string, files: FileList | null) => {
+    if (!files?.length) return;
+    for (const file of Array.from(files)) {
+      await addImage(galleryId, file);
+    }
+    setStatus(`${files.length} imagen(es) agregada(s) a ${galleryId === "interiores" ? "Interiores" : "Áreas comunes"}`);
+  };
+
   const removeImage = (galleryId: string, imageId: string) =>
     updateProject((current) => ({
       ...current,
@@ -728,6 +740,24 @@ function AdminGalleries({ project, updateProject }: { project: Project; updatePr
     <div className="rounded border border-ink/10 bg-porcelain p-5">
       <h2 className="section-title">Fotos y galerías</h2>
       {status ? <p className="mb-4 rounded bg-white p-3 text-sm text-ink/70">{status}</p> : null}
+      <div className="mb-5 grid gap-3 md:grid-cols-2">
+        <label className="flex min-h-24 cursor-pointer flex-col justify-center rounded border border-morada/20 bg-white p-4 text-morada">
+          <span className="mb-2 flex items-center gap-2 font-semibold"><Plus className="size-4" /> Agregar imágenes a Interiores</span>
+          <span className="text-sm text-ink/70">{imageSizeRecommendation("interiores")}</span>
+          <input className="hidden" type="file" multiple accept="image/png,image/jpeg,image/svg+xml" onChange={(event) => {
+            void addImages("interiores", event.currentTarget.files);
+            event.currentTarget.value = "";
+          }} />
+        </label>
+        <label className="flex min-h-24 cursor-pointer flex-col justify-center rounded border border-morada/20 bg-white p-4 text-morada">
+          <span className="mb-2 flex items-center gap-2 font-semibold"><Plus className="size-4" /> Agregar imágenes a Áreas comunes</span>
+          <span className="text-sm text-ink/70">{imageSizeRecommendation("areas")}</span>
+          <input className="hidden" type="file" multiple accept="image/png,image/jpeg,image/svg+xml" onChange={(event) => {
+            void addImages("areas", event.currentTarget.files);
+            event.currentTarget.value = "";
+          }} />
+        </label>
+      </div>
       <div className="space-y-6">
         {project.galleries.map((gallery) => (
           <section key={gallery.id} className="border-t border-ink/10 pt-5">
@@ -748,6 +778,11 @@ function AdminGalleries({ project, updateProject }: { project: Project; updatePr
                 <p className="mt-2 max-w-2xl rounded bg-white px-3 py-2 text-sm text-ink/70">
                   Tamaño sugerido: {imageSizeRecommendation(gallery.id)}
                 </p>
+                {galleryUsageNote(gallery.id) ? (
+                  <p className="mt-2 max-w-2xl rounded bg-morada/10 px-3 py-2 text-sm text-morada">
+                    {galleryUsageNote(gallery.id)}
+                  </p>
+                ) : null}
               </div>
               <label className="secondary-touch cursor-pointer">
                 <Plus className="size-4" /> Agregar foto
@@ -984,6 +1019,16 @@ function imageSizeRecommendation(id: string) {
     planta: "Planta típica: 3000 x 2000 px o superior, PNG/JPG nítido; dejar margen para zonas táctiles."
   };
   return recommendations[id] ?? "Imagen editorial: mínimo 2400 px de ancho, horizontal, JPG/PNG/SVG.";
+}
+
+function galleryUsageNote(id: string) {
+  const notes: Record<string, string> = {
+    interiores: "Proyecto usa automáticamente las primeras 3 imágenes de esta galería. Reordénalas con Subir/Bajar para cambiar esa sección.",
+    arquitectura: "Proyecto usa automáticamente la primera imagen de esta galería para el bloque de Arquitectos.",
+    fachada: "La primera imagen se usa como portada principal y hero del Proyecto.",
+    areas: "Todas las imágenes se muestran como capítulos grandes en Áreas comunes."
+  };
+  return notes[id];
 }
 
 function Fact({ label, value }: { label: string; value: string }) {

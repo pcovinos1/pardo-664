@@ -117,6 +117,60 @@ textarea:focus-visible {
     @apply break-inside-avoid border-b border-ink/10 py-4 text-lg text-ink/70;
   }
 
+  .project-interiors {
+    @apply mx-auto mt-20 max-w-[1680px] border-t border-ink/10 pt-12;
+  }
+
+  .project-section-heading {
+    @apply mb-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr];
+  }
+
+  .project-section-heading p:last-child {
+    @apply max-w-2xl text-xl leading-relaxed text-ink/70;
+  }
+
+  .project-interior-grid {
+    @apply grid min-h-[72vh] gap-4 lg:grid-cols-[1.25fr_0.75fr] lg:grid-rows-2;
+  }
+
+  .project-interior-grid button {
+    @apply relative min-h-[320px] overflow-hidden bg-white text-left;
+  }
+
+  .project-interior-grid button.is-large {
+    @apply lg:row-span-2;
+  }
+
+  .project-interior-grid img,
+  .project-architects__image img {
+    @apply h-full w-full object-cover transition duration-700;
+  }
+
+  .project-interior-grid button:hover img,
+  .project-architects__image:hover img {
+    transform: scale(1.035);
+  }
+
+  .project-interior-grid span {
+    @apply absolute bottom-4 left-4 bg-paper/90 px-4 py-2 text-sm font-semibold text-ink backdrop-blur;
+  }
+
+  .project-architects {
+    @apply mx-auto mt-24 grid max-w-[1680px] items-center gap-10 border-t border-ink/10 pt-12 lg:grid-cols-[1.1fr_0.9fr];
+  }
+
+  .project-architects__image {
+    @apply block h-[48vh] min-h-[420px] overflow-hidden bg-white lg:h-[72vh];
+  }
+
+  .project-architects article {
+    @apply max-w-2xl;
+  }
+
+  .project-architects article p:not(.eyebrow) {
+    @apply mt-6 text-xl leading-relaxed text-ink/70;
+  }
+
   .architecture-layout {
     @apply mx-auto grid min-h-[calc(100vh-9rem)] max-w-[1680px] items-center gap-10 lg:grid-cols-[0.95fr_1.05fr];
   }
