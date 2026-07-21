@@ -23,7 +23,7 @@ export function formatBytes(bytes: number): string {
 
 export async function exportProjectZip(project: Project): Promise<void> {
   const zip = new JSZip();
-  zip.file("pardo-664-project.json", JSON.stringify(project, null, 2));
+  zip.file("pardo-664-project.json", serializeProject(project));
   zip.file(
     "README.txt",
     `Pardo 664 Morada\nVersion: ${project.version.version}\nPublicado: ${project.version.publishedAt}\n\nImporta este ZIP desde el panel administrador de la app.`
@@ -45,8 +45,24 @@ export async function exportProjectZip(project: Project): Promise<void> {
 }
 
 export function exportProjectJson(project: Project): void {
-  const blob = new Blob([JSON.stringify(project, null, 2)], { type: "application/json" });
+  const blob = new Blob([serializeProject(project)], { type: "application/json" });
   downloadBlob(blob, "project.json");
+}
+
+function serializeProject(project: Project): string {
+  const seen = new WeakSet<object>();
+  return JSON.stringify(
+    project,
+    (key, value) => {
+      if (key === "lastPublishedSnapshot") return undefined;
+      if (value && typeof value === "object") {
+        if (seen.has(value)) return undefined;
+        seen.add(value);
+      }
+      return value;
+    },
+    2
+  );
 }
 
 function downloadBlob(blob: Blob, filename: string): void {
