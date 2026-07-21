@@ -713,6 +713,38 @@ function AdminGalleries({ project, updateProject }: { project: Project; updatePr
     setStatus(`${files.length} imagen(es) agregada(s) a ${galleryLabel(galleryId)}`);
   };
 
+  const replaceGalleryWithImages = async (galleryId: string, files: FileList | null) => {
+    if (!files?.length) return;
+    const gallery = project.galleries.find((item) => item.id === galleryId);
+    if (!gallery) return;
+    const images: GalleryImage[] = [];
+    for (const file of Array.from(files)) {
+      if (!isAllowedAsset(file) || file.type === "application/pdf") {
+        setStatus("Usa PNG, JPG o SVG para galerías.");
+        return;
+      }
+      images.push({
+        id: crypto.randomUUID(),
+        title: file.name.replace(/\.[^.]+$/, ""),
+        src: await fileToDataUrl(file),
+        category: gallery.category,
+        updatedAt: new Date().toISOString()
+      });
+    }
+    await updateProject((current) => ({
+      ...current,
+      galleries: current.galleries.map((item) => (item.id === galleryId ? { ...item, images } : item))
+    }));
+    setStatus(`${galleryLabel(galleryId)} reemplazada con ${images.length} imagen(es).`);
+  };
+
+  const orderedGalleries = [...project.galleries].sort((a, b) => {
+    const order = ["proyecto-fachada", "fachada", "arquitectura", "areas", "interiores", "barrio"];
+    const aIndex = order.includes(a.id) ? order.indexOf(a.id) : 999;
+    const bIndex = order.includes(b.id) ? order.indexOf(b.id) : 999;
+    return aIndex - bIndex;
+  });
+
   const removeImage = (galleryId: string, imageId: string) =>
     updateProject((current) => ({
       ...current,
@@ -767,7 +799,7 @@ function AdminGalleries({ project, updateProject }: { project: Project; updatePr
         </label>
       </div>
       <div className="space-y-6">
-        {project.galleries.map((gallery) => (
+        {orderedGalleries.map((gallery) => (
           <section key={gallery.id} className="border-t border-ink/10 pt-5">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
               <div>
@@ -783,6 +815,11 @@ function AdminGalleries({ project, updateProject }: { project: Project; updatePr
                   }
                 />
                 <p className="text-sm text-ink/70">{gallery.images.length} imagen(es)</p>
+                {gallery.id === "proyecto-fachada" ? (
+                  <p className="mt-2 text-sm font-semibold text-ink">
+                    Actualmente Proyecto muestra: {gallery.images.slice(0, 3).map((image) => image.title).join(" · ") || "sin imágenes"}
+                  </p>
+                ) : null}
                 <p className="mt-2 max-w-2xl rounded bg-white px-3 py-2 text-sm text-ink/70">
                   Tamaño sugerido: {imageSizeRecommendation(gallery.id)}
                 </p>
@@ -800,6 +837,15 @@ function AdminGalleries({ project, updateProject }: { project: Project; updatePr
                   event.currentTarget.value = "";
                 }} />
               </label>
+              {gallery.id === "proyecto-fachada" ? (
+                <label className="secondary-touch cursor-pointer">
+                  <Upload className="size-4" /> Vaciar y reemplazar
+                  <input className="hidden" type="file" multiple accept="image/png,image/jpeg,image/svg+xml" onChange={(event) => {
+                    void replaceGalleryWithImages(gallery.id, event.currentTarget.files);
+                    event.currentTarget.value = "";
+                  }} />
+                </label>
+              ) : null}
             </div>
             <div className="grid gap-3 md:grid-cols-2">
               {gallery.images.map((image, index) => (
