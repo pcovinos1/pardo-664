@@ -5,7 +5,7 @@ import { GalleryModal } from "./components/GalleryModal";
 import { GlobalNav } from "./components/GlobalNav";
 import { PlanViewer } from "./components/PlanViewer";
 import { useProject } from "./context/ProjectContext";
-import { bumpVersion, exportProjectZip, fileToDataUrl, formatBytes, importProjectZip, isAllowedAsset } from "./services/files";
+import { bumpVersion, exportProjectJson, exportProjectZip, fileToDataUrl, formatBytes, importProjectZip, isAllowedAsset } from "./services/files";
 import { resetProject } from "./services/db";
 import type { Gallery, GalleryImage, Project, Typology, ViewKey } from "./types/project";
 
@@ -20,7 +20,7 @@ const menuItems: Array<{ view: ViewKey; title: string; text: string }> = [
 ];
 
 export default function App() {
-  const { project, loading, updateProject, reload } = useProject();
+  const { project, loading, updateProject, reload, syncFromRemote } = useProject();
   const [view, setView] = useState<ViewKey>("home");
   const [selectedTypologyId, setSelectedTypologyId] = useState("a-1");
   const [gallery, setGallery] = useState<{ images: GalleryImage[]; index: number } | null>(null);
@@ -60,7 +60,7 @@ export default function App() {
       )}
       {view === "compare" && <ComparePage project={project} />}
       {view === "contact" && <ContactPage project={project} />}
-      {view === "admin" && <AdminPage project={project} updateProject={updateProject} reload={reload} />}
+      {view === "admin" && <AdminPage project={project} updateProject={updateProject} reload={reload} syncFromRemote={syncFromRemote} />}
       {gallery ? <GalleryModal images={gallery.images} initialIndex={gallery.index} onClose={() => setGallery(null)} /> : null}
     </main>
   );
@@ -617,7 +617,7 @@ function ContactPage({ project }: { project: Project }) {
   );
 }
 
-function AdminPage({ project, updateProject, reload }: { project: Project; updateProject: (updater: Project | ((project: Project) => Project)) => Promise<void>; reload: () => Promise<void> }) {
+function AdminPage({ project, updateProject, reload, syncFromRemote }: { project: Project; updateProject: (updater: Project | ((project: Project) => Project)) => Promise<void>; reload: () => Promise<void>; syncFromRemote: () => Promise<Project | null> }) {
   const [pin, setPin] = useState("");
   const [unlocked, setUnlocked] = useState(false);
   const [message, setMessage] = useState("");
@@ -677,6 +677,7 @@ function AdminPage({ project, updateProject, reload }: { project: Project; updat
           <div className="rounded border border-ink/10 bg-porcelain p-5">
             <h2 className="section-title">Importación, exportación y respaldo</h2>
             <button className="primary-touch mb-3 w-full" onClick={() => exportProjectZip(project)} type="button"><Download /> Exportar actualización</button>
+            <button className="secondary-touch mb-3 w-full" onClick={() => exportProjectJson(project)} type="button"><Download /> Descargar project.json para GitHub</button>
             <label className="secondary-touch mb-3 w-full cursor-pointer justify-center">
               <FileUp /> Importar actualización
               <input className="hidden" type="file" accept=".zip,application/zip" onChange={async (event) => {
@@ -693,6 +694,14 @@ function AdminPage({ project, updateProject, reload }: { project: Project; updat
                 }
               }} />
             </label>
+            <button className="secondary-touch mb-3 w-full" onClick={async () => {
+              try {
+                const remote = await syncFromRemote();
+                setMessage(remote ? `Contenido sincronizado desde GitHub. Versión ${remote.version.version}.` : "No hay una versión más nueva publicada en GitHub.");
+              } catch (error) {
+                setMessage(error instanceof Error ? error.message : "No se pudo sincronizar desde GitHub.");
+              }
+            }} type="button"><RotateCcw /> Sincronizar desde GitHub</button>
             <button className="secondary-touch mb-3 w-full" onClick={async () => publish("Se publicaron cambios desde el administrador local.")} type="button"><Save /> Publicar cambios</button>
             <button className="secondary-touch w-full" onClick={async () => {
               if (confirm("Restaurar la información inicial extraída del PDF?")) {

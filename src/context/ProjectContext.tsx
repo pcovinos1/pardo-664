@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { getProject, saveProject } from "../services/db";
+import { fetchRemoteProject } from "../services/files";
 import type { Project } from "../types/project";
 
 interface ProjectContextValue {
@@ -7,6 +8,7 @@ interface ProjectContextValue {
   loading: boolean;
   updateProject: (updater: Project | ((project: Project) => Project)) => Promise<void>;
   reload: () => Promise<void>;
+  syncFromRemote: () => Promise<Project | null>;
 }
 
 const ProjectContext = createContext<ProjectContextValue | null>(null);
@@ -20,6 +22,13 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     const next = await getProject();
     setProject(next);
     setLoading(false);
+    void fetchRemoteProject(next)
+      .then(async (remote) => {
+        if (!remote) return;
+        await saveProject(remote);
+        setProject(remote);
+      })
+      .catch(() => undefined);
   }, []);
 
   useEffect(() => {
@@ -35,7 +44,16 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  const value = useMemo(() => ({ project, loading, updateProject, reload }), [project, loading, updateProject, reload]);
+  const syncFromRemote = useCallback(async () => {
+    const current = await getProject();
+    const remote = await fetchRemoteProject(current);
+    if (!remote) return null;
+    await saveProject(remote);
+    setProject(remote);
+    return remote;
+  }, []);
+
+  const value = useMemo(() => ({ project, loading, updateProject, reload, syncFromRemote }), [project, loading, updateProject, reload, syncFromRemote]);
   return <ProjectContext.Provider value={value}>{children}</ProjectContext.Provider>;
 }
 

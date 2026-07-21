@@ -49,6 +49,16 @@ export async function exportProjectZip(project: Project): Promise<void> {
   URL.revokeObjectURL(url);
 }
 
+export function exportProjectJson(project: Project): void {
+  const blob = new Blob([JSON.stringify(project, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "project.json";
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 function collectAssetSources(project: Project): string[] {
   const sources = new Set<string>();
   sources.add(project.floorPlan.imageSrc);
@@ -111,4 +121,34 @@ export function bumpVersion(project: Project, change: string): Project {
       changes: [{ id: crypto.randomUUID(), date, text: change }, ...project.version.changes]
     }
   };
+}
+
+export function compareProjectVersions(a: Project, b: Project): number {
+  const versionResult = compareVersionStrings(a.version.version, b.version.version);
+  if (versionResult !== 0) return versionResult;
+  return a.version.publishedAt.localeCompare(b.version.publishedAt);
+}
+
+export async function fetchRemoteProject(current?: Project): Promise<Project | null> {
+  const base = new URL(import.meta.env.BASE_URL, window.location.origin);
+  const url = new URL("content/project.json", base);
+  const response = await fetch(url, { cache: "no-store" });
+  if (!response.ok) return null;
+  const parsed = (await response.json()) as Project;
+  if (!parsed.id || !parsed.version || !parsed.galleries || !parsed.floorPlan || !parsed.typologies) {
+    throw new Error("El contenido publicado en GitHub no tiene un formato válido.");
+  }
+  if (current && compareProjectVersions(parsed, current) <= 0) return null;
+  return parsed;
+}
+
+function compareVersionStrings(a: string, b: string): number {
+  const left = a.split(".").map((part) => Number(part));
+  const right = b.split(".").map((part) => Number(part));
+  const length = Math.max(left.length, right.length);
+  for (let index = 0; index < length; index += 1) {
+    const diff = (Number.isFinite(left[index]) ? left[index] : 0) - (Number.isFinite(right[index]) ? right[index] : 0);
+    if (diff !== 0) return diff;
+  }
+  return 0;
 }

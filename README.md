@@ -113,10 +113,14 @@ Desde el administrador se puede:
 - Configurar zonas clicables de la planta típica con porcentajes.
 - Publicar cambios localmente.
 - Exportar una actualización ZIP.
+- Descargar `project.json` para publicar contenido maestro en GitHub.
 - Importar una actualización ZIP.
+- Sincronizar contenido desde GitHub.
 - Restaurar el contenido inicial.
 
 ## Actualizar contenido
+
+### Opción A: actualización manual por ZIP
 
 1. Entrar al administrador.
 2. Editar textos, tipologías o planos.
@@ -125,6 +129,31 @@ Desde el administrador se puede:
 5. Presionar “Exportar actualización”.
 6. Llevar el ZIP a otra tablet o computadora.
 7. En la segunda instalación, entrar al administrador y elegir “Importar actualización”.
+
+### Opción B: contenido maestro en GitHub
+
+Esta opción permite que otras computadoras o tablets reciban el contenido nuevo desde GitHub cuando tengan internet, y luego lo mantengan guardado offline.
+
+1. En la computadora principal, entrar al administrador.
+2. Editar fotos, textos, planos, logo, mapa o puntos de interés.
+3. Presionar “Publicar cambios”.
+4. Presionar “Descargar project.json para GitHub”.
+5. En GitHub Desktop, abrir el repositorio.
+6. Reemplazar o agregar el archivo:
+
+```text
+public/content/project.json
+```
+
+7. Hacer commit y push.
+8. Esperar a que GitHub Pages publique la nueva versión.
+9. En cada tablet o computadora, abrir la app con internet.
+10. La app revisará automáticamente si existe una versión más nueva en GitHub.
+11. Si la encuentra, la guarda en IndexedDB y queda disponible offline.
+
+También se puede entrar al administrador y presionar “Sincronizar desde GitHub” para forzar la revisión.
+
+Importante: GitHub no recibe automáticamente las fotos subidas desde el administrador. Primero se debe descargar `project.json` y subirlo al repositorio.
 
 ## Copia de seguridad
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = "pardo-664-v4";
+const CACHE_NAME = "pardo-664-v5";
 const APP_SHELL = ["./", "index.html", "manifest.webmanifest", "icon.svg", "offline-cache-manifest.json"];
 
 async function offlineFiles() {
@@ -47,6 +47,21 @@ self.addEventListener("fetch", (event) => {
           return response;
         })
         .catch(() => caches.match(new URL("index.html", self.registration.scope)))
+    );
+    return;
+  }
+
+  if (url.pathname.endsWith("/content/project.json")) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request))
     );
     return;
   }
