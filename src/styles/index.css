@@ -401,16 +401,36 @@ textarea:focus-visible {
   }
 
   .admin-poi-marker {
-    @apply absolute z-10 grid size-7 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-morada text-[11px] font-bold text-white ring-4 ring-paper/90 transition duration-200;
+    @apply absolute z-10 grid size-9 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-transparent text-[8px] font-bold text-white transition duration-200;
+  }
+
+  .admin-poi-marker span {
+    @apply grid size-4 place-items-center rounded-full bg-morada ring-2 ring-paper/90 transition duration-200;
+  }
+
+  .admin-poi-marker em {
+    @apply pointer-events-none absolute bottom-full left-1/2 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-full bg-ink px-2 py-1 text-[10px] font-medium not-italic text-white shadow-soft;
   }
 
   .admin-poi-marker.is-active {
-    transform: translate(-50%, -50%) scale(1.35);
+    @apply z-20;
+  }
+
+  .admin-poi-marker:hover span,
+  .admin-poi-marker:focus-visible span,
+  .admin-poi-marker.is-active span {
+    transform: scale(1.35);
     @apply bg-ink ring-morada/40;
   }
 
+  .admin-poi-marker:hover em,
+  .admin-poi-marker:focus-visible em,
+  .admin-poi-marker.is-active em {
+    @apply block;
+  }
+
   .admin-poi-marker.is-muted {
-    @apply opacity-35;
+    @apply opacity-40;
   }
 
   .admin-poi-row {

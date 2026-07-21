@@ -1008,7 +1008,8 @@ function AdminLocation({ project, updateProject }: { project: Project; updatePro
                     type="button"
                     aria-label={`Seleccionar ${poi.name}`}
                   >
-                    {poi.order}
+                    <span>{poi.order}</span>
+                    <em>{poi.name}</em>
                   </button>
                 ))}
               </div>
