@@ -469,6 +469,10 @@ textarea:focus-visible {
     @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-ink/10 bg-porcelain px-5 py-3 font-semibold text-ink transition active:scale-95;
   }
 
+  .home-departments-button {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#c4392f] px-6 py-3 font-semibold uppercase tracking-[0.04em] text-white shadow-soft transition hover:bg-[#ad3028] active:scale-95;
+  }
+
   .icon-button {
     @apply grid min-h-11 min-w-11 place-items-center rounded-full border border-ink/10 bg-white text-ink transition active:scale-95;
   }

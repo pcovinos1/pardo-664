@@ -74,7 +74,11 @@ function Home({ project, onNavigate }: { project: Project; onNavigate: (view: Vi
       <div className="absolute inset-0 bg-gradient-to-r from-ink/80 via-ink/30 to-transparent" />
       <div className="relative z-10 flex min-h-screen max-w-7xl flex-col justify-between px-6 pb-32 pt-8 md:px-12">
         <header className="flex items-center justify-between">
-          <p className="text-3xl font-bold tracking-tight">{project.logoText}</p>
+          {project.logoSrc ? (
+            <img className="h-10 w-auto max-w-[220px] object-contain" src={project.logoSrc} alt={project.logoText} />
+          ) : (
+            <p className="text-3xl font-bold tracking-tight">{project.logoText}</p>
+          )}
           <button className="rounded-full bg-white/10 px-4 py-3 text-sm backdrop-blur" onClick={() => onNavigate("admin")} type="button">
             Administrador
           </button>
@@ -87,8 +91,8 @@ function Home({ project, onNavigate }: { project: Project; onNavigate: (view: Vi
             <button className="primary-touch" onClick={() => onNavigate("project")} type="button">
               Explorar el proyecto <ArrowRight />
             </button>
-            <button className="secondary-touch text-white" onClick={() => onNavigate("departments")} type="button">
-              Ver departamentos <Building2 />
+            <button className="home-departments-button" onClick={() => onNavigate("departments")} type="button">
+              DEPARTAMENTOS <Building2 />
             </button>
           </div>
         </div>
@@ -633,16 +637,52 @@ function AdminPage({ project, updateProject, reload }: { project: Project; updat
 }
 
 function AdminGeneral({ project, updateProject }: { project: Project; updateProject: (updater: (project: Project) => Project) => Promise<void> }) {
+  const [logoStatus, setLogoStatus] = useState("");
   const setField = (field: keyof Project, value: string) => updateProject((current) => ({ ...current, [field]: value }));
+  const replaceLogo = async (file: File) => {
+    if (!isAllowedAsset(file) || file.type === "application/pdf") {
+      setLogoStatus("Usa PNG, JPG o SVG para el logo.");
+      return;
+    }
+    const logoSrc = await fileToDataUrl(file);
+    await updateProject((current) => ({ ...current, logoSrc }));
+    setLogoStatus(`${file.name} · ${formatBytes(file.size)} · logo actualizado`);
+  };
   return (
     <div className="rounded border border-ink/10 bg-porcelain p-5">
       <h2 className="section-title">Información general</h2>
       <div className="grid gap-3 md:grid-cols-2">
         <label>Título<input className="field" value={project.name} onChange={(event) => setField("name", event.target.value)} /></label>
         <label>Distrito<input className="field" value={project.district} onChange={(event) => setField("district", event.target.value)} /></label>
+        <label>Texto alternativo del logo<input className="field" value={project.logoText} onChange={(event) => setField("logoText", event.target.value)} /></label>
         <label>Arquitectos<input className="field" value={project.architect} onChange={(event) => setField("architect", event.target.value)} /></label>
         <label>Certificación<input className="field" value={project.certification} onChange={(event) => setField("certification", event.target.value)} /></label>
         <label className="md:col-span-2">Descripción<textarea className="field min-h-24" value={project.shortDescription} onChange={(event) => setField("shortDescription", event.target.value)} /></label>
+      </div>
+      <div className="mt-5 rounded border border-ink/10 bg-white p-4">
+        <h3 className="mb-3 font-display text-2xl">Logo oficial de Morada</h3>
+        <div className="grid gap-4 md:grid-cols-[260px_1fr]">
+          <div className="grid min-h-24 place-items-center rounded bg-ink p-4">
+            {project.logoSrc ? <img className="max-h-16 max-w-full object-contain" src={project.logoSrc} alt={project.logoText} /> : <p className="text-2xl font-bold tracking-tight text-white">{project.logoText}</p>}
+          </div>
+          <div>
+            <p className="mb-3 text-sm text-ink/70">Formato sugerido: SVG o PNG transparente, ancho aproximado 600 px.</p>
+            {logoStatus ? <p className="mb-3 text-sm text-morada">{logoStatus}</p> : null}
+            <div className="flex flex-wrap gap-2">
+              <label className="secondary-touch cursor-pointer">
+                <Upload className="size-4" /> Reemplazar logo
+                <input className="hidden" type="file" accept="image/png,image/jpeg,image/svg+xml" onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) void replaceLogo(file);
+                  event.currentTarget.value = "";
+                }} />
+              </label>
+              <button className="secondary-touch" onClick={() => updateProject((current) => ({ ...current, logoSrc: "" }))} type="button">
+                <Trash2 className="size-4" /> Quitar logo
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

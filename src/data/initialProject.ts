@@ -312,6 +312,7 @@ export const initialProject: Project = {
   name: "Pardo 664",
   developer: "Morada",
   logoText: "morada",
+  logoSrc: "",
   tagline: "Un nuevo color llegó a Pardo.",
   shortDescription:
     "Proyecto diseñado por Nómena Arquitectura para Morada en la avenida José Pardo, Miraflores. Primer proyecto de Morada con certificación LEED.",

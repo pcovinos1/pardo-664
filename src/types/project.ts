@@ -115,6 +115,7 @@ export interface Project {
   name: string;
   developer: string;
   logoText: string;
+  logoSrc?: string;
   tagline: string;
   shortDescription: string;
   district: string;
