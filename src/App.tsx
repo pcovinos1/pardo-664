@@ -1,5 +1,5 @@
 import { ArrowRight, ArrowUp, ArrowDown, Building2, Check, ChevronLeft, ChevronRight, Download, FileUp, Grid3X3, Lock, Plus, RotateCcw, Save, Search, Trash2, Upload } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { FloorPlanInteractive } from "./components/FloorPlanInteractive";
 import { GalleryModal } from "./components/GalleryModal";
 import { GlobalNav } from "./components/GlobalNav";
@@ -258,30 +258,32 @@ function LocationPage({ project, filter, setFilter, onOpenGallery }: { project: 
           </div>
         </aside>
         <div className="location-map" aria-label="Mapa interactivo de puntos de interés">
-          <img className="h-full w-full object-contain" src={gallery?.images[0]?.src} alt="Mapa ilustrado offline" />
-          <span className="location-project-marker" style={{ left: "50%", top: "50%" }}>
-            Pardo 664
-          </span>
-          {visible.map((poi) => {
-            const active = activePoiId === poi.id;
-            return (
-              <button
-                key={poi.id}
-                className={`location-marker ${active ? "is-active" : ""}`}
-                style={{ left: `${poi.x}%`, top: `${poi.y}%` }}
-                onMouseEnter={() => setHoveredPoiId(poi.id)}
-                onMouseLeave={() => setHoveredPoiId(null)}
-                onFocus={() => setHoveredPoiId(poi.id)}
-                onBlur={() => setHoveredPoiId(null)}
-                onClick={() => setSelectedPoiId((current) => (current === poi.id ? null : poi.id))}
-                type="button"
-                aria-label={poi.name}
-              >
-                <span>{poi.order}</span>
-                <em>{poi.name}</em>
-              </button>
-            );
-          })}
+          <div className="location-map-frame">
+            <img className="h-full w-full object-contain" src={gallery?.images[0]?.src} alt="Mapa ilustrado offline" />
+            <span className="location-project-marker" style={{ left: "50%", top: "50%" }}>
+              Pardo 664
+            </span>
+            {visible.map((poi) => {
+              const active = activePoiId === poi.id;
+              return (
+                <button
+                  key={poi.id}
+                  className={`location-marker ${active ? "is-active" : ""}`}
+                  style={{ left: `${poi.x}%`, top: `${poi.y}%` }}
+                  onMouseEnter={() => setHoveredPoiId(poi.id)}
+                  onMouseLeave={() => setHoveredPoiId(null)}
+                  onFocus={() => setHoveredPoiId(poi.id)}
+                  onBlur={() => setHoveredPoiId(null)}
+                  onClick={() => setSelectedPoiId((current) => (current === poi.id ? null : poi.id))}
+                  type="button"
+                  aria-label={poi.name}
+                >
+                  <span>{poi.order}</span>
+                  <em>{poi.name}</em>
+                </button>
+              );
+            })}
+          </div>
         </div>
         <aside className="location-list">
           <p className="eyebrow mb-2">Puntos de interés</p>
@@ -933,9 +935,13 @@ function AdminGalleries({ project, updateProject }: { project: Project; updatePr
 
 function AdminLocation({ project, updateProject }: { project: Project; updateProject: (updater: (project: Project) => Project) => Promise<void> }) {
   const [status, setStatus] = useState("");
+  const [selectedPoiId, setSelectedPoiId] = useState(project.pointsOfInterest[0]?.id ?? "");
+  const mapFrameRef = useRef<HTMLDivElement | null>(null);
   const categories: Array<Project["pointsOfInterest"][number]["category"]> = ["Gastronomía", "Parques", "Educación", "Tiendas", "Entretenimiento"];
   const barrioGallery = project.galleries.find((gallery) => gallery.id === "barrio");
   const mapImage = barrioGallery?.images[0];
+  const sortedPois = [...project.pointsOfInterest].sort((a, b) => a.order - b.order);
+  const selectedPoi = sortedPois.find((poi) => poi.id === selectedPoiId) ?? sortedPois[0];
 
   const replaceMap = async (file: File) => {
     if (!isAllowedAsset(file) || file.type === "application/pdf") {
@@ -960,19 +966,57 @@ function AdminLocation({ project, updateProject }: { project: Project; updatePro
       pointsOfInterest: current.pointsOfInterest.map((poi) => (poi.id === id ? { ...poi, ...patch } : poi))
     }));
 
-  const addPoi = () =>
+  const addPoi = () => {
+    const id = crypto.randomUUID();
+    setSelectedPoiId(id);
     updateProject((current) => ({
       ...current,
-      pointsOfInterest: [...current.pointsOfInterest, { id: crypto.randomUUID(), name: "Nuevo punto", category: "Gastronomía", x: 50, y: 50, visible: true, order: current.pointsOfInterest.length + 1 }]
+      pointsOfInterest: [...current.pointsOfInterest, { id, name: "Nuevo punto", category: "Gastronomía", x: 50, y: 50, visible: true, order: current.pointsOfInterest.length + 1 }]
     }));
+  };
+
+  const placeSelectedPoi = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!selectedPoi) return;
+    const frame = mapFrameRef.current;
+    if (!frame) return;
+    const rect = frame.getBoundingClientRect();
+    const x = Math.min(100, Math.max(0, ((event.clientX - rect.left) / rect.width) * 100));
+    const y = Math.min(100, Math.max(0, ((event.clientY - rect.top) / rect.height) * 100));
+    void updatePoi(selectedPoi.id, { x: Number(x.toFixed(1)), y: Number(y.toFixed(1)) });
+  };
 
   return (
     <div className="rounded border border-ink/10 bg-porcelain p-5">
       <h2 className="section-title">Ubicación y mapa</h2>
       {status ? <p className="mb-4 rounded bg-white p-3 text-sm text-ink/70">{status}</p> : null}
-      <div className="grid gap-5 lg:grid-cols-[320px_1fr]">
+      <div className="grid gap-5 lg:grid-cols-[520px_1fr]">
         <div>
-          {mapImage ? <img className="mb-3 h-56 w-full rounded bg-white object-contain" src={mapImage.src} alt={mapImage.title} /> : null}
+          {mapImage ? (
+            <div className="admin-location-map mb-3">
+              <div ref={mapFrameRef} className="location-map-frame" onPointerDown={placeSelectedPoi}>
+                <img className="h-full w-full object-contain" src={mapImage.src} alt={mapImage.title} />
+                <span className="location-project-marker" style={{ left: "50%", top: "50%" }}>Pardo 664</span>
+                {sortedPois.map((poi) => (
+                  <button
+                    key={poi.id}
+                    className={`admin-poi-marker ${selectedPoi?.id === poi.id ? "is-active" : ""} ${poi.visible ? "" : "is-muted"}`}
+                    style={{ left: `${poi.x}%`, top: `${poi.y}%` }}
+                    onPointerDown={(event) => {
+                      event.stopPropagation();
+                      setSelectedPoiId(poi.id);
+                    }}
+                    type="button"
+                    aria-label={`Seleccionar ${poi.name}`}
+                  >
+                    {poi.order}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
+          <p className="mb-3 rounded bg-white px-3 py-2 text-sm text-ink/70">
+            Punto seleccionado: <strong>{selectedPoi?.order}. {selectedPoi?.name}</strong>. Toca el mapa para moverlo.
+          </p>
           <p className="mb-3 rounded bg-white px-3 py-2 text-sm text-ink/70">
             Tamaño sugerido: {imageSizeRecommendation("barrio")}
           </p>
@@ -988,17 +1032,27 @@ function AdminLocation({ project, updateProject }: { project: Project; updatePro
             <Plus className="size-4" /> Agregar punto
           </button>
         </div>
-        <div className="space-y-3">
-          {[...project.pointsOfInterest].sort((a, b) => a.order - b.order).map((poi) => (
-            <div key={poi.id} className="grid gap-2 rounded border border-ink/10 bg-white p-3 md:grid-cols-[80px_1fr_150px_90px_90px_90px_44px]">
-              <label className="text-xs">Orden<input className="field" type="number" min="1" value={poi.order} onChange={(event) => updatePoi(poi.id, { order: Number(event.target.value) })} /></label>
-              <input className="field mt-0" value={poi.name} onChange={(event) => updatePoi(poi.id, { name: event.target.value })} />
-              <select className="field mt-0" value={poi.category} onChange={(event) => updatePoi(poi.id, { category: event.target.value as typeof poi.category })}>
-                {categories.map((category) => <option key={category} value={category}>{category}</option>)}
-              </select>
-              <label className="text-xs">X %<input className="field" type="number" min="0" max="100" value={poi.x} onChange={(event) => updatePoi(poi.id, { x: Number(event.target.value) })} /></label>
-              <label className="text-xs">Y %<input className="field" type="number" min="0" max="100" value={poi.y} onChange={(event) => updatePoi(poi.id, { y: Number(event.target.value) })} /></label>
-              <label className="flex items-center gap-2 self-end pb-3 text-xs"><input type="checkbox" checked={poi.visible} onChange={(event) => updatePoi(poi.id, { visible: event.target.checked })} /> Visible</label>
+        <div className="space-y-2">
+          {sortedPois.map((poi) => (
+            <div key={poi.id} className={`admin-poi-row ${selectedPoi?.id === poi.id ? "is-active" : ""}`}>
+              <button className="admin-poi-select" onClick={() => setSelectedPoiId(poi.id)} type="button" aria-label={`Seleccionar ${poi.name}`}>
+                {poi.order}
+              </button>
+              <label className="text-xs">Nombre del lugar
+                <input className="field" value={poi.name} onFocus={() => setSelectedPoiId(poi.id)} onChange={(event) => updatePoi(poi.id, { name: event.target.value })} />
+              </label>
+              <label className="text-xs">Categoría
+                <select className="field" value={poi.category} onFocus={() => setSelectedPoiId(poi.id)} onChange={(event) => updatePoi(poi.id, { category: event.target.value as typeof poi.category })}>
+                  {categories.map((category) => <option key={category} value={category}>{category}</option>)}
+                </select>
+              </label>
+              <label className="text-xs">X %
+                <input className="field" type="number" min="0" max="100" value={poi.x} onFocus={() => setSelectedPoiId(poi.id)} onChange={(event) => updatePoi(poi.id, { x: Number(event.target.value) })} />
+              </label>
+              <label className="text-xs">Y %
+                <input className="field" type="number" min="0" max="100" value={poi.y} onFocus={() => setSelectedPoiId(poi.id)} onChange={(event) => updatePoi(poi.id, { y: Number(event.target.value) })} />
+              </label>
+              <label className="flex items-center gap-2 self-end pb-3 text-xs"><input type="checkbox" checked={poi.visible} onFocus={() => setSelectedPoiId(poi.id)} onChange={(event) => updatePoi(poi.id, { visible: event.target.checked })} /> Visible</label>
               <button className="icon-button self-end" onClick={() => confirm("Eliminar punto?") && void updateProject((current) => ({ ...current, pointsOfInterest: current.pointsOfInterest.filter((item) => item.id !== poi.id) }))} type="button" aria-label="Eliminar punto">
                 <Trash2 className="size-4" />
               </button>
