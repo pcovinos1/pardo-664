@@ -348,10 +348,6 @@ textarea:focus-visible {
     @apply block;
   }
 
-  .location-project-marker {
-    @apply absolute z-20 -translate-x-1/2 -translate-y-1/2 rounded-full bg-ink px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-white ring-4 ring-morada/30 shadow-soft;
-  }
-
   .location-filters {
     @apply mt-8 flex flex-wrap gap-2;
   }

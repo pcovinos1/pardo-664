@@ -260,9 +260,6 @@ function LocationPage({ project, filter, setFilter, onOpenGallery }: { project: 
         <div className="location-map" aria-label="Mapa interactivo de puntos de interés">
           <div className="location-map-frame">
             <img className="h-full w-full object-contain" src={gallery?.images[0]?.src} alt="Mapa ilustrado offline" />
-            <span className="location-project-marker" style={{ left: "50%", top: "50%" }}>
-              Pardo 664
-            </span>
             {visible.map((poi) => {
               const active = activePoiId === poi.id;
               return (
@@ -995,7 +992,6 @@ function AdminLocation({ project, updateProject }: { project: Project; updatePro
             <div className="admin-location-map mb-3">
               <div ref={mapFrameRef} className="location-map-frame" onPointerDown={placeSelectedPoi}>
                 <img className="h-full w-full object-contain" src={mapImage.src} alt={mapImage.title} />
-                <span className="location-project-marker" style={{ left: "50%", top: "50%" }}>Pardo 664</span>
                 {sortedPois.map((poi) => (
                   <button
                     key={poi.id}
