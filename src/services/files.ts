@@ -41,22 +41,27 @@ export async function exportProjectZip(project: Project): Promise<void> {
     })
   );
   const blob = await zip.generateAsync({ type: "blob" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `pardo-664-${project.version.version}-${project.version.publishedAt}.zip`;
-  link.click();
-  URL.revokeObjectURL(url);
+  downloadBlob(blob, `pardo-664-${project.version.version}-${project.version.publishedAt}.zip`);
 }
 
 export function exportProjectJson(project: Project): void {
   const blob = new Blob([JSON.stringify(project, null, 2)], { type: "application/json" });
+  downloadBlob(blob, "project.json");
+}
+
+function downloadBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = "project.json";
+  link.download = filename;
+  link.rel = "noopener";
+  link.style.display = "none";
+  document.body.appendChild(link);
   link.click();
-  URL.revokeObjectURL(url);
+  window.setTimeout(() => {
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, 500);
 }
 
 function collectAssetSources(project: Project): string[] {

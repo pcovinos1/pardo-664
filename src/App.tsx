@@ -676,8 +676,22 @@ function AdminPage({ project, updateProject, reload, syncFromRemote }: { project
           <AdminFiles project={project} selectedTypologyId={selected} updateProject={updateProject} />
           <div className="rounded border border-ink/10 bg-porcelain p-5">
             <h2 className="section-title">Importación, exportación y respaldo</h2>
-            <button className="primary-touch mb-3 w-full" onClick={() => exportProjectZip(project)} type="button"><Download /> Exportar actualización</button>
-            <button className="secondary-touch mb-3 w-full" onClick={() => exportProjectJson(project)} type="button"><Download /> Descargar project.json para GitHub</button>
+            <button className="primary-touch mb-3 w-full" onClick={async () => {
+              try {
+                await exportProjectZip(project);
+                setMessage("ZIP generado. Revisa la carpeta Descargas.");
+              } catch {
+                setMessage("No se pudo generar el ZIP.");
+              }
+            }} type="button"><Download /> Exportar actualización</button>
+            <button className="secondary-touch mb-3 w-full" onClick={() => {
+              try {
+                exportProjectJson(project);
+                setMessage("project.json generado. Revisa la carpeta Descargas.");
+              } catch {
+                setMessage("No se pudo generar project.json.");
+              }
+            }} type="button"><Download /> Descargar project.json para GitHub</button>
             <label className="secondary-touch mb-3 w-full cursor-pointer justify-center">
               <FileUp /> Importar actualización
               <input className="hidden" type="file" accept=".zip,application/zip" onChange={async (event) => {
