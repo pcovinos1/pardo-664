@@ -37,6 +37,16 @@ const galleries: Gallery[] = [
     ]
   },
   {
+    id: "proyecto-fachada",
+    title: "Fachada y proyecto",
+    category: "fachada",
+    images: [
+      { id: "proyecto-fachada-hero", title: "Fachada principal", src: heroFachada, category: "fachada" },
+      { id: "proyecto-fachada-detalle", title: "Frente urbano", src: fachadaDetalle, category: "fachada" },
+      { id: "proyecto-ficha", title: "Ficha visual del proyecto", src: fichaProyecto, category: "fachada" }
+    ]
+  },
+  {
     id: "interiores",
     title: "Interiores",
     category: "interiores",

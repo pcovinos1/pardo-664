@@ -117,10 +117,10 @@ function MenuPage({ onNavigate }: { onNavigate: (view: ViewKey) => void }) {
 
 function ProjectPage({ project, onOpenGallery }: { project: Project; onOpenGallery: (value: { images: GalleryImage[]; index: number }) => void }) {
   const images = project.galleries.find((item) => item.id === "fachada")?.images ?? [];
-  const interiorsGallery = project.galleries.find((item) => item.id === "interiores");
+  const projectFacadeGallery = project.galleries.find((item) => item.id === "proyecto-fachada") ?? project.galleries.find((item) => item.id === "fachada");
   const architectureGallery = project.galleries.find((item) => item.id === "arquitectura");
   const architectureSection = getSection(project, "architecture");
-  const interiorImages = interiorsGallery?.images.slice(0, 3) ?? [];
+  const projectFacadeImages = projectFacadeGallery?.images.slice(0, 3) ?? [];
   const architectureImage = architectureGallery?.images[0];
   const section = getSection(project, "project");
   return (
@@ -143,13 +143,13 @@ function ProjectPage({ project, onOpenGallery }: { project: Project; onOpenGalle
       </div>
       <section className="project-interiors">
         <div className="project-section-heading">
-          <p className="eyebrow">{interiorsGallery?.title ?? "Interiores"}</p>
-          <h2 className="font-display text-4xl leading-tight md:text-6xl">Tres miradas al interior de Pardo 664.</h2>
-          <p>{getSection(project, "interiors").summary}</p>
+          <p className="eyebrow">{projectFacadeGallery?.title ?? "Fachada y proyecto"}</p>
+          <h2 className="font-display text-4xl leading-tight md:text-6xl">Tres miradas a la arquitectura de Pardo 664.</h2>
+          <p>{section.summary}</p>
         </div>
         <div className="project-interior-grid">
-          {interiorImages.map((image, index) => (
-            <button key={image.id} className={index === 0 ? "is-large" : ""} onClick={() => interiorsGallery && onOpenGallery({ images: interiorsGallery.images, index })} type="button">
+          {projectFacadeImages.map((image, index) => (
+            <button key={image.id} className={index === 0 ? "is-large" : ""} onClick={() => projectFacadeGallery && onOpenGallery({ images: projectFacadeGallery.images, index })} type="button">
               <img src={image.src} alt={image.title} />
               <span>{image.title}</span>
             </button>
@@ -710,7 +710,7 @@ function AdminGalleries({ project, updateProject }: { project: Project; updatePr
     for (const file of Array.from(files)) {
       await addImage(galleryId, file);
     }
-    setStatus(`${files.length} imagen(es) agregada(s) a ${galleryId === "interiores" ? "Interiores" : "Áreas comunes"}`);
+    setStatus(`${files.length} imagen(es) agregada(s) a ${galleryLabel(galleryId)}`);
   };
 
   const removeImage = (galleryId: string, imageId: string) =>
@@ -740,7 +740,15 @@ function AdminGalleries({ project, updateProject }: { project: Project; updatePr
     <div className="rounded border border-ink/10 bg-porcelain p-5">
       <h2 className="section-title">Fotos y galerías</h2>
       {status ? <p className="mb-4 rounded bg-white p-3 text-sm text-ink/70">{status}</p> : null}
-      <div className="mb-5 grid gap-3 md:grid-cols-2">
+      <div className="mb-5 grid gap-3 md:grid-cols-3">
+        <label className="flex min-h-24 cursor-pointer flex-col justify-center rounded border border-morada/20 bg-white p-4 text-morada">
+          <span className="mb-2 flex items-center gap-2 font-semibold"><Plus className="size-4" /> Agregar imágenes a Proyecto/Fachada</span>
+          <span className="text-sm text-ink/70">{imageSizeRecommendation("proyecto-fachada")}</span>
+          <input className="hidden" type="file" multiple accept="image/png,image/jpeg,image/svg+xml" onChange={(event) => {
+            void addImages("proyecto-fachada", event.currentTarget.files);
+            event.currentTarget.value = "";
+          }} />
+        </label>
         <label className="flex min-h-24 cursor-pointer flex-col justify-center rounded border border-morada/20 bg-white p-4 text-morada">
           <span className="mb-2 flex items-center gap-2 font-semibold"><Plus className="size-4" /> Agregar imágenes a Interiores</span>
           <span className="text-sm text-ink/70">{imageSizeRecommendation("interiores")}</span>
@@ -1011,6 +1019,7 @@ function getSection(project: Project, id: string) {
 function imageSizeRecommendation(id: string) {
   const recommendations: Record<string, string> = {
     fachada: "Hero/portada: 2880 x 1800 px, JPG/WebP horizontal, menos de 2.5 MB si es posible.",
+    "proyecto-fachada": "Proyecto/Fachada: 2880 x 1800 px o 3000 x 2000 px, horizontal, imagen arquitectónica limpia.",
     arquitectura: "Arquitectura: 2400 x 1600 px, JPG horizontal, buen foco en personas o fachada.",
     interiores: "Interiores parallax: 2560 x 1700 px o 3000 x 2000 px, horizontal, sin textos incrustados.",
     areas: "Áreas comunes parallax: 2560 x 1700 px o 3000 x 2000 px, horizontal, imagen limpia y luminosa.",
@@ -1023,12 +1032,22 @@ function imageSizeRecommendation(id: string) {
 
 function galleryUsageNote(id: string) {
   const notes: Record<string, string> = {
-    interiores: "Proyecto usa automáticamente las primeras 3 imágenes de esta galería. Reordénalas con Subir/Bajar para cambiar esa sección.",
+    "proyecto-fachada": "Proyecto usa automáticamente las primeras 3 imágenes de esta galería. Reordénalas con Subir/Bajar para cambiar esa sección.",
     arquitectura: "Proyecto usa automáticamente la primera imagen de esta galería para el bloque de Arquitectos.",
     fachada: "La primera imagen se usa como portada principal y hero del Proyecto.",
+    interiores: "Todas las imágenes se muestran como capítulos grandes en Interiores.",
     areas: "Todas las imágenes se muestran como capítulos grandes en Áreas comunes."
   };
   return notes[id];
+}
+
+function galleryLabel(id: string) {
+  const labels: Record<string, string> = {
+    "proyecto-fachada": "Proyecto/Fachada",
+    interiores: "Interiores",
+    areas: "Áreas comunes"
+  };
+  return labels[id] ?? id;
 }
 
 function Fact({ label, value }: { label: string; value: string }) {

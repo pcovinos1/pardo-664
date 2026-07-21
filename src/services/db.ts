@@ -15,7 +15,11 @@ const dbPromise = openDB(DB_NAME, 1, {
 export async function getProject(): Promise<Project> {
   const db = await dbPromise;
   const saved = await db.get(STORE, PROJECT_KEY);
-  if (saved) return saved as Project;
+  if (saved) {
+    const normalized = normalizeProject(saved as Project);
+    await db.put(STORE, normalized, PROJECT_KEY);
+    return normalized;
+  }
   await db.put(STORE, initialProject, PROJECT_KEY);
   return initialProject;
 }
@@ -29,4 +33,22 @@ export async function resetProject(): Promise<Project> {
   const db = await dbPromise;
   await db.put(STORE, initialProject, PROJECT_KEY);
   return initialProject;
+}
+
+function normalizeProject(project: Project): Project {
+  const galleries = [...project.galleries];
+  for (const gallery of initialProject.galleries) {
+    if (!galleries.some((item) => item.id === gallery.id)) {
+      galleries.push(gallery);
+    }
+  }
+
+  const sections = [...project.sections];
+  for (const section of initialProject.sections) {
+    if (!sections.some((item) => item.id === section.id)) {
+      sections.push(section);
+    }
+  }
+
+  return { ...project, galleries, sections };
 }
