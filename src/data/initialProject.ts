@@ -2,7 +2,7 @@ import type { Apartment, Gallery, Hotspot, Project, Room, Typology } from "../ty
 import heroFachada from "../assets/pdf-pages/hero-fachada.png";
 import proyecto from "../assets/pdf-pages/proyecto.png";
 import arquitecturaNomena from "../assets/pdf-pages/arquitectura-nomena.png";
-import mapaBarrio from "../assets/pdf-pages/mapa-barrio.png";
+import mapaBarrio from "../assets/pdf-pages/mapa-pardo664.svg";
 import areasComunes from "../assets/pdf-pages/areas-comunes.png";
 import interiores1 from "../assets/pdf-pages/interiores-1.png";
 import interiores2 from "../assets/pdf-pages/interiores-2.png";
@@ -344,20 +344,41 @@ export const initialProject: Project = {
   typologies,
   pointsOfInterest: [
     { id: "poi-1", name: "Dolce Capriccio", category: "Gastronomía", x: 22, y: 43, visible: true, order: 1 },
-    { id: "poi-2", name: "Xoma", category: "Gastronomía", x: 28, y: 38, visible: true, order: 2 },
-    { id: "poi-3", name: "Panchita", category: "Gastronomía", x: 58, y: 48, visible: true, order: 3 },
-    { id: "poi-4", name: "Matsuei", category: "Gastronomía", x: 63, y: 38, visible: true, order: 4 },
-    { id: "poi-5", name: "La Lucha Sanguchería", category: "Gastronomía", x: 73, y: 49, visible: true, order: 5 },
-    { id: "poi-6", name: "Rutina Café", category: "Cafés", x: 38, y: 58, visible: true, order: 6 },
-    { id: "poi-7", name: "Latte Bakery", category: "Cafés", x: 48, y: 62, visible: true, order: 7 },
-    { id: "poi-8", name: "Café de Lima", category: "Cafés", x: 36, y: 30, visible: true, order: 8 },
-    { id: "poi-9", name: "Colegio San Silvestre", category: "Educación", x: 18, y: 26, visible: true, order: 9 },
-    { id: "poi-10", name: "Universidad de Piura", category: "Educación", x: 82, y: 31, visible: true, order: 10 },
-    { id: "poi-11", name: "Falabella", category: "Tiendas", x: 76, y: 64, visible: true, order: 11 },
-    { id: "poi-12", name: "Wong", category: "Tiendas", x: 61, y: 67, visible: true, order: 12 },
-    { id: "poi-13", name: "Kennedy", category: "Parques", x: 71, y: 58, visible: true, order: 13 },
-    { id: "poi-14", name: "Malecón de Miraflores", category: "Parques", x: 20, y: 72, visible: true, order: 14 },
-    { id: "poi-15", name: "Diagonal", category: "Entretenimiento", x: 69, y: 52, visible: true, order: 15 }
+    { id: "poi-2", name: "Xoma", category: "Gastronomía", x: 31, y: 38, visible: true, order: 2 },
+    { id: "poi-3", name: "Cervecería del Valle", category: "Gastronomía", x: 58, y: 31, visible: true, order: 3 },
+    { id: "poi-4", name: "Panchita", category: "Gastronomía", x: 72, y: 39, visible: true, order: 4 },
+    { id: "poi-5", name: "Matsuei", category: "Gastronomía", x: 72, y: 46, visible: true, order: 5 },
+    { id: "poi-6", name: "La Gloria", category: "Gastronomía", x: 76, y: 39, visible: true, order: 6 },
+    { id: "poi-7", name: "La Cabrera", category: "Gastronomía", x: 80, y: 39, visible: true, order: 7 },
+    { id: "poi-8", name: "La Lucha Sanguchería", category: "Gastronomía", x: 40, y: 35, visible: true, order: 8 },
+    { id: "poi-9", name: "Tori", category: "Gastronomía", x: 22, y: 27, visible: true, order: 9 },
+    { id: "poi-10", name: "Tomo Cocina Nikkei", category: "Gastronomía", x: 86, y: 41, visible: true, order: 10 },
+    { id: "poi-11", name: "La Cantina di Epicuro", category: "Gastronomía", x: 50, y: 47, visible: true, order: 11 },
+    { id: "poi-12", name: "La Mora", category: "Gastronomía", x: 67, y: 72, visible: true, order: 12 },
+    { id: "poi-13", name: "Rutina Café", category: "Cafés", x: 76, y: 69, visible: true, order: 13 },
+    { id: "poi-14", name: "Edo", category: "Gastronomía", x: 44, y: 52, visible: true, order: 14 },
+    { id: "poi-15", name: "Punto Azul", category: "Gastronomía", x: 42, y: 58, visible: true, order: 15 },
+    { id: "poi-16", name: "Mariaté", category: "Gastronomía", x: 55, y: 13, visible: true, order: 16 },
+    { id: "poi-17", name: "La Porteña", category: "Gastronomía", x: 40, y: 29, visible: true, order: 17 },
+    { id: "poi-18", name: "Latte Bakery", category: "Cafés", x: 42, y: 27, visible: true, order: 18 },
+    { id: "poi-19", name: "Panadería Cultivo", category: "Cafés", x: 42, y: 34, visible: true, order: 19 },
+    { id: "poi-20", name: "Mattoni", category: "Gastronomía", x: 16, y: 25, visible: true, order: 20 },
+    { id: "poi-21", name: "Punto Café", category: "Cafés", x: 18, y: 25, visible: true, order: 21 },
+    { id: "poi-22", name: "La Negra Panadería de Barrio", category: "Cafés", x: 16, y: 28, visible: true, order: 22 },
+    { id: "poi-23", name: "La Caffetteria di Lonato", category: "Cafés", x: 17, y: 21, visible: true, order: 23 },
+    { id: "poi-24", name: "Café de Lima", category: "Cafés", x: 27, y: 9, visible: true, order: 24 },
+    { id: "poi-25", name: "Raw Café", category: "Cafés", x: 68, y: 9, visible: true, order: 25 },
+    { id: "poi-26", name: "Colegio San Silvestre", category: "Educación", x: 18, y: 20, visible: true, order: 26 },
+    { id: "poi-27", name: "Colegio Inmaculado Corazón", category: "Educación", x: 28, y: 9, visible: true, order: 27 },
+    { id: "poi-28", name: "Colegio Mater Purissima", category: "Educación", x: 24, y: 55, visible: true, order: 28 },
+    { id: "poi-29", name: "Universidad de Piura", category: "Educación", x: 73, y: 48, visible: true, order: 29 },
+    { id: "poi-30", name: "Falabella", category: "Tiendas", x: 81, y: 43, visible: true, order: 30 },
+    { id: "poi-31", name: "Wong", category: "Tiendas", x: 67, y: 55, visible: true, order: 31 },
+    { id: "poi-32", name: "Metro", category: "Tiendas", x: 68, y: 55, visible: true, order: 32 },
+    { id: "poi-33", name: "Kennedy", category: "Parques", x: 78, y: 55, visible: true, order: 33 },
+    { id: "poi-34", name: "Malecón de Miraflores", category: "Parques", x: 41, y: 75, visible: true, order: 34 },
+    { id: "poi-35", name: "El Principito", category: "Parques", x: 12, y: 67, visible: true, order: 35 },
+    { id: "poi-36", name: "Manuel Solari Swayne", category: "Parques", x: 67, y: 14, visible: true, order: 36 }
   ],
   version: {
     version: "1.0",

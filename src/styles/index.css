@@ -304,7 +304,7 @@ textarea:focus-visible {
   }
 
   .location-scene {
-    @apply mx-auto grid min-h-[calc(100vh-9rem)] max-w-[1680px] gap-6 overflow-hidden lg:grid-cols-[0.78fr_1.45fr_0.77fr];
+    @apply mx-auto grid min-h-[calc(100vh-9rem)] max-w-[1760px] gap-6 overflow-hidden lg:grid-cols-[0.72fr_1.35fr_0.93fr];
   }
 
   .location-copy {
@@ -349,19 +349,19 @@ textarea:focus-visible {
   }
 
   .location-list {
-    @apply relative z-20 bg-paper/90 p-5 backdrop-blur;
+    @apply relative z-20 bg-paper/90 p-4 backdrop-blur;
   }
 
   .location-list-scroll {
-    @apply max-h-[64vh] space-y-1 overflow-auto pr-1;
+    @apply grid grid-cols-2 gap-x-3 gap-y-1 pr-1;
   }
 
   .location-list button {
-    @apply flex w-full items-center gap-3 border-b border-ink/10 py-2 text-left text-sm transition duration-200;
+    @apply flex w-full items-center gap-2 border-b border-ink/10 py-1.5 text-left text-xs transition duration-200;
   }
 
   .location-list button span {
-    @apply grid size-7 shrink-0 place-items-center rounded-full border border-ink/10 text-xs text-morada;
+    @apply grid size-6 shrink-0 place-items-center rounded-full border border-ink/10 text-[11px] text-morada;
   }
 
   .location-list button strong {

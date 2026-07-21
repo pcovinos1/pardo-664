@@ -42,6 +42,16 @@ function normalizeProject(project: Project): Project {
       galleries.push(gallery);
     }
   }
+  const initialBarrio = initialProject.galleries.find((gallery) => gallery.id === "barrio");
+  const normalizedGalleries = galleries.map((gallery) => {
+    if (gallery.id !== "barrio" || !initialBarrio?.images[0]) return gallery;
+    const firstImage = gallery.images[0];
+    if (!firstImage || firstImage.src.startsWith("data:")) return gallery;
+    return {
+      ...gallery,
+      images: [{ ...firstImage, src: initialBarrio.images[0].src, title: initialBarrio.images[0].title }, ...gallery.images.slice(1)]
+    };
+  });
 
   const sections = [...project.sections];
   for (const section of initialProject.sections) {
@@ -50,7 +60,14 @@ function normalizeProject(project: Project): Project {
     }
   }
 
-  const pointsOfInterest = project.pointsOfInterest
+  const mergedPoints = [...project.pointsOfInterest];
+  for (const point of initialProject.pointsOfInterest) {
+    if (!mergedPoints.some((item) => item.id === point.id)) {
+      mergedPoints.push(point);
+    }
+  }
+
+  const pointsOfInterest = mergedPoints
     .map((point, index) => ({
       ...point,
       visible: typeof point.visible === "boolean" ? point.visible : true,
@@ -58,5 +75,5 @@ function normalizeProject(project: Project): Project {
     }))
     .sort((a, b) => a.order - b.order);
 
-  return { ...project, galleries, sections, pointsOfInterest };
+  return { ...project, galleries: normalizedGalleries, sections, pointsOfInterest };
 }
