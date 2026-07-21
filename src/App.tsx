@@ -155,8 +155,8 @@ function AmenitiesPage({ project, onOpenGallery }: { project: Project; onOpenGal
   const gallery = project.galleries.find((item) => item.id === "areas");
   const section = getSection(project, "amenities");
   return (
-    <section className="editorial-page">
-      <Photobook
+    <section className="story-page">
+      <ParallaxStory
         eyebrow={section.title}
         title={gallery?.title ?? section.title}
         text={section.summary}
@@ -212,8 +212,8 @@ function InteriorsPage({ project, onOpenGallery }: { project: Project; onOpenGal
       }
     : undefined;
   return (
-    <section className="editorial-page">
-      <Photobook
+    <section className="story-page">
+      <ParallaxStory
         eyebrow={section.title}
         title={baseGallery?.title ?? section.title}
         text={section.summary}
@@ -305,6 +305,34 @@ function Photobook({ eyebrow, title, text, gallery, labels, onOpenGallery }: { e
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+function ParallaxStory({ eyebrow, title, text, gallery, labels, onOpenGallery }: { eyebrow: string; title: string; text: string; gallery?: Gallery; labels: string[]; onOpenGallery: (value: { images: GalleryImage[]; index: number }) => void }) {
+  if (!gallery || gallery.images.length === 0) return null;
+  return (
+    <div className="parallax-story">
+      <header className="parallax-intro">
+        <p className="eyebrow">{eyebrow}</p>
+        <h1 className="editorial-title">{title}</h1>
+        <p className="editorial-lead">{text}</p>
+        <div className="photobook-labels">
+          {labels.map((label) => <span key={label}>{label}</span>)}
+        </div>
+      </header>
+      {gallery.images.map((image, index) => (
+        <section className={`parallax-panel ${index % 2 ? "is-offset" : ""}`} key={image.id}>
+          <button className="parallax-image" onClick={() => onOpenGallery({ images: gallery.images, index })} type="button">
+            <img src={image.src} alt={image.title} />
+          </button>
+          <article className="parallax-caption">
+            <span>{String(index + 1).padStart(2, "0")}</span>
+            <h2>{image.title}</h2>
+            {image.description ? <p>{image.description}</p> : null}
+          </article>
+        </section>
+      ))}
     </div>
   );
 }
@@ -717,6 +745,9 @@ function AdminGalleries({ project, updateProject }: { project: Project; updatePr
                   }
                 />
                 <p className="text-sm text-ink/70">{gallery.images.length} imagen(es)</p>
+                <p className="mt-2 max-w-2xl rounded bg-white px-3 py-2 text-sm text-ink/70">
+                  Tamaño sugerido: {imageSizeRecommendation(gallery.id)}
+                </p>
               </div>
               <label className="secondary-touch cursor-pointer">
                 <Plus className="size-4" /> Agregar foto
@@ -806,6 +837,9 @@ function AdminLocation({ project, updateProject }: { project: Project; updatePro
       <div className="grid gap-5 lg:grid-cols-[320px_1fr]">
         <div>
           {mapImage ? <img className="mb-3 h-56 w-full rounded bg-white object-contain" src={mapImage.src} alt={mapImage.title} /> : null}
+          <p className="mb-3 rounded bg-white px-3 py-2 text-sm text-ink/70">
+            Tamaño sugerido: {imageSizeRecommendation("barrio")}
+          </p>
           <label className="secondary-touch w-full cursor-pointer justify-center">
             <Upload className="size-4" /> Reemplazar mapa
             <input className="hidden" type="file" accept="image/png,image/jpeg,image/svg+xml" onChange={(event) => {
@@ -857,6 +891,9 @@ function AdminTypology({ typology, updateProject }: { typology: Typology; update
       <div className="space-y-3">
         <label>Código<input className="field" value={typology.code} onChange={(event) => update({ code: event.target.value })} /></label>
         <label className="flex items-center gap-2"><input type="checkbox" checked={typology.active} onChange={(event) => update({ active: event.target.checked })} /> Tipología activa</label>
+        <p className="rounded bg-white px-3 py-2 text-sm text-ink/70">
+          Tamaño sugerido: {imageSizeRecommendation("plano")}
+        </p>
         <label className="secondary-touch w-full cursor-pointer justify-center">
           <Upload className="size-4" /> Reemplazar plano
           <input className="hidden" type="file" accept="image/png,image/jpeg,image/svg+xml" onChange={(event) => {
@@ -891,6 +928,9 @@ function AdminFiles({ project, selectedTypologyId, updateProject }: { project: P
     <div className="rounded border border-ink/10 bg-porcelain p-5">
       <h2 className="section-title">Planta típica</h2>
       <img className="mb-3 h-56 w-full rounded bg-white object-contain" src={project.floorPlan.imageSrc} alt={project.floorPlan.title} />
+      <p className="mb-3 rounded bg-white px-3 py-2 text-sm text-ink/70">
+        Tamaño sugerido: {imageSizeRecommendation("planta")}
+      </p>
       <label className="field mb-3 block cursor-pointer text-center">
         <Upload className="mx-auto mb-2" /> Reemplazar planta típica
         <input className="hidden" type="file" accept="image/png,image/jpeg,image/svg+xml,application/pdf" onChange={(event) => {
@@ -931,6 +971,19 @@ function PageHeading({ eyebrow, title, text }: { eyebrow: string; title: string;
 
 function getSection(project: Project, id: string) {
   return project.sections.find((section) => section.id === id) ?? { id, title: id, summary: "", order: 0, enabled: true };
+}
+
+function imageSizeRecommendation(id: string) {
+  const recommendations: Record<string, string> = {
+    fachada: "Hero/portada: 2880 x 1800 px, JPG/WebP horizontal, menos de 2.5 MB si es posible.",
+    arquitectura: "Arquitectura: 2400 x 1600 px, JPG horizontal, buen foco en personas o fachada.",
+    interiores: "Interiores parallax: 2560 x 1700 px o 3000 x 2000 px, horizontal, sin textos incrustados.",
+    areas: "Áreas comunes parallax: 2560 x 1700 px o 3000 x 2000 px, horizontal, imagen limpia y luminosa.",
+    barrio: "Mapa/ubicación: 2400 x 1600 px en PNG o SVG; mantener nombres legibles en tablet.",
+    plano: "Plano de tipología: 3000 x 2200 px o superior, PNG/JPG nítido; toda la ficha técnica debe venir dentro de la imagen.",
+    planta: "Planta típica: 3000 x 2000 px o superior, PNG/JPG nítido; dejar margen para zonas táctiles."
+  };
+  return recommendations[id] ?? "Imagen editorial: mínimo 2400 px de ancho, horizontal, JPG/PNG/SVG.";
 }
 
 function Fact({ label, value }: { label: string; value: string }) {

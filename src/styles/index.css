@@ -193,6 +193,62 @@ textarea:focus-visible {
     @apply h-full w-full object-cover;
   }
 
+  .story-page {
+    @apply animate-[fadeIn_520ms_ease_both] bg-paper pb-36 text-ink;
+  }
+
+  .parallax-story {
+    @apply mx-auto max-w-[1680px] px-5 pt-10 md:px-10;
+  }
+
+  .parallax-intro {
+    @apply mb-16 max-w-5xl;
+  }
+
+  .parallax-panel {
+    @apply relative mb-20 min-h-[78vh] md:mb-28;
+  }
+
+  .parallax-panel.is-offset {
+    @apply md:pl-[18vw];
+  }
+
+  .parallax-image {
+    @apply sticky top-8 block h-[72vh] min-h-[520px] w-full overflow-hidden bg-white md:w-[82vw];
+  }
+
+  .parallax-panel.is-offset .parallax-image {
+    @apply md:w-[70vw];
+  }
+
+  .parallax-image img {
+    @apply h-full w-full scale-[1.03] object-cover transition duration-700;
+  }
+
+  .parallax-image:hover img {
+    transform: scale(1.06);
+  }
+
+  .parallax-caption {
+    @apply relative z-10 -mt-28 max-w-xl bg-paper/90 p-6 backdrop-blur md:ml-10 md:p-8;
+  }
+
+  .parallax-panel.is-offset .parallax-caption {
+    @apply md:ml-auto md:mr-10;
+  }
+
+  .parallax-caption span {
+    @apply text-xs font-semibold uppercase tracking-[0.24em] text-morada;
+  }
+
+  .parallax-caption h2 {
+    @apply mt-3 font-display text-4xl md:text-6xl;
+  }
+
+  .parallax-caption p {
+    @apply mt-4 text-lg leading-relaxed text-ink/70;
+  }
+
   .location-scene {
     @apply relative mx-auto min-h-[calc(100vh-9rem)] max-w-[1680px] overflow-hidden;
   }
