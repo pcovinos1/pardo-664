@@ -153,6 +153,13 @@ public/content/project.json
 
 También se puede entrar al administrador y presionar “Sincronizar desde GitHub” para forzar la revisión.
 
+La sincronización automática ocurre:
+
+- Al abrir la app.
+- Al volver a enfocar la app.
+- Al recuperar conexión a internet.
+- Cada 60 segundos mientras la app esté abierta.
+
 Importante: GitHub no recibe automáticamente las fotos subidas desde el administrador. Primero se debe descargar `project.json` y subirlo al repositorio.
 
 ## Copia de seguridad

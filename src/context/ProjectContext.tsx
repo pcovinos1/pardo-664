@@ -53,6 +53,25 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     return remote;
   }, []);
 
+  useEffect(() => {
+    const syncWhenOnline = () => {
+      if (navigator.onLine) void syncFromRemote().catch(() => undefined);
+    };
+    const syncWhenVisible = () => {
+      if (document.visibilityState === "visible") syncWhenOnline();
+    };
+    const interval = window.setInterval(syncWhenOnline, 60_000);
+    window.addEventListener("online", syncWhenOnline);
+    window.addEventListener("focus", syncWhenOnline);
+    document.addEventListener("visibilitychange", syncWhenVisible);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("online", syncWhenOnline);
+      window.removeEventListener("focus", syncWhenOnline);
+      document.removeEventListener("visibilitychange", syncWhenVisible);
+    };
+  }, [syncFromRemote]);
+
   const value = useMemo(() => ({ project, loading, updateProject, reload, syncFromRemote }), [project, loading, updateProject, reload, syncFromRemote]);
   return <ProjectContext.Provider value={value}>{children}</ProjectContext.Provider>;
 }
