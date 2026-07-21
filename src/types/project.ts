@@ -90,7 +90,7 @@ export interface Typology {
 export interface PointOfInterest {
   id: string;
   name: string;
-  category: "Gastronomía" | "Cafés" | "Parques" | "Educación" | "Tiendas" | "Entretenimiento";
+  category: "Gastronomía" | "Parques" | "Educación" | "Tiendas" | "Entretenimiento";
   x: number;
   y: number;
   visible: boolean;

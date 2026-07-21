@@ -67,12 +67,18 @@ function normalizeProject(project: Project): Project {
     }
   }
 
+  const initialPointsById = new Map(initialProject.pointsOfInterest.map((point) => [point.id, point]));
   const pointsOfInterest = mergedPoints
-    .map((point, index) => ({
-      ...point,
-      visible: typeof point.visible === "boolean" ? point.visible : true,
-      order: typeof point.order === "number" ? point.order : index + 1
-    }))
+    .map((point, index) => {
+      const initialPoint = initialPointsById.get(point.id);
+      const rawCategory = String(point.category);
+      return {
+        ...point,
+        category: rawCategory === "Cafés" ? "Gastronomía" : (initialPoint?.category ?? point.category),
+        visible: typeof point.visible === "boolean" ? point.visible : true,
+        order: typeof point.order === "number" ? point.order : index + 1
+      };
+    })
     .sort((a, b) => a.order - b.order);
 
   return { ...project, galleries: normalizedGalleries, sections, pointsOfInterest };
