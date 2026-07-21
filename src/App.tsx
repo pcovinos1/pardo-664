@@ -129,50 +129,68 @@ function ProjectPage({ project, onOpenGallery }: { project: Project; onOpenGalle
   const architectureImage = architectureGallery?.images[0];
   const section = getSection(project, "project");
   return (
-    <section className="editorial-page">
-      <div className="editorial-hero">
-        <button className="editorial-hero__image" onClick={() => onOpenGallery({ images, index: 0 })} type="button">
-          <img src={images[0]?.src} alt="Pardo 664" />
-        </button>
-        <div className="editorial-hero__copy">
-          <p className="eyebrow">{section.title}</p>
-          <h1 className="editorial-title">{project.name}</h1>
-          <p className="editorial-lead">{project.shortDescription}</p>
-          <div className="editorial-stats">
-            <Stat label="Arquitectura" value={project.architect} />
-            <Stat label="Certificación" value={project.certification} />
-            <Stat label="Distrito" value={project.district} />
-            <Stat label="Áreas" value={project.areaRange} />
-          </div>
-        </div>
-      </div>
-      <section className="project-interiors">
-        <div className="project-section-heading">
-          <p className="eyebrow">{projectFacadeGallery?.title ?? "Fachada y proyecto"}</p>
-          <h2 className="font-display text-4xl leading-tight md:text-6xl">Tres miradas a la arquitectura de Pardo 664.</h2>
-          <p>{section.summary}</p>
-        </div>
-        <div className="project-interior-grid">
-          {projectFacadeImages.map((image, index) => (
-            <button key={image.id} className={index === 0 ? "is-large" : ""} onClick={() => projectFacadeGallery && onOpenGallery({ images: projectFacadeGallery.images, index })} type="button">
-              <img src={image.src} alt={image.title} />
-              <span>{image.title}</span>
-            </button>
-          ))}
-        </div>
-      </section>
-      <section className="project-architects">
-        <button className="project-architects__image" onClick={() => architectureGallery && onOpenGallery({ images: architectureGallery.images, index: 0 })} type="button">
-          <img src={architectureImage?.src} alt={architectureImage?.title ?? project.architect} />
-        </button>
-        <article>
-          <p className="eyebrow">{architectureSection.title}</p>
-          <h2 className="font-display text-4xl leading-tight md:text-6xl">{project.architect}</h2>
-          <p>{architectureSection.summary}</p>
-          {architectureImage?.description ? <p>{architectureImage.description}</p> : null}
-        </article>
-      </section>
-    </section>
+    <HorizontalSections
+      label="Proyecto"
+      slides={[
+        {
+          id: "project-intro",
+          content: (
+            <div className="horizontal-editorial-layout">
+              <button className="horizontal-editorial-image" onClick={() => onOpenGallery({ images, index: 0 })} type="button">
+                <img src={images[0]?.src} alt="Pardo 664" />
+              </button>
+              <article>
+                <p className="eyebrow">{section.title}</p>
+                <h1 className="editorial-title">{project.name}</h1>
+                <p className="editorial-lead">{project.shortDescription}</p>
+                <div className="editorial-stats">
+                  <Stat label="Arquitectura" value={project.architect} />
+                  <Stat label="Certificación" value={project.certification} />
+                  <Stat label="Distrito" value={project.district} />
+                  <Stat label="Áreas" value={project.areaRange} />
+                </div>
+              </article>
+            </div>
+          )
+        },
+        {
+          id: "project-facade",
+          content: (
+            <div className="horizontal-feature-layout">
+              <article>
+                <p className="eyebrow">{projectFacadeGallery?.title ?? "Fachada y proyecto"}</p>
+                <h2 className="font-display text-4xl leading-tight md:text-6xl">Tres miradas a la arquitectura de Pardo 664.</h2>
+                <p>{section.summary}</p>
+              </article>
+              <div className="horizontal-image-strip">
+                {projectFacadeImages.map((image, index) => (
+                  <button key={image.id} className={index === 0 ? "is-wide" : ""} onClick={() => projectFacadeGallery && onOpenGallery({ images: projectFacadeGallery.images, index })} type="button">
+                    <img src={image.src} alt={image.title} />
+                    <span>{image.title}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )
+        },
+        {
+          id: "project-architects",
+          content: (
+            <div className="horizontal-editorial-layout is-reversed">
+              <button className="horizontal-editorial-image" onClick={() => architectureGallery && onOpenGallery({ images: architectureGallery.images, index: 0 })} type="button">
+                <img src={architectureImage?.src} alt={architectureImage?.title ?? project.architect} />
+              </button>
+              <article>
+                <p className="eyebrow">{architectureSection.title}</p>
+                <h2 className="editorial-title">{project.architect}</h2>
+                <p className="editorial-lead">{architectureSection.summary}</p>
+                {architectureImage?.description ? <p className="mt-6 text-xl leading-relaxed text-ink/70">{architectureImage.description}</p> : null}
+              </article>
+            </div>
+          )
+        }
+      ]}
+    />
   );
 }
 
@@ -180,16 +198,7 @@ function AmenitiesPage({ project, onOpenGallery }: { project: Project; onOpenGal
   const gallery = project.galleries.find((item) => item.id === "areas");
   const section = getSection(project, "amenities");
   return (
-    <section className="story-page">
-      <ParallaxStory
-        eyebrow={section.title}
-        title={gallery?.title ?? section.title}
-        text={section.summary}
-        gallery={gallery}
-        labels={project.sharedAreas}
-        onOpenGallery={onOpenGallery}
-      />
-    </section>
+    <HorizontalGalleryStory eyebrow={section.title} title={gallery?.title ?? section.title} text={section.summary} gallery={gallery} labels={project.sharedAreas} onOpenGallery={onOpenGallery} />
   );
 }
 
@@ -221,16 +230,7 @@ function InteriorsPage({ project, onOpenGallery }: { project: Project; onOpenGal
   const gallery = project.galleries.find((item) => item.id === "interiores");
   const section = getSection(project, "interiors");
   return (
-    <section className="story-page">
-      <ParallaxStory
-        eyebrow={section.title}
-        title={gallery?.title ?? section.title}
-        text={section.summary}
-        gallery={gallery}
-        labels={gallery?.images.map((image) => image.title) ?? ["Sala", "Comedor", "Cocina", "Dormitorio principal", "Dormitorio secundario", "Baño", "Detalles de materiales"]}
-        onOpenGallery={onOpenGallery}
-      />
-    </section>
+    <HorizontalGalleryStory eyebrow={section.title} title={gallery?.title ?? section.title} text={section.summary} gallery={gallery} labels={gallery?.images.map((image) => image.title) ?? ["Sala", "Comedor", "Cocina", "Dormitorio principal", "Dormitorio secundario", "Baño", "Detalles de materiales"]} onOpenGallery={onOpenGallery} />
   );
 }
 
@@ -360,6 +360,84 @@ function Photobook({ eyebrow, title, text, gallery, labels, onOpenGallery }: { e
         </div>
       </div>
     </div>
+  );
+}
+
+function HorizontalSections({ label, slides }: { label: string; slides: Array<{ id: string; content: JSX.Element }> }) {
+  const [index, setIndex] = useState(0);
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const goTo = (nextIndex: number) => {
+    const boundedIndex = Math.min(slides.length - 1, Math.max(0, nextIndex));
+    setIndex(boundedIndex);
+    const track = trackRef.current;
+    if (track) track.scrollTo({ left: track.clientWidth * boundedIndex, behavior: "smooth" });
+  };
+  return (
+    <section className="horizontal-story" aria-label={label}>
+      <div className="horizontal-track" ref={trackRef} onScroll={(event) => setIndex(Math.round(event.currentTarget.scrollLeft / event.currentTarget.clientWidth))}>
+        {slides.map((slide) => (
+          <section className="horizontal-slide" key={slide.id}>
+            {slide.content}
+          </section>
+        ))}
+      </div>
+      {slides.length > 1 ? (
+        <div className="horizontal-nav">
+          <button onClick={() => goTo(index - 1)} disabled={index === 0} type="button" aria-label="Anterior"><ChevronLeft /></button>
+          <div>
+            {slides.map((slide, dotIndex) => (
+              <button key={slide.id} className={dotIndex === index ? "is-active" : ""} onClick={() => goTo(dotIndex)} type="button" aria-label={`Ir a sección ${dotIndex + 1}`} />
+            ))}
+          </div>
+          <button onClick={() => goTo(index + 1)} disabled={index === slides.length - 1} type="button" aria-label="Siguiente"><ChevronRight /></button>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function HorizontalGalleryStory({ eyebrow, title, text, gallery, labels, onOpenGallery }: { eyebrow: string; title: string; text: string; gallery?: Gallery; labels: string[]; onOpenGallery: (value: { images: GalleryImage[]; index: number }) => void }) {
+  if (!gallery || gallery.images.length === 0) return null;
+  return (
+    <HorizontalSections
+      label={title}
+      slides={[
+        {
+          id: "intro",
+          content: (
+            <div className="horizontal-gallery-intro">
+              <article>
+                <p className="eyebrow">{eyebrow}</p>
+                <h1 className="editorial-title">{title}</h1>
+                <p className="editorial-lead">{text}</p>
+                <div className="photobook-labels">
+                  {labels.map((label) => <span key={label}>{label}</span>)}
+                </div>
+              </article>
+              <button onClick={() => onOpenGallery({ images: gallery.images, index: 0 })} type="button">
+                <img src={gallery.images[0].src} alt={gallery.images[0].title} />
+                <span>{gallery.images[0].title}</span>
+              </button>
+            </div>
+          )
+        },
+        ...gallery.images.map((image, imageIndex) => ({
+          id: image.id,
+          content: (
+            <div className="horizontal-gallery-slide">
+              <button onClick={() => onOpenGallery({ images: gallery.images, index: imageIndex })} type="button">
+                <img src={image.src} alt={image.title} />
+              </button>
+              <article>
+                <span>{String(imageIndex + 1).padStart(2, "0")}</span>
+                <h2>{image.title}</h2>
+                {image.description ? <p>{image.description}</p> : null}
+              </article>
+            </div>
+          )
+        }))
+      ]}
+    />
   );
 }
 
