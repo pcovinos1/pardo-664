@@ -398,6 +398,7 @@ function HorizontalSections({ label, slides }: { label: string; slides: Array<{ 
 
 function HorizontalGalleryStory({ eyebrow, title, text, gallery, labels, onOpenGallery }: { eyebrow: string; title: string; text: string; gallery?: Gallery; labels: string[]; onOpenGallery: (value: { images: GalleryImage[]; index: number }) => void }) {
   if (!gallery || gallery.images.length === 0) return null;
+  const detailImages = gallery.images.slice(1);
   return (
     <HorizontalSections
       label={title}
@@ -421,11 +422,13 @@ function HorizontalGalleryStory({ eyebrow, title, text, gallery, labels, onOpenG
             </div>
           )
         },
-        ...gallery.images.map((image, imageIndex) => ({
+        ...detailImages.map((image, imageIndex) => {
+          const galleryIndex = imageIndex + 1;
+          return {
           id: image.id,
           content: (
             <div className="horizontal-gallery-slide">
-              <button onClick={() => onOpenGallery({ images: gallery.images, index: imageIndex })} type="button">
+              <button onClick={() => onOpenGallery({ images: gallery.images, index: galleryIndex })} type="button">
                 <img src={image.src} alt={image.title} />
               </button>
               <article>
@@ -435,7 +438,8 @@ function HorizontalGalleryStory({ eyebrow, title, text, gallery, labels, onOpenG
               </article>
             </div>
           )
-        }))
+        };
+        })
       ]}
     />
   );
