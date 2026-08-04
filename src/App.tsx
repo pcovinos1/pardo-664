@@ -684,9 +684,10 @@ function AdminPage({ project, updateProject, reload, syncFromRemote }: { project
                 setMessage("No se pudo generar el ZIP.");
               }
             }} type="button"><Download /> Exportar actualización</button>
-            <button className="secondary-touch mb-3 w-full" onClick={() => {
+            <button className="secondary-touch mb-3 w-full" onClick={async () => {
               try {
-                exportProjectJson(project);
+                setMessage("Generando project.json optimizado...");
+                await exportProjectJson(project);
                 setMessage("project.json generado. Revisa la carpeta Descargas.");
               } catch {
                 setMessage("No se pudo generar project.json.");

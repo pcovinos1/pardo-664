@@ -44,9 +44,53 @@ export async function exportProjectZip(project: Project): Promise<void> {
   downloadBlob(blob, `pardo-664-${project.version.version}-${project.version.publishedAt}.zip`);
 }
 
-export function exportProjectJson(project: Project): void {
-  const blob = new Blob([serializeProject(project)], { type: "application/json" });
+export async function exportProjectJson(project: Project): Promise<void> {
+  const optimizedProject = await optimizeProjectForJson(project);
+  const blob = new Blob([serializeProject(optimizedProject)], { type: "application/json" });
   downloadBlob(blob, "project.json");
+}
+
+async function optimizeProjectForJson(project: Project): Promise<Project> {
+  const cloned = JSON.parse(serializeProject(project)) as Project;
+  const optimize = async (src: string, maxDimension = 2200) => {
+    if (!src.startsWith("data:image/") || src.startsWith("data:image/svg+xml")) return src;
+    if (src.length < 1_200_000) return src;
+    return compressRasterDataUrl(src, maxDimension, 0.84).catch(() => src);
+  };
+
+  cloned.logoSrc = cloned.logoSrc ? await optimize(cloned.logoSrc, 900) : cloned.logoSrc;
+  cloned.floorPlan.imageSrc = await optimize(cloned.floorPlan.imageSrc, 2600);
+  for (const gallery of cloned.galleries) {
+    for (const image of gallery.images) {
+      image.src = await optimize(image.src, gallery.id === "barrio" ? 2600 : 2200);
+    }
+  }
+  for (const typology of cloned.typologies) {
+    typology.planSrc = await optimize(typology.planSrc, 2600);
+    typology.thumbnailSrc = await optimize(typology.thumbnailSrc, 1400);
+    typology.floorThumbnailSrc = await optimize(typology.floorThumbnailSrc, 1800);
+  }
+  return cloned;
+}
+
+async function compressRasterDataUrl(src: string, maxDimension: number, quality: number): Promise<string> {
+  const response = await fetch(src);
+  const blob = await response.blob();
+  const bitmap = await createImageBitmap(blob);
+  const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
+  const width = Math.max(1, Math.round(bitmap.width * scale));
+  const height = Math.max(1, Math.round(bitmap.height * scale));
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+  if (!context) return src;
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, width, height);
+  context.drawImage(bitmap, 0, 0, width, height);
+  bitmap.close();
+  const next = canvas.toDataURL("image/jpeg", quality);
+  return next.length < src.length ? next : src;
 }
 
 function serializeProject(project: Project): string {
