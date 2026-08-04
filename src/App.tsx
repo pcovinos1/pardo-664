@@ -432,7 +432,6 @@ function HorizontalGalleryStory({ eyebrow, title, text, gallery, labels, onOpenG
                 <img src={image.src} alt={image.title} />
               </button>
               <article>
-                <span>{String(imageIndex + 1).padStart(2, "0")}</span>
                 <h2>{image.title}</h2>
                 {image.description ? <p>{image.description}</p> : null}
               </article>
