@@ -543,19 +543,23 @@ textarea:focus-visible {
   }
 
   .location-scene {
-    @apply mx-auto grid min-h-[calc(100vh-9rem)] max-w-[1900px] gap-5 overflow-hidden lg:grid-cols-[0.54fr_1.72fr_0.84fr];
+    @apply mx-auto grid min-h-[calc(100vh-9rem)] max-w-[1920px] gap-4 overflow-hidden lg:grid-cols-[230px_minmax(0,1fr)_300px] xl:grid-cols-[300px_minmax(0,1fr)_360px];
   }
 
   .location-copy {
-    @apply relative z-10 pt-2;
+    @apply relative z-10 flex flex-col justify-center py-4;
   }
 
   .location-copy .editorial-title {
     @apply text-5xl md:text-6xl xl:text-7xl;
   }
 
+  .location-copy .editorial-lead {
+    @apply mt-5 text-lg leading-relaxed xl:text-xl;
+  }
+
   .location-map {
-    @apply grid h-[78vh] min-h-[640px] place-items-center overflow-hidden bg-white;
+    @apply grid h-[calc(100vh-10rem)] min-h-[560px] place-items-center overflow-hidden bg-[#fbf4ea];
   }
 
   .location-map-frame {
@@ -588,33 +592,50 @@ textarea:focus-visible {
   }
 
   .location-filters {
-    @apply mt-8 flex flex-wrap gap-2;
+    @apply mt-7 flex flex-wrap gap-2;
+  }
+
+  .location-filters .pill {
+    @apply min-h-10 px-4 text-sm;
   }
 
   .location-list {
-    @apply relative z-20 bg-paper/90 p-4 backdrop-blur;
+    @apply relative z-20 flex h-[calc(100vh-10rem)] min-h-[560px] flex-col bg-paper/90 p-4 backdrop-blur;
+  }
+
+  .location-list-head {
+    @apply flex items-start justify-between gap-3 border-b border-ink/10 pb-4;
+  }
+
+  .location-list-head span {
+    @apply text-xs font-semibold uppercase tracking-[0.14em] text-ink/40;
+  }
+
+  .location-list-head > strong {
+    @apply grid size-10 shrink-0 place-items-center rounded-full bg-morada font-semibold text-white;
   }
 
   .location-list-scroll {
-    @apply grid grid-cols-2 gap-x-3 gap-y-1 pr-1;
+    @apply mt-3 flex-1 space-y-1 overflow-y-auto pr-1;
+    scrollbar-width: thin;
   }
 
   .location-list button {
-    @apply flex w-full items-center gap-2 border-b border-ink/10 py-1.5 text-left text-xs transition duration-200;
+    @apply flex min-h-11 w-full items-center gap-3 rounded-xl border border-transparent px-2 py-2 text-left text-sm transition duration-200;
   }
 
   .location-list button span {
-    @apply grid size-6 shrink-0 place-items-center rounded-full border border-ink/10 text-[11px] text-morada;
+    @apply grid size-7 shrink-0 place-items-center rounded-full border border-ink/10 bg-white text-xs text-morada;
   }
 
   .location-list button strong {
-    @apply font-medium text-ink/75;
+    @apply font-semibold leading-tight text-ink/70;
   }
 
   .location-list button:hover,
   .location-list button:focus-visible,
   .location-list button.is-active {
-    @apply pl-2 text-morada;
+    @apply border-morada/20 bg-white text-morada shadow-soft;
   }
 
   .location-list button.is-active span,
@@ -628,7 +649,7 @@ textarea:focus-visible {
   }
 
   .location-active-name {
-    @apply mt-4 border-t border-ink/10 pt-4 text-sm font-semibold text-morada;
+    @apply my-3 rounded-2xl bg-morada/10 px-4 py-3 text-lg font-semibold text-morada;
   }
 
   .admin-location-map {

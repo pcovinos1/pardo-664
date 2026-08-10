@@ -472,7 +472,14 @@ function LocationPage({ project, filter, setFilter, onOpenGallery }: { project: 
           </div>
         </div>
         <aside className="location-list">
-          <p className="eyebrow mb-2">Puntos de interés</p>
+          <div className="location-list-head">
+            <div>
+              <p className="eyebrow mb-1">Puntos de interés</p>
+              <span>{visible.length} lugares visibles</span>
+            </div>
+            {activePoi ? <strong>{activePoi.order}</strong> : null}
+          </div>
+          {activePoi ? <p className="location-active-name">{activePoi.name}</p> : null}
           <div className="location-list-scroll">
             {visible.map((poi) => {
               const active = activePoiId === poi.id;
@@ -493,7 +500,6 @@ function LocationPage({ project, filter, setFilter, onOpenGallery }: { project: 
               );
             })}
           </div>
-          {activePoi ? <p className="location-active-name">{activePoi.name}</p> : null}
         </aside>
         {/* <div className="location-filters">
           {categories.map((category) => (
