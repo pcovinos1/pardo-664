@@ -297,10 +297,10 @@ function AboutProjectsSlide({ districts, filter, projects, setFilter }: { distri
       <div className="about-project-grid">
         {projects.map((item) => (
           <article key={item.id} className="about-project-card">
-            <img src={item.imageSrc} alt={item.name} />
+              <img src={item.imageSrc} alt={item.name} />
             <div>
               <h3>{item.name}</h3>
-              <p>{item.architect}</p>
+              <p>{item.year}</p>
               <span>{item.district}</span>
             </div>
           </article>
@@ -1073,7 +1073,7 @@ function AdminAbout({ project, updateProject }: { project: Project; updateProjec
           {
             id: `morada-project-${Date.now()}`,
             name: "Nuevo proyecto",
-            architect: "Arquitecto por definir",
+            year: String(new Date().getFullYear()),
             district: "Miraflores",
             imageSrc: current.about.projects[0]?.imageSrc ?? "",
             order: current.about.projects.length + 1
@@ -1190,7 +1190,7 @@ function AdminAbout({ project, updateProject }: { project: Project; updateProjec
                 </div>
                 <div className="grid gap-3 md:grid-cols-2">
                   <label>Nombre<input className="field" value={item.name} onChange={(event) => updateAboutProject(item.id, { name: event.target.value })} /></label>
-                  <label>Arquitecto<input className="field" value={item.architect} onChange={(event) => updateAboutProject(item.id, { architect: event.target.value })} /></label>
+                  <label>Año<input className="field" inputMode="numeric" value={item.year} onChange={(event) => updateAboutProject(item.id, { year: event.target.value })} /></label>
                   <label>Distrito
                     <select className="field" value={item.district} onChange={(event) => updateAboutProject(item.id, { district: event.target.value })}>
                       {["Miraflores", "San Isidro", "Barranco", "Surco"].map((district) => <option key={district} value={district}>{district}</option>)}

@@ -85,7 +85,7 @@ const aboutProjects = Array.from({ length: 13 }, (_, index) => {
   return {
     id: `morada-project-${String(index + 1).padStart(2, "0")}`,
     name: `Proyecto ${String(index + 1).padStart(2, "0")}`,
-    architect: "Arquitecto por definir",
+    year: String(2020 + (index % 6)),
     district: districts[index % districts.length],
     imageSrc: images[index % images.length],
     order: index + 1

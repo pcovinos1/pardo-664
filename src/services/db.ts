@@ -42,7 +42,13 @@ function normalizeProject(project: Project): Project {
         ...initialProject.about,
         ...project.about,
         slides: project.about.slides?.length ? project.about.slides : initialProject.about.slides,
-        projects: project.about.projects?.length ? project.about.projects : initialProject.about.projects
+        projects: project.about.projects?.length
+          ? project.about.projects.map((item, index) => ({
+              ...item,
+              year: typeof item.year === "string" && item.year ? item.year : "2020",
+              order: typeof item.order === "number" ? item.order : index + 1
+            }))
+          : initialProject.about.projects
       }
     : initialProject.about;
   const galleries = [...project.galleries];

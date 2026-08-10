@@ -122,7 +122,8 @@ export interface AboutSlide {
 export interface AboutProject {
   id: string;
   name: string;
-  architect: string;
+  year: string;
+  architect?: string;
   district: "Miraflores" | "San Isidro" | "Barranco" | "Surco" | string;
   imageSrc: string;
   order: number;
