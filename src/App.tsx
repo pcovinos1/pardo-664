@@ -422,7 +422,7 @@ function InteriorsPage({ project, onOpenGallery }: { project: Project; onOpenGal
 function LocationPage({ project, filter, setFilter, onOpenGallery }: { project: Project; filter: string; setFilter: (value: string) => void; onOpenGallery: (value: { images: GalleryImage[]; index: number }) => void }) {
   const [hoveredPoiId, setHoveredPoiId] = useState<string | null>(null);
   const [selectedPoiId, setSelectedPoiId] = useState<string | null>(null);
-  const categories = ["Todos", "Gastronomía", "Parques", "Educación", "Tiendas", "Entretenimiento"];
+  const categories = ["Todos", "Gastronomía", "Parques", "Educación", "Tiendas"];
   const gallery = project.galleries.find((item) => item.id === "barrio");
   const visible = project.pointsOfInterest
     .filter((poi) => poi.visible)
@@ -1362,7 +1362,7 @@ function AdminLocation({ project, updateProject }: { project: Project; updatePro
   const [status, setStatus] = useState("");
   const [selectedPoiId, setSelectedPoiId] = useState(project.pointsOfInterest[0]?.id ?? "");
   const mapFrameRef = useRef<HTMLDivElement | null>(null);
-  const categories: Array<Project["pointsOfInterest"][number]["category"]> = ["Gastronomía", "Parques", "Educación", "Tiendas", "Entretenimiento"];
+  const categories: Array<Project["pointsOfInterest"][number]["category"]> = ["Gastronomía", "Parques", "Educación", "Tiendas"];
   const barrioGallery = project.galleries.find((gallery) => gallery.id === "barrio");
   const mapImage = barrioGallery?.images[0];
   const sortedPois = [...project.pointsOfInterest].sort((a, b) => a.order - b.order);
