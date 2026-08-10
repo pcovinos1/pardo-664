@@ -239,6 +239,10 @@ function Home({ project, onNavigate }: { project: Project; onNavigate: (view: Vi
 }
 
 function AboutUsPage({ project }: { project: Project }) {
+  const [projectFilter, setProjectFilter] = useState("Todos");
+  const aboutProjects = [...(project.about.projects ?? [])].sort((a, b) => a.order - b.order);
+  const districts = ["Todos", ...Array.from(new Set(aboutProjects.map((item) => item.district).filter(Boolean)))];
+  const filteredProjects = aboutProjects.filter((item) => projectFilter === "Todos" || item.district === projectFilter);
   const aboutSlides = [
     {
       id: "about-cover",
@@ -260,9 +264,50 @@ function AboutUsPage({ project }: { project: Project }) {
     ...project.about.slides.map((slide) => ({
       id: slide.id,
       content: <AboutSlide number={slide.number} text={highlightText(slide.text, slide.keywords)} imageSrc={slide.imageSrc} />
-    }))
+    })),
+    {
+      id: "about-projects",
+      content: (
+        <AboutProjectsSlide
+          districts={districts}
+          filter={projectFilter}
+          projects={filteredProjects}
+          setFilter={setProjectFilter}
+        />
+      )
+    }
   ];
   return <HorizontalSections label="About us" slides={aboutSlides} />;
+}
+
+function AboutProjectsSlide({ districts, filter, projects, setFilter }: { districts: string[]; filter: string; projects: Project["about"]["projects"]; setFilter: (value: string) => void }) {
+  return (
+    <div className="about-projects">
+      <header>
+        <p className="eyebrow">Morada</p>
+        <h2>Proyectos</h2>
+        <div className="about-project-filters">
+          {districts.map((district) => (
+            <button key={district} className={filter === district ? "is-active" : ""} onClick={() => setFilter(district)} type="button">
+              {district}
+            </button>
+          ))}
+        </div>
+      </header>
+      <div className="about-project-grid">
+        {projects.map((item) => (
+          <article key={item.id} className="about-project-card">
+            <img src={item.imageSrc} alt={item.name} />
+            <div>
+              <h3>{item.name}</h3>
+              <p>{item.architect}</p>
+              <span>{item.district}</span>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 function AboutSlide({ number, text, imageSrc }: { number: string; text: ReactNode; imageSrc?: string }) {
@@ -1010,6 +1055,46 @@ function AdminAbout({ project, updateProject }: { project: Project; updateProjec
     const coverImageSrc = await fileToDataUrl(file);
     await updateAbout({ coverImageSrc });
   };
+  const updateAboutProject = (id: string, patch: Partial<Project["about"]["projects"][number]>) =>
+    updateProject((current) => ({
+      ...current,
+      about: {
+        ...current.about,
+        projects: current.about.projects.map((item) => (item.id === id ? { ...item, ...patch } : item))
+      }
+    }));
+  const addAboutProject = () =>
+    updateProject((current) => ({
+      ...current,
+      about: {
+        ...current.about,
+        projects: [
+          ...current.about.projects,
+          {
+            id: `morada-project-${Date.now()}`,
+            name: "Nuevo proyecto",
+            architect: "Arquitecto por definir",
+            district: "Miraflores",
+            imageSrc: current.about.projects[0]?.imageSrc ?? "",
+            order: current.about.projects.length + 1
+          }
+        ]
+      }
+    }));
+  const removeAboutProject = (id: string) =>
+    updateProject((current) => ({
+      ...current,
+      about: {
+        ...current.about,
+        projects: current.about.projects.filter((item) => item.id !== id).map((item, index) => ({ ...item, order: index + 1 }))
+      }
+    }));
+  const replaceAboutProjectImage = async (id: string, file: File) => {
+    if (!isAllowedAsset(file) || file.type === "application/pdf") return;
+    const imageSrc = await fileToDataUrl(file);
+    await updateAboutProject(id, { imageSrc });
+  };
+  const sortedAboutProjects = [...(project.about.projects ?? [])].sort((a, b) => a.order - b.order);
   return (
     <div className="rounded border border-ink/10 bg-porcelain p-5">
       <h2 className="section-title">About us</h2>
@@ -1075,6 +1160,51 @@ function AdminAbout({ project, updateProject }: { project: Project; updateProjec
             </label>
           </article>
         ))}
+      </div>
+      <div className="mt-5 rounded border border-ink/10 bg-white p-4">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 className="font-display text-2xl">Proyectos</h3>
+            <p className="mt-1 text-sm text-ink/60">Slide final de About us. La grilla y los filtros se actualizan según el distrito de cada proyecto.</p>
+          </div>
+          <button className="primary-touch" onClick={addAboutProject} type="button">
+            <Plus className="size-4" /> Agregar proyecto
+          </button>
+        </div>
+        <div className="space-y-3">
+          {sortedAboutProjects.map((item) => (
+            <article key={item.id} className="rounded border border-ink/10 bg-paper p-3">
+              <div className="grid gap-3 lg:grid-cols-[160px_1fr_120px]">
+                <div>
+                  <div className="mb-2 grid h-32 place-items-center overflow-hidden rounded bg-white">
+                    {item.imageSrc ? <img className="h-full w-full object-cover" src={item.imageSrc} alt="" /> : <span className="text-xs text-ink/40">Fachada</span>}
+                  </div>
+                  <label className="secondary-touch w-full cursor-pointer justify-center">
+                    <Upload className="size-4" /> Fachada
+                    <input className="hidden" type="file" accept="image/png,image/jpeg,image/svg+xml" onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (file) void replaceAboutProjectImage(item.id, file);
+                      event.currentTarget.value = "";
+                    }} />
+                  </label>
+                </div>
+                <div className="grid gap-3 md:grid-cols-2">
+                  <label>Nombre<input className="field" value={item.name} onChange={(event) => updateAboutProject(item.id, { name: event.target.value })} /></label>
+                  <label>Arquitecto<input className="field" value={item.architect} onChange={(event) => updateAboutProject(item.id, { architect: event.target.value })} /></label>
+                  <label>Distrito
+                    <select className="field" value={item.district} onChange={(event) => updateAboutProject(item.id, { district: event.target.value })}>
+                      {["Miraflores", "San Isidro", "Barranco", "Surco"].map((district) => <option key={district} value={district}>{district}</option>)}
+                    </select>
+                  </label>
+                  <label>Orden<input className="field" type="number" value={item.order} onChange={(event) => updateAboutProject(item.id, { order: Number(event.target.value) || 1 })} /></label>
+                </div>
+                <button className="secondary-touch self-end" onClick={() => removeAboutProject(item.id)} type="button">
+                  <Trash2 className="size-4" /> Eliminar
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
       </div>
     </div>
   );

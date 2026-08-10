@@ -119,12 +119,22 @@ export interface AboutSlide {
   imageSrc?: string;
 }
 
+export interface AboutProject {
+  id: string;
+  name: string;
+  architect: string;
+  district: "Miraflores" | "San Isidro" | "Barranco" | "Surco" | string;
+  imageSrc: string;
+  order: number;
+}
+
 export interface AboutContent {
   eyebrow: string;
   title: string;
   subtitle: string;
   coverImageSrc?: string;
   slides: AboutSlide[];
+  projects: AboutProject[];
 }
 
 export interface Project {

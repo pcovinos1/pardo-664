@@ -79,6 +79,19 @@ const galleries: Gallery[] = [
   }
 ];
 
+const aboutProjects = Array.from({ length: 13 }, (_, index) => {
+  const districts = ["Miraflores", "San Isidro", "Barranco", "Surco"];
+  const images = [heroFachada, fachadaDetalle, proyecto, arquitecturaNomena, fichaProyecto];
+  return {
+    id: `morada-project-${String(index + 1).padStart(2, "0")}`,
+    name: `Proyecto ${String(index + 1).padStart(2, "0")}`,
+    architect: "Arquitecto por definir",
+    district: districts[index % districts.length],
+    imageSrc: images[index % images.length],
+    order: index + 1
+  };
+});
+
 const hotspotSeed: Array<[string, number, number, number, number]> = [
   ["a-1", 24, 47, 10, 20],
   ["a-2", 34, 45, 11, 22],
@@ -352,7 +365,8 @@ export const initialProject: Project = {
         keywords: ["arquitectura son nuestra continua fuente de inspiración"],
         imageSrc: ""
       }
-    ]
+    ],
+    projects: aboutProjects
   },
   sections: [
     { id: "project", title: "El proyecto", summary: "Síntesis comercial del edificio y sus atributos.", order: 1, enabled: true },

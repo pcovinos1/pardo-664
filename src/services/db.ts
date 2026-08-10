@@ -41,7 +41,8 @@ function normalizeProject(project: Project): Project {
     ? {
         ...initialProject.about,
         ...project.about,
-        slides: project.about.slides?.length ? project.about.slides : initialProject.about.slides
+        slides: project.about.slides?.length ? project.about.slides : initialProject.about.slides,
+        projects: project.about.projects?.length ? project.about.projects : initialProject.about.projects
       }
     : initialProject.about;
   const galleries = [...project.galleries];

@@ -486,6 +486,81 @@ textarea:focus-visible {
     @apply font-bold text-ink;
   }
 
+  .about-projects {
+    @apply mx-auto flex h-full w-full max-w-[1680px] flex-col overflow-hidden px-5 py-7 md:px-10;
+  }
+
+  .about-projects header {
+    @apply shrink-0;
+  }
+
+  .about-projects h2 {
+    @apply font-display text-5xl uppercase leading-none tracking-normal md:text-7xl;
+  }
+
+  .about-project-filters {
+    @apply mt-5 flex flex-wrap gap-2;
+  }
+
+  .about-project-filters button {
+    @apply min-h-9 rounded-full border border-ink px-4 text-xs font-semibold uppercase tracking-normal transition active:scale-95;
+  }
+
+  .about-project-filters button.is-active {
+    @apply bg-ink text-white;
+  }
+
+  .about-project-grid {
+    @apply mt-8 grid flex-1 auto-rows-max grid-cols-2 gap-x-5 gap-y-7 overflow-y-auto pr-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5;
+    scrollbar-width: thin;
+  }
+
+  .about-project-card {
+    @apply min-w-0;
+  }
+
+  .about-project-card img {
+    @apply aspect-[4/5] w-full border border-ink/20 bg-white object-cover;
+  }
+
+  .about-project-card div {
+    @apply pt-3;
+  }
+
+  .about-project-card h3 {
+    @apply truncate text-2xl font-medium uppercase leading-tight;
+  }
+
+  .about-project-card p {
+    @apply mt-2 truncate text-base text-ink/70;
+  }
+
+  .about-project-card span {
+    @apply mt-2 block text-xs font-semibold uppercase tracking-[0.18em] text-morada;
+  }
+
+  @media (max-width: 1366px) and (orientation: landscape) {
+    .about-projects {
+      @apply px-7 py-6;
+    }
+
+    .about-projects h2 {
+      @apply text-5xl;
+    }
+
+    .about-project-grid {
+      @apply mt-6 grid-cols-4 gap-x-4 gap-y-5;
+    }
+
+    .about-project-card img {
+      @apply aspect-[5/6];
+    }
+
+    .about-project-card h3 {
+      @apply text-xl;
+    }
+  }
+
   .story-page {
     @apply animate-[fadeIn_520ms_ease_both] bg-paper pb-36 text-ink;
   }
