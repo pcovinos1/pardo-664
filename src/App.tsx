@@ -124,7 +124,11 @@ function ProfitabilityCalculator({ typologyCode, onClose }: { typologyCode?: str
     if (key === "clear") return updateActive("0");
     if (key === "back") return updateActive(current.length > 1 ? current.slice(0, -1) : "0");
     if (key === "." && current.includes(".")) return;
-    updateActive(current === "0" && key !== "." ? key : `${current}${key}`);
+    const next = current === "0" && key !== "." ? key : `${current}${key}`;
+    const maxLength = activeField === "vacancy" ? 3 : activeField === "rent" || activeField === "expenses" ? 6 : 9;
+    if (next.replace(".", "").length > maxLength) return;
+    if (activeField === "vacancy" && parseValue(next) > 100) return updateActive("100");
+    updateActive(next);
   };
 
   return (
