@@ -1,4 +1,4 @@
-import { ArrowRight, ArrowUp, ArrowDown, Building2, Check, ChevronLeft, ChevronRight, Download, FileUp, Grid3X3, Lock, Plus, RotateCcw, Save, Search, Trash2, Upload } from "lucide-react";
+import { ArrowRight, ArrowUp, ArrowDown, Building2, Calculator, Check, ChevronLeft, ChevronRight, Download, FileUp, Grid3X3, Lock, Percent, Plus, RotateCcw, Save, Search, Trash2, TrendingUp, Upload, X } from "lucide-react";
 import type { ReactNode } from "react";
 import { useRef, useState } from "react";
 import { FloorPlanInteractive } from "./components/FloorPlanInteractive";
@@ -27,8 +27,10 @@ export default function App() {
   const [selectedTypologyId, setSelectedTypologyId] = useState("a-1");
   const [gallery, setGallery] = useState<{ images: GalleryImage[]; index: number } | null>(null);
   const [poiFilter, setPoiFilter] = useState("Todos");
+  const [calculatorOpen, setCalculatorOpen] = useState(false);
 
   const selectedTypology = project?.typologies.find((item) => item.id === selectedTypologyId) ?? project?.typologies[0];
+  const showProfitabilityCalculator = ["departments", "floor", "typology", "compare"].includes(view);
   const navigate = (next: ViewKey) => {
     if (next === "location") setPoiFilter("Todos");
     setView(next);
@@ -65,7 +67,109 @@ export default function App() {
       {view === "contact" && <ContactPage project={project} />}
       {view === "admin" && <AdminPage project={project} updateProject={updateProject} reload={reload} syncFromRemote={syncFromRemote} />}
       {gallery ? <GalleryModal images={gallery.images} initialIndex={gallery.index} onClose={() => setGallery(null)} /> : null}
+      {showProfitabilityCalculator ? <ProfitabilityButton onOpen={() => setCalculatorOpen(true)} /> : null}
+      {calculatorOpen ? <ProfitabilityCalculator typologyCode={selectedTypology?.code} onClose={() => setCalculatorOpen(false)} /> : null}
     </main>
+  );
+}
+
+function ProfitabilityButton({ onOpen }: { onOpen: () => void }) {
+  return (
+    <button className="profitability-trigger" onClick={onOpen} type="button">
+      <Calculator className="size-5" />
+      <span>Rentabilidad</span>
+    </button>
+  );
+}
+
+function ProfitabilityCalculator({ typologyCode, onClose }: { typologyCode?: string; onClose: () => void }) {
+  const [price, setPrice] = useState("650000");
+  const [rent, setRent] = useState("3500");
+  const [expenses, setExpenses] = useState("350");
+  const [vacancy, setVacancy] = useState("5");
+  const [extraInvestment, setExtraInvestment] = useState("0");
+
+  const parseValue = (value: string) => Number(value.replace(/[^\d.]/g, "")) || 0;
+  const totalInvestment = parseValue(price) + parseValue(extraInvestment);
+  const monthlyRent = parseValue(rent);
+  const monthlyExpenses = parseValue(expenses);
+  const vacancyFactor = Math.max(0, Math.min(100, parseValue(vacancy))) / 100;
+  const annualGross = monthlyRent * 12;
+  const annualNet = Math.max(0, (monthlyRent * (1 - vacancyFactor) - monthlyExpenses) * 12);
+  const grossYield = totalInvestment ? (annualGross / totalInvestment) * 100 : 0;
+  const netYield = totalInvestment ? (annualNet / totalInvestment) * 100 : 0;
+  const monthlyNet = annualNet / 12;
+
+  const currency = (value: number) =>
+    new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN", maximumFractionDigits: 0 }).format(value);
+  const percent = (value: number) => `${value.toFixed(1)}%`;
+
+  return (
+    <div className="calculator-overlay" role="dialog" aria-modal="true" aria-label="Calculadora de rentabilidad">
+      <button className="calculator-backdrop" onClick={onClose} type="button" aria-label="Cerrar calculadora" />
+      <section className="calculator-panel">
+        <header className="calculator-header">
+          <div>
+            <p className="eyebrow">Herramienta comercial</p>
+            <h2>Rentabilidad estimada</h2>
+            <span>{typologyCode ? `Tipología ${typologyCode}` : "Departamentos Pardo 664"}</span>
+          </div>
+          <button className="calculator-close" onClick={onClose} type="button" aria-label="Cerrar">
+            <X className="size-5" />
+          </button>
+        </header>
+        <div className="calculator-body">
+          <div className="calculator-inputs">
+            <CalculatorField label="Precio del departamento" value={price} onChange={setPrice} prefix="S/" />
+            <CalculatorField label="Renta mensual estimada" value={rent} onChange={setRent} prefix="S/" />
+            <CalculatorField label="Gastos mensuales" value={expenses} onChange={setExpenses} prefix="S/" />
+            <CalculatorField label="Vacancia estimada" value={vacancy} onChange={setVacancy} suffix="%" />
+            <CalculatorField label="Inversión adicional" value={extraInvestment} onChange={setExtraInvestment} prefix="S/" />
+          </div>
+          <div className="calculator-results">
+            <div className="calculator-hero-result">
+              <TrendingUp className="size-6" />
+              <span>Rentabilidad neta anual</span>
+              <strong>{percent(netYield)}</strong>
+            </div>
+            <div className="calculator-metrics">
+              <article>
+                <span>Bruta anual</span>
+                <strong>{percent(grossYield)}</strong>
+              </article>
+              <article>
+                <span>Ingreso neto mensual</span>
+                <strong>{currency(monthlyNet)}</strong>
+              </article>
+              <article>
+                <span>Ingreso neto anual</span>
+                <strong>{currency(annualNet)}</strong>
+              </article>
+              <article>
+                <span>Inversión total</span>
+                <strong>{currency(totalInvestment)}</strong>
+              </article>
+            </div>
+            <p className="calculator-note">
+              Cálculo referencial para conversación comercial. No reemplaza una evaluación financiera formal.
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function CalculatorField({ label, value, onChange, prefix, suffix }: { label: string; value: string; onChange: (value: string) => void; prefix?: string; suffix?: string }) {
+  return (
+    <label className="calculator-field">
+      <span>{label}</span>
+      <div>
+        {prefix ? <small>{prefix}</small> : null}
+        <input inputMode="decimal" value={value} onChange={(event) => onChange(event.target.value)} />
+        {suffix ? <small><Percent className="size-4" /></small> : null}
+      </div>
+    </label>
   );
 }
 
