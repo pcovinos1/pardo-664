@@ -1,4 +1,4 @@
-import { ArrowRight, ArrowUp, ArrowDown, Building2, Calculator, Check, ChevronLeft, ChevronRight, Download, FileUp, Grid3X3, Lock, Percent, Plus, RotateCcw, Save, Search, Trash2, TrendingUp, Upload, X } from "lucide-react";
+import { ArrowRight, ArrowUp, ArrowDown, Building2, Calculator, Check, ChevronLeft, ChevronRight, Download, FileUp, Grid3X3, Lock, Plus, RotateCcw, Save, Search, Trash2, TrendingUp, Upload, X } from "lucide-react";
 import type { ReactNode } from "react";
 import { useRef, useState } from "react";
 import { FloorPlanInteractive } from "./components/FloorPlanInteractive";
@@ -88,8 +88,19 @@ function ProfitabilityCalculator({ typologyCode, onClose }: { typologyCode?: str
   const [expenses, setExpenses] = useState("350");
   const [vacancy, setVacancy] = useState("5");
   const [extraInvestment, setExtraInvestment] = useState("0");
+  const [activeField, setActiveField] = useState<"price" | "rent" | "expenses" | "vacancy" | "extraInvestment">("price");
 
   const parseValue = (value: string) => Number(value.replace(/[^\d.]/g, "")) || 0;
+  const values = { price, rent, expenses, vacancy, extraInvestment };
+  const setters = { price: setPrice, rent: setRent, expenses: setExpenses, vacancy: setVacancy, extraInvestment: setExtraInvestment };
+  const fields = [
+    { id: "price" as const, label: "Precio", detail: "Departamento", prefix: "S/", value: price },
+    { id: "rent" as const, label: "Renta", detail: "Mensual", prefix: "S/", value: rent },
+    { id: "expenses" as const, label: "Gastos", detail: "Mensuales", prefix: "S/", value: expenses },
+    { id: "vacancy" as const, label: "Vacancia", detail: "Estimada", suffix: "%", value: vacancy },
+    { id: "extraInvestment" as const, label: "Adicional", detail: "Inversión", prefix: "S/", value: extraInvestment }
+  ];
+  const activeConfig = fields.find((field) => field.id === activeField) ?? fields[0];
   const totalInvestment = parseValue(price) + parseValue(extraInvestment);
   const monthlyRent = parseValue(rent);
   const monthlyExpenses = parseValue(expenses);
@@ -103,6 +114,18 @@ function ProfitabilityCalculator({ typologyCode, onClose }: { typologyCode?: str
   const currency = (value: number) =>
     new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN", maximumFractionDigits: 0 }).format(value);
   const percent = (value: number) => `${value.toFixed(1)}%`;
+  const formatDisplay = (value: string, prefix?: string, suffix?: string) => {
+    const clean = value || "0";
+    return `${prefix ? `${prefix} ` : ""}${clean}${suffix ? ` ${suffix}` : ""}`;
+  };
+  const updateActive = (next: string) => setters[activeField](next.replace(/^0+(?=\d)/, ""));
+  const pressKey = (key: string) => {
+    const current = values[activeField] || "0";
+    if (key === "clear") return updateActive("0");
+    if (key === "back") return updateActive(current.length > 1 ? current.slice(0, -1) : "0");
+    if (key === "." && current.includes(".")) return;
+    updateActive(current === "0" && key !== "." ? key : `${current}${key}`);
+  };
 
   return (
     <div className="calculator-overlay" role="dialog" aria-modal="true" aria-label="Calculadora de rentabilidad">
@@ -119,12 +142,27 @@ function ProfitabilityCalculator({ typologyCode, onClose }: { typologyCode?: str
           </button>
         </header>
         <div className="calculator-body">
-          <div className="calculator-inputs">
-            <CalculatorField label="Precio del departamento" value={price} onChange={setPrice} prefix="S/" />
-            <CalculatorField label="Renta mensual estimada" value={rent} onChange={setRent} prefix="S/" />
-            <CalculatorField label="Gastos mensuales" value={expenses} onChange={setExpenses} prefix="S/" />
-            <CalculatorField label="Vacancia estimada" value={vacancy} onChange={setVacancy} suffix="%" />
-            <CalculatorField label="Inversión adicional" value={extraInvestment} onChange={setExtraInvestment} prefix="S/" />
+          <div className="calculator-machine">
+            <div className="calculator-display">
+              <span>{activeConfig.label}</span>
+              <strong>{formatDisplay(activeConfig.value, activeConfig.prefix, activeConfig.suffix)}</strong>
+            </div>
+            <div className="calculator-field-grid">
+              {fields.map((field) => (
+                <button key={field.id} className={`calculator-chip ${activeField === field.id ? "is-active" : ""}`} onClick={() => setActiveField(field.id)} type="button">
+                  <span>{field.label}</span>
+                  <strong>{formatDisplay(field.value, field.prefix, field.suffix)}</strong>
+                </button>
+              ))}
+            </div>
+            <div className="calculator-keypad" aria-label="Teclado numérico">
+              {["7", "8", "9", "4", "5", "6", "1", "2", "3", "0", "00", "."].map((key) => (
+                <button key={key} onClick={() => pressKey(key)} type="button">{key}</button>
+              ))}
+              <button className="is-soft" onClick={() => pressKey("clear")} type="button">C</button>
+              <button className="is-soft" onClick={() => pressKey("back")} type="button">Borrar</button>
+              <button className="is-primary" onClick={() => setActiveField(activeField === "price" ? "rent" : activeField === "rent" ? "expenses" : activeField === "expenses" ? "vacancy" : activeField === "vacancy" ? "extraInvestment" : "price")} type="button">Siguiente</button>
+            </div>
           </div>
           <div className="calculator-results">
             <div className="calculator-hero-result">
@@ -157,19 +195,6 @@ function ProfitabilityCalculator({ typologyCode, onClose }: { typologyCode?: str
         </div>
       </section>
     </div>
-  );
-}
-
-function CalculatorField({ label, value, onChange, prefix, suffix }: { label: string; value: string; onChange: (value: string) => void; prefix?: string; suffix?: string }) {
-  return (
-    <label className="calculator-field">
-      <span>{label}</span>
-      <div>
-        {prefix ? <small>{prefix}</small> : null}
-        <input inputMode="decimal" value={value} onChange={(event) => onChange(event.target.value)} />
-        {suffix ? <small><Percent className="size-4" /></small> : null}
-      </div>
-    </label>
   );
 }
 
