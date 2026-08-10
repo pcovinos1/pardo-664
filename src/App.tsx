@@ -110,10 +110,17 @@ function AboutUsPage({ project }: { project: Project }) {
     {
       id: "about-cover",
       content: (
-        <div className="about-cover">
-          <p className="eyebrow">{project.about.eyebrow}</p>
-          <h1>{project.about.title}</h1>
-          <span>{project.about.subtitle}</span>
+        <div className={`about-cover ${project.about.coverImageSrc ? "has-image" : ""}`}>
+          <div className="about-cover__copy">
+            <p className="eyebrow">{project.about.eyebrow}</p>
+            <h1>{project.about.title}</h1>
+            <span>{project.about.subtitle}</span>
+          </div>
+          {project.about.coverImageSrc ? (
+            <div className="about-cover__image">
+              <img src={project.about.coverImageSrc} alt="" />
+            </div>
+          ) : null}
         </div>
       )
     },
@@ -859,6 +866,11 @@ function AdminAbout({ project, updateProject }: { project: Project; updateProjec
     const imageSrc = await fileToDataUrl(file);
     await updateSlide(id, { imageSrc });
   };
+  const replaceCoverImage = async (file: File) => {
+    if (!isAllowedAsset(file) || file.type === "application/pdf") return;
+    const coverImageSrc = await fileToDataUrl(file);
+    await updateAbout({ coverImageSrc });
+  };
   return (
     <div className="rounded border border-ink/10 bg-porcelain p-5">
       <h2 className="section-title">About us</h2>
@@ -866,6 +878,30 @@ function AdminAbout({ project, updateProject }: { project: Project; updateProjec
         <label>Eyebrow<input className="field" value={project.about.eyebrow} onChange={(event) => updateAbout({ eyebrow: event.target.value })} /></label>
         <label className="md:col-span-2">Título<input className="field" value={project.about.title} onChange={(event) => updateAbout({ title: event.target.value })} /></label>
         <label className="md:col-span-3">Subtítulo<input className="field" value={project.about.subtitle} onChange={(event) => updateAbout({ subtitle: event.target.value })} /></label>
+      </div>
+      <div className="mt-5 rounded border border-ink/10 bg-white p-4">
+        <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
+          <div>
+            <h3 className="font-display text-2xl">Imagen de portada</h3>
+            <p className="mt-1 text-sm leading-relaxed text-ink/60">Se muestra en la primera pantalla de About us, junto al titular principal. Tamaño sugerido: 2400 x 1600 px en JPG o PNG.</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <label className="secondary-touch cursor-pointer">
+                <Upload className="size-4" /> Reemplazar imagen
+                <input className="hidden" type="file" accept="image/png,image/jpeg,image/svg+xml" onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) void replaceCoverImage(file);
+                  event.currentTarget.value = "";
+                }} />
+              </label>
+              <button className="secondary-touch" onClick={() => updateAbout({ coverImageSrc: "" })} type="button">
+                <Trash2 className="size-4" /> Quitar imagen
+              </button>
+            </div>
+          </div>
+          <div className="grid min-h-44 place-items-center rounded bg-paper">
+            {project.about.coverImageSrc ? <img className="h-44 w-full rounded object-cover" src={project.about.coverImageSrc} alt="" /> : <span className="text-sm text-ink/50">Portada About us</span>}
+          </div>
+        </div>
       </div>
       <div className="mt-5 space-y-4">
         {project.about.slides.map((slide) => (

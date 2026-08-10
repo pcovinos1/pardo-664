@@ -329,6 +329,7 @@ export const initialProject: Project = {
     eyebrow: "Morada",
     title: "No hay lugar como tu Morada",
     subtitle: "Alta arquitectura peruana",
+    coverImageSrc: "",
     slides: [
       {
         id: "about-01",

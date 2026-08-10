@@ -389,6 +389,10 @@ textarea:focus-visible {
     @apply items-center px-10 md:px-20;
   }
 
+  .about-cover.has-image {
+    @apply gap-10 lg:grid-cols-[0.88fr_1.12fr];
+  }
+
   .about-cover::before,
   .about-slide::before {
     content: "";
@@ -406,6 +410,14 @@ textarea:focus-visible {
       linear-gradient(90deg, rgba(183, 127, 100, 0.22), transparent);
   }
 
+  .about-cover.has-image::after {
+    @apply opacity-25;
+  }
+
+  .about-cover__copy {
+    @apply relative z-10;
+  }
+
   .about-cover h1 {
     @apply relative z-10 max-w-3xl font-display text-6xl uppercase leading-[0.98] tracking-[0.02em] text-ink md:text-8xl;
   }
@@ -414,8 +426,16 @@ textarea:focus-visible {
     @apply text-morada;
   }
 
-  .about-cover > span {
+  .about-cover__copy > span {
     @apply relative z-10 mt-8 block max-w-max border-t-2 border-morada pt-4 text-sm font-bold uppercase tracking-[0.24em] text-morada;
+  }
+
+  .about-cover__image {
+    @apply relative z-10 hidden h-[74vh] min-h-[520px] overflow-hidden bg-white lg:block;
+  }
+
+  .about-cover__image img {
+    @apply h-full w-full object-cover;
   }
 
   .about-slide {

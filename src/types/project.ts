@@ -123,6 +123,7 @@ export interface AboutContent {
   eyebrow: string;
   title: string;
   subtitle: string;
+  coverImageSrc?: string;
   slides: AboutSlide[];
 }
 
