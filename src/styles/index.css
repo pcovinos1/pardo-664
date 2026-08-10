@@ -543,23 +543,23 @@ textarea:focus-visible {
   }
 
   .location-scene {
-    @apply mx-auto grid min-h-[calc(100vh-9rem)] max-w-[1920px] gap-4 overflow-hidden lg:grid-cols-[230px_minmax(0,1fr)_300px] xl:grid-cols-[300px_minmax(0,1fr)_360px];
+    @apply mx-auto grid min-h-[calc(100vh-8.25rem)] max-w-[1920px] gap-3 overflow-hidden lg:grid-cols-[190px_minmax(0,1fr)_260px] xl:grid-cols-[240px_minmax(0,1fr)_320px];
   }
 
   .location-copy {
-    @apply relative z-10 flex flex-col justify-center py-4;
+    @apply relative z-10 flex flex-col justify-center py-3;
   }
 
   .location-copy .editorial-title {
-    @apply text-5xl md:text-6xl xl:text-7xl;
+    @apply text-4xl md:text-5xl xl:text-6xl;
   }
 
   .location-copy .editorial-lead {
-    @apply mt-5 text-lg leading-relaxed xl:text-xl;
+    @apply mt-4 text-base leading-relaxed xl:text-lg;
   }
 
   .location-map {
-    @apply grid h-[calc(100vh-10rem)] min-h-[560px] place-items-center overflow-hidden bg-[#fbf4ea];
+    @apply grid h-[calc(100vh-8.75rem)] min-h-[610px] place-items-center overflow-hidden bg-[#fbf4ea];
   }
 
   .location-map-frame {
@@ -592,15 +592,15 @@ textarea:focus-visible {
   }
 
   .location-filters {
-    @apply mt-7 flex flex-wrap gap-2;
+    @apply mt-5 flex flex-wrap gap-2;
   }
 
   .location-filters .pill {
-    @apply min-h-10 px-4 text-sm;
+    @apply min-h-10 px-3 text-sm;
   }
 
   .location-list {
-    @apply relative z-20 flex h-[calc(100vh-10rem)] min-h-[560px] flex-col bg-paper/90 p-4 backdrop-blur;
+    @apply relative z-20 flex h-[calc(100vh-8.75rem)] min-h-[610px] flex-col bg-paper/90 p-3 backdrop-blur;
   }
 
   .location-list-head {
@@ -650,6 +650,36 @@ textarea:focus-visible {
 
   .location-active-name {
     @apply my-3 rounded-2xl bg-morada/10 px-4 py-3 text-lg font-semibold text-morada;
+  }
+
+  @media (max-width: 1366px) and (orientation: landscape) {
+    .location-scene {
+      @apply grid-cols-[170px_minmax(0,1fr)_245px] gap-2;
+    }
+
+    .location-copy .editorial-title {
+      @apply text-4xl;
+    }
+
+    .location-copy .editorial-lead {
+      @apply text-sm leading-relaxed;
+    }
+
+    .location-copy .eyebrow {
+      @apply text-xs;
+    }
+
+    .location-map {
+      @apply min-h-[620px];
+    }
+
+    .location-list {
+      @apply min-h-[620px];
+    }
+
+    .location-list button {
+      @apply min-h-10 text-xs;
+    }
   }
 
   .admin-location-map {
