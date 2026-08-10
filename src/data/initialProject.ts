@@ -325,6 +325,34 @@ export const initialProject: Project = {
   typologySummary: "Flats y dúplex de 1, 2 y 3 dormitorios",
   sharedAreas: ["Lobby", "Sala de espera", "Coworking", "Gimnasio", "SUM", "Zona de parrillas", "Piscina", "Pet-wash", "Laundry-room", "Jardín"],
   leedAttributes: ["Paneles solares", "Luces con sensores de movimiento", "Estacionamientos para bicicletas", "Tratamiento y reutilización de aguas residuales"],
+  about: {
+    eyebrow: "Morada",
+    title: "No hay lugar como tu Morada",
+    subtitle: "Alta arquitectura peruana",
+    slides: [
+      {
+        id: "about-01",
+        number: "01",
+        text: "Nacimos en el 2013 como una inmobiliaria boutique, comprometida con ofrecer el más alto estándar de arquitectura y servicio del sector inmobiliario en Lima.",
+        keywords: ["boutique", "el más alto estándar de arquitectura y servicio del sector inmobiliario"],
+        imageSrc: ""
+      },
+      {
+        id: "about-02",
+        number: "02",
+        text: "Trabajamos con talentosos arquitectos, artistas urbanos, paisajistas y diseñadores para crear proyectos que transforman la ciudad. Hemos publicado un libro de arquitectura, renovado parques y veredas, y ganado dos premios nacionales de arquitectura.",
+        keywords: ["arquitectos, artistas urbanos, paisajistas y diseñadores", "dos premios nacionales"],
+        imageSrc: ""
+      },
+      {
+        id: "about-03",
+        number: "03",
+        text: "El Perú, su gente, su historia, su legado y su arquitectura son nuestra continua fuente de inspiración.",
+        keywords: ["arquitectura son nuestra continua fuente de inspiración"],
+        imageSrc: ""
+      }
+    ]
+  },
   sections: [
     { id: "project", title: "El proyecto", summary: "Síntesis comercial del edificio y sus atributos.", order: 1, enabled: true },
     { id: "architecture", title: "Arquitectura", summary: "Diseño por Nómena Arquitectura.", order: 2, enabled: true },

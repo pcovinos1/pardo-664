@@ -43,7 +43,7 @@ export default function App() {
       <GlobalNav current={view} onNavigate={navigate} />
       {view === "home" && <Home project={project} onNavigate={navigate} />}
       {view === "menu" && <MenuPage onNavigate={navigate} />}
-      {view === "about" && <AboutUsPage />}
+      {view === "about" && <AboutUsPage project={project} />}
       {view === "project" && <ProjectPage project={project} onOpenGallery={setGallery} />}
       {view === "architecture" && <ArchitecturePage project={project} onOpenGallery={setGallery} />}
       {view === "amenities" && <AmenitiesPage project={project} onOpenGallery={setGallery} />}
@@ -105,69 +105,50 @@ function Home({ project, onNavigate }: { project: Project; onNavigate: (view: Vi
   );
 }
 
-const aboutSlides = [
-  {
-    id: "about-cover",
-    content: (
-      <div className="about-cover">
-        <p className="eyebrow">Morada</p>
-        <h1>No hay lugar como tu Morada</h1>
-        <span>Alta arquitectura peruana</span>
-      </div>
-    )
-  },
-  {
-    id: "about-01",
-    content: (
-      <AboutSlide
-        number="01"
-        text={<>Nacimos en el 2013 como una inmobiliaria <em>boutique</em>, comprometida con ofrecer <strong>el más alto estándar de arquitectura y servicio del sector inmobiliario</strong> en Lima.</>}
-      />
-    )
-  },
-  {
-    id: "about-02",
-    content: (
-      <AboutSlide
-        number="02"
-        text={<>Trabajamos con talentosos <strong>arquitectos, artistas urbanos, paisajistas y diseñadores</strong> para crear proyectos que transforman la ciudad.</>}
-      />
-    )
-  },
-  {
-    id: "about-03",
-    content: (
-      <AboutSlide
-        number="03"
-        text={<>Hemos publicado un libro de arquitectura, renovado parques y veredas, y ganado <strong>dos premios nacionales</strong> de arquitectura.</>}
-      />
-    )
-  },
-  {
-    id: "about-04",
-    content: (
-      <AboutSlide
-        number="04"
-        text={<>El Perú, su gente, su historia, su legado y su <strong className="text-morada">arquitectura son nuestra continua fuente de inspiración.</strong></>}
-        variant="landscape"
-      />
-    )
-  }
-];
-
-function AboutUsPage() {
+function AboutUsPage({ project }: { project: Project }) {
+  const aboutSlides = [
+    {
+      id: "about-cover",
+      content: (
+        <div className="about-cover">
+          <p className="eyebrow">{project.about.eyebrow}</p>
+          <h1>{project.about.title}</h1>
+          <span>{project.about.subtitle}</span>
+        </div>
+      )
+    },
+    ...project.about.slides.map((slide) => ({
+      id: slide.id,
+      content: <AboutSlide number={slide.number} text={highlightText(slide.text, slide.keywords)} imageSrc={slide.imageSrc} />
+    }))
+  ];
   return <HorizontalSections label="About us" slides={aboutSlides} />;
 }
 
-function AboutSlide({ number, text, variant }: { number: string; text: ReactNode; variant?: "landscape" }) {
+function AboutSlide({ number, text, imageSrc }: { number: string; text: ReactNode; imageSrc?: string }) {
   return (
-    <div className={`about-slide ${variant === "landscape" ? "is-landscape" : ""}`}>
+    <div className={`about-slide ${imageSrc ? "has-image" : ""}`}>
       <article>
         <span>{number}</span>
         <p>{text}</p>
       </article>
+      {imageSrc ? (
+        <div className="about-slide__image">
+          <img src={imageSrc} alt="" />
+        </div>
+      ) : null}
     </div>
   );
+}
+
+function highlightText(text: string, keywords: string[]) {
+  const activeKeywords = keywords.map((keyword) => keyword.trim()).filter(Boolean);
+  if (!activeKeywords.length) return text;
+  const escaped = activeKeywords.map((keyword) => keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const matcher = new RegExp(`(${escaped.join("|")})`, "gi");
+  return text.split(matcher).map((part, index) => (
+    activeKeywords.some((keyword) => keyword.toLowerCase() === part.toLowerCase()) ? <strong key={`${part}-${index}`}>{part}</strong> : part
+  ));
 }
 
 function MenuPage({ onNavigate }: { onNavigate: (view: ViewKey) => void }) {
@@ -721,6 +702,7 @@ function AdminPage({ project, updateProject, reload, syncFromRemote }: { project
       <div className="grid gap-6 xl:grid-cols-[1fr_0.85fr]">
         <div className="space-y-5">
           <AdminGeneral project={project} updateProject={updateProject} />
+          <AdminAbout project={project} updateProject={updateProject} />
           <AdminEditorialContent project={project} updateProject={updateProject} />
           <AdminGalleries project={project} updateProject={updateProject} />
           <AdminLocation project={project} updateProject={updateProject} />
@@ -856,6 +838,68 @@ function AdminGeneral({ project, updateProject }: { project: Project; updateProj
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function AdminAbout({ project, updateProject }: { project: Project; updateProject: (updater: (project: Project) => Project) => Promise<void> }) {
+  const updateAbout = (patch: Partial<Project["about"]>) =>
+    updateProject((current) => ({ ...current, about: { ...current.about, ...patch } }));
+  const updateSlide = (id: string, patch: Partial<Project["about"]["slides"][number]>) =>
+    updateProject((current) => ({
+      ...current,
+      about: {
+        ...current.about,
+        slides: current.about.slides.map((slide) => (slide.id === id ? { ...slide, ...patch } : slide))
+      }
+    }));
+  const replaceSlideImage = async (id: string, file: File) => {
+    if (!isAllowedAsset(file) || file.type === "application/pdf") return;
+    const imageSrc = await fileToDataUrl(file);
+    await updateSlide(id, { imageSrc });
+  };
+  return (
+    <div className="rounded border border-ink/10 bg-porcelain p-5">
+      <h2 className="section-title">About us</h2>
+      <div className="grid gap-3 md:grid-cols-3">
+        <label>Eyebrow<input className="field" value={project.about.eyebrow} onChange={(event) => updateAbout({ eyebrow: event.target.value })} /></label>
+        <label className="md:col-span-2">Título<input className="field" value={project.about.title} onChange={(event) => updateAbout({ title: event.target.value })} /></label>
+        <label className="md:col-span-3">Subtítulo<input className="field" value={project.about.subtitle} onChange={(event) => updateAbout({ subtitle: event.target.value })} /></label>
+      </div>
+      <div className="mt-5 space-y-4">
+        {project.about.slides.map((slide) => (
+          <article key={slide.id} className="rounded border border-ink/10 bg-white p-4">
+            <div className="grid gap-3 lg:grid-cols-[80px_1fr_260px]">
+              <label>Número<input className="field" value={slide.number} onChange={(event) => updateSlide(slide.id, { number: event.target.value })} /></label>
+              <label>Texto<textarea className="field min-h-32" value={slide.text} onChange={(event) => updateSlide(slide.id, { text: event.target.value })} /></label>
+              <div>
+                <div className="mb-3 grid min-h-32 place-items-center rounded bg-paper">
+                  {slide.imageSrc ? <img className="h-32 w-full rounded object-cover" src={slide.imageSrc} alt="" /> : <span className="text-sm text-ink/50">Imagen lateral derecha</span>}
+                </div>
+                <label className="secondary-touch w-full cursor-pointer justify-center">
+                  <Upload className="size-4" /> Reemplazar imagen
+                  <input className="hidden" type="file" accept="image/png,image/jpeg,image/svg+xml" onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) void replaceSlideImage(slide.id, file);
+                    event.currentTarget.value = "";
+                  }} />
+                </label>
+                <button className="secondary-touch mt-2 w-full" onClick={() => updateSlide(slide.id, { imageSrc: "" })} type="button">
+                  <Trash2 className="size-4" /> Quitar imagen
+                </button>
+              </div>
+            </div>
+            <label className="mt-3 block">Keywords destacadas
+              <input
+                className="field"
+                value={slide.keywords.join(", ")}
+                onChange={(event) => updateSlide(slide.id, { keywords: event.target.value.split(",").map((item) => item.trim()).filter(Boolean) })}
+                placeholder="Separar por comas"
+              />
+            </label>
+          </article>
+        ))}
       </div>
     </div>
   );

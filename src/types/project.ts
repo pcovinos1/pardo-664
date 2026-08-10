@@ -111,6 +111,21 @@ export interface ProjectVersion {
   changes: ChangeLog[];
 }
 
+export interface AboutSlide {
+  id: string;
+  number: string;
+  text: string;
+  keywords: string[];
+  imageSrc?: string;
+}
+
+export interface AboutContent {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  slides: AboutSlide[];
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -128,6 +143,7 @@ export interface Project {
   typologySummary: string;
   sharedAreas: string[];
   leedAttributes: string[];
+  about: AboutContent;
   sections: ProjectSection[];
   galleries: Gallery[];
   floorPlan: FloorPlan;

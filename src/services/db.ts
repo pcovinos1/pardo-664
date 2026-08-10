@@ -37,6 +37,13 @@ export async function resetProject(): Promise<Project> {
 
 function normalizeProject(project: Project): Project {
   const logoSrc = typeof project.logoSrc === "string" ? project.logoSrc : initialProject.logoSrc;
+  const about = project.about
+    ? {
+        ...initialProject.about,
+        ...project.about,
+        slides: project.about.slides?.length ? project.about.slides : initialProject.about.slides
+      }
+    : initialProject.about;
   const galleries = [...project.galleries];
   for (const gallery of initialProject.galleries) {
     if (!galleries.some((item) => item.id === gallery.id)) {
@@ -82,5 +89,5 @@ function normalizeProject(project: Project): Project {
     })
     .sort((a, b) => a.order - b.order);
 
-  return { ...project, logoSrc, galleries: normalizedGalleries, sections, pointsOfInterest };
+  return { ...project, logoSrc, about, galleries: normalizedGalleries, sections, pointsOfInterest };
 }
