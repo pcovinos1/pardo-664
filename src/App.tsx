@@ -1,4 +1,5 @@
 import { ArrowRight, ArrowUp, ArrowDown, Building2, Check, ChevronLeft, ChevronRight, Download, FileUp, Grid3X3, Lock, Plus, RotateCcw, Save, Search, Trash2, Upload } from "lucide-react";
+import type { ReactNode } from "react";
 import { useRef, useState } from "react";
 import { FloorPlanInteractive } from "./components/FloorPlanInteractive";
 import { GalleryModal } from "./components/GalleryModal";
@@ -10,6 +11,7 @@ import { resetProject } from "./services/db";
 import type { Gallery, GalleryImage, Project, Typology, ViewKey } from "./types/project";
 
 const menuItems: Array<{ view: ViewKey; title: string; text: string }> = [
+  { view: "about", title: "About us", text: "La visión y origen de Morada." },
   { view: "project", title: "El proyecto", text: "LEED, Miraflores y visión Morada." },
   { view: "architecture", title: "Arquitectura", text: "Nómena Arquitectura y fachada tridimensional." },
   { view: "location", title: "Ubicación", text: "Mapa ilustrado con filtros offline." },
@@ -41,6 +43,7 @@ export default function App() {
       <GlobalNav current={view} onNavigate={navigate} />
       {view === "home" && <Home project={project} onNavigate={navigate} />}
       {view === "menu" && <MenuPage onNavigate={navigate} />}
+      {view === "about" && <AboutUsPage />}
       {view === "project" && <ProjectPage project={project} onOpenGallery={setGallery} />}
       {view === "architecture" && <ArchitecturePage project={project} onOpenGallery={setGallery} />}
       {view === "amenities" && <AmenitiesPage project={project} onOpenGallery={setGallery} />}
@@ -99,6 +102,71 @@ function Home({ project, onNavigate }: { project: Project; onNavigate: (view: Vi
         <p className="text-sm text-white/60">Modo presentación: la pantalla vuelve a esta portada al reiniciar la experiencia.</p>
       </div>
     </section>
+  );
+}
+
+const aboutSlides = [
+  {
+    id: "about-cover",
+    content: (
+      <div className="about-cover">
+        <p className="eyebrow">Morada</p>
+        <h1>No hay lugar como tu Morada</h1>
+        <span>Alta arquitectura peruana</span>
+      </div>
+    )
+  },
+  {
+    id: "about-01",
+    content: (
+      <AboutSlide
+        number="01"
+        text={<>Nacimos en el 2013 como una inmobiliaria <em>boutique</em>, comprometida con ofrecer <strong>el más alto estándar de arquitectura y servicio del sector inmobiliario</strong> en Lima.</>}
+      />
+    )
+  },
+  {
+    id: "about-02",
+    content: (
+      <AboutSlide
+        number="02"
+        text={<>Trabajamos con talentosos <strong>arquitectos, artistas urbanos, paisajistas y diseñadores</strong> para crear proyectos que transforman la ciudad.</>}
+      />
+    )
+  },
+  {
+    id: "about-03",
+    content: (
+      <AboutSlide
+        number="03"
+        text={<>Hemos publicado un libro de arquitectura, renovado parques y veredas, y ganado <strong>dos premios nacionales</strong> de arquitectura.</>}
+      />
+    )
+  },
+  {
+    id: "about-04",
+    content: (
+      <AboutSlide
+        number="04"
+        text={<>El Perú, su gente, su historia, su legado y su <strong className="text-morada">arquitectura son nuestra continua fuente de inspiración.</strong></>}
+        variant="landscape"
+      />
+    )
+  }
+];
+
+function AboutUsPage() {
+  return <HorizontalSections label="About us" slides={aboutSlides} />;
+}
+
+function AboutSlide({ number, text, variant }: { number: string; text: ReactNode; variant?: "landscape" }) {
+  return (
+    <div className={`about-slide ${variant === "landscape" ? "is-landscape" : ""}`}>
+      <article>
+        <span>{number}</span>
+        <p>{text}</p>
+      </article>
+    </div>
   );
 }
 

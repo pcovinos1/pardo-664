@@ -1,4 +1,4 @@
-import { Armchair, Home, MapPin, PenTool, Sparkles, Trees, Settings } from "lucide-react";
+import { Armchair, Home, Info, MapPin, PenTool, Sparkles, Trees, Settings } from "lucide-react";
 import type { ComponentType } from "react";
 import type { ViewKey } from "../types/project";
 
@@ -9,6 +9,7 @@ interface Props {
 
 const items: Array<{ view: ViewKey; label: string; icon: ComponentType<{ className?: string }> }> = [
   { view: "home", label: "Inicio", icon: Home },
+  { view: "about", label: "About us", icon: Info },
   { view: "project", label: "Proyecto", icon: Sparkles },
   { view: "location", label: "Ubicación", icon: MapPin },
   { view: "amenities", label: "Áreas comunes", icon: Trees },

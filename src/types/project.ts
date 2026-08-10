@@ -1,6 +1,7 @@
 export type ViewKey =
   | "home"
   | "menu"
+  | "about"
   | "project"
   | "architecture"
   | "location"

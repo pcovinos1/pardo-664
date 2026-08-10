@@ -380,6 +380,84 @@ textarea:focus-visible {
     @apply mt-5 text-xl leading-relaxed text-ink/70;
   }
 
+  .about-cover,
+  .about-slide {
+    @apply relative mx-auto grid h-full w-full max-w-[1680px] overflow-hidden bg-[#f4eee6];
+  }
+
+  .about-cover {
+    @apply items-center px-10 md:px-20;
+  }
+
+  .about-cover::before,
+  .about-slide::before {
+    content: "";
+    @apply absolute inset-0 opacity-80;
+    background:
+      radial-gradient(circle at 15% 18%, rgba(255, 255, 255, 0.95), transparent 34%),
+      linear-gradient(110deg, rgba(251, 247, 241, 0.96) 0%, rgba(251, 247, 241, 0.78) 44%, rgba(188, 165, 138, 0.26) 100%);
+  }
+
+  .about-cover::after {
+    content: "";
+    @apply absolute bottom-0 left-0 h-[46%] w-[32%] opacity-80;
+    background:
+      linear-gradient(150deg, transparent 0 34%, rgba(154, 165, 143, 0.55) 35% 43%, transparent 44%),
+      linear-gradient(90deg, rgba(183, 127, 100, 0.22), transparent);
+  }
+
+  .about-cover h1 {
+    @apply relative z-10 max-w-3xl font-display text-6xl uppercase leading-[0.98] tracking-[0.02em] text-ink md:text-8xl;
+  }
+
+  .about-cover h1::first-line {
+    @apply text-morada;
+  }
+
+  .about-cover > span {
+    @apply relative z-10 mt-8 block max-w-max border-t-2 border-morada pt-4 text-sm font-bold uppercase tracking-[0.24em] text-morada;
+  }
+
+  .about-slide {
+    @apply items-center px-10 md:px-24;
+  }
+
+  .about-slide::after {
+    content: "";
+    @apply absolute bottom-0 right-0 h-[44%] w-[58%] opacity-80;
+    background:
+      linear-gradient(90deg, rgba(183, 127, 100, 0.42), rgba(255, 255, 255, 0.36)),
+      linear-gradient(90deg, transparent 0 16%, rgba(117, 83, 50, 0.45) 16% 24%, transparent 24% 34%, rgba(222, 211, 194, 0.82) 34% 48%, transparent 48% 62%, rgba(98, 63, 39, 0.46) 62% 72%, transparent 72%);
+  }
+
+  .about-slide.is-landscape::after {
+    @apply h-full w-full opacity-70;
+    background:
+      linear-gradient(90deg, rgba(251, 247, 241, 0.92) 0%, rgba(251, 247, 241, 0.7) 42%, transparent 74%),
+      linear-gradient(160deg, transparent 0 55%, rgba(183, 127, 100, 0.34) 56% 100%),
+      radial-gradient(circle at 82% 18%, rgba(255, 255, 255, 0.9), transparent 26%);
+  }
+
+  .about-slide article {
+    @apply relative z-10 max-w-xl;
+  }
+
+  .about-slide article > span {
+    @apply mb-8 block max-w-max border-b-2 border-morada pb-3 text-3xl font-semibold tracking-[0.08em] text-morada;
+  }
+
+  .about-slide p {
+    @apply text-3xl leading-relaxed text-ink/80 md:text-4xl;
+  }
+
+  .about-slide em {
+    @apply italic;
+  }
+
+  .about-slide strong {
+    @apply font-bold text-ink;
+  }
+
   .story-page {
     @apply animate-[fadeIn_520ms_ease_both] bg-paper pb-36 text-ink;
   }
