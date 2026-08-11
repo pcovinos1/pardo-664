@@ -1000,35 +1000,107 @@ textarea:focus-visible {
 
   @media (max-height: 820px) and (orientation: landscape) {
     .calculator-panel {
-      @apply max-w-[860px] p-4;
+      @apply max-w-[760px] rounded-[1rem] p-3;
     }
 
     .calculator-header {
-      @apply pb-2;
+      @apply items-center pb-2;
     }
 
     .calculator-header h2 {
-      @apply text-3xl;
+      @apply text-2xl;
+    }
+
+    .calculator-header .eyebrow,
+    .calculator-header span {
+      @apply hidden;
+    }
+
+    .calculator-close {
+      min-height: 2.25rem;
+      min-width: 2.25rem;
     }
 
     .calculator-body {
-      @apply mt-3 gap-3;
+      @apply mt-2 gap-2 lg:grid-cols-[1fr_0.72fr];
+    }
+
+    .calculator-machine {
+      @apply rounded-[1rem] p-2;
+    }
+
+    .calculator-display {
+      @apply rounded-[0.85rem] px-3 py-2;
+    }
+
+    .calculator-display span {
+      @apply text-[10px];
     }
 
     .calculator-display strong {
-      @apply text-4xl;
+      @apply text-3xl;
+    }
+
+    .calculator-field-grid,
+    .calculator-keypad {
+      @apply mt-2 gap-1.5;
     }
 
     .calculator-chip {
-      @apply min-h-14 py-2;
+      @apply min-h-11 rounded-xl px-2 py-1.5;
+    }
+
+    .calculator-chip span {
+      @apply text-[10px];
+    }
+
+    .calculator-chip strong {
+      @apply text-base;
     }
 
     .calculator-keypad button {
-      @apply min-h-11;
+      @apply min-h-9 rounded-xl text-base;
+    }
+
+    .calculator-keypad button.is-soft,
+    .calculator-keypad button.is-primary {
+      @apply text-xs;
+    }
+
+    .calculator-results {
+      @apply rounded-[1rem] p-3;
+    }
+
+    .calculator-hero-result {
+      @apply rounded-xl p-3;
+    }
+
+    .calculator-hero-result span {
+      @apply mt-2 text-[10px];
     }
 
     .calculator-hero-result strong {
-      @apply text-5xl;
+      @apply text-4xl;
+    }
+
+    .calculator-metrics {
+      @apply mt-2 gap-1.5;
+    }
+
+    .calculator-metrics article {
+      @apply rounded-xl p-2;
+    }
+
+    .calculator-metrics span {
+      @apply text-[10px];
+    }
+
+    .calculator-metrics strong {
+      @apply text-base;
+    }
+
+    .calculator-note {
+      @apply mt-2 text-[10px];
     }
 
     .virtual-tour-panel {
