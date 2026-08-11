@@ -14,8 +14,8 @@ export default {
         clay: "#b77f64"
       },
       fontFamily: {
-        display: ["Georgia", "Times New Roman", "serif"],
-        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"]
+        display: ["'Neue Haas Grotesk Display Pro'", "'Neue Haas Grotesk Display'", "'Haas Grot Text R Web'", "'Helvetica Neue'", "Arial", "ui-sans-serif", "system-ui", "sans-serif"],
+        sans: ["'Neue Haas Grotesk Text Pro'", "'Neue Haas Grotesk Text'", "'Haas Grot Text R Web'", "'Helvetica Neue'", "Arial", "ui-sans-serif", "system-ui", "sans-serif"]
       },
       boxShadow: {
         soft: "0 18px 55px rgba(39, 24, 50, 0.10)"
