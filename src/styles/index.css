@@ -1063,6 +1063,76 @@ textarea:focus-visible {
   }
 }
 
+@media (max-width: 1366px) and (orientation: landscape) {
+  .page-wrap {
+    padding: 2rem 1.75rem;
+  }
+
+  .editorial-title {
+    font-size: 3rem;
+  }
+
+  .editorial-lead {
+    margin-top: 1rem;
+    font-size: 1.125rem;
+    line-height: 1.625;
+  }
+
+  .home-departments-button,
+  .primary-touch,
+  .secondary-touch {
+    min-height: 2.75rem;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+  }
+
+  .about-cover h1 {
+    font-size: 3.75rem;
+  }
+
+  .about-slide p {
+    font-size: 1.5rem;
+    line-height: 1.625;
+  }
+
+  .about-projects h2 {
+    font-size: 3rem;
+  }
+
+  .horizontal-gallery-slide article h2,
+  .parallax-caption h2,
+  .horizontal-editorial-layout h2 {
+    font-size: 2.25rem;
+  }
+
+  .horizontal-gallery-slide article p,
+  .horizontal-feature-layout article p:not(.eyebrow) {
+    font-size: 1.125rem;
+  }
+
+  .photobook-labels span {
+    font-size: 0.75rem;
+  }
+
+  .font-display.text-6xl {
+    font-size: 3rem;
+  }
+
+  .font-display.text-5xl {
+    font-size: 2.25rem;
+  }
+
+  .font-display.text-4xl {
+    font-size: 1.875rem;
+  }
+
+  .editorial-hero,
+  .architecture-layout,
+  .contact-layout {
+    gap: 1.75rem;
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
