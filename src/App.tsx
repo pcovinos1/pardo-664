@@ -96,7 +96,9 @@ function VirtualTourModal({ onClose }: { onClose: () => void }) {
             </button>
           </div>
         </header>
-        <iframe src={VIRTUAL_TOUR_URL} title="Recorrido virtual Pardo 664" allow="fullscreen; xr-spatial-tracking; gyroscope; accelerometer" />
+        <div className="virtual-tour-frame">
+          <iframe src={VIRTUAL_TOUR_URL} title="Recorrido virtual Pardo 664" allow="fullscreen; xr-spatial-tracking; gyroscope; accelerometer" />
+        </div>
       </section>
     </div>
   );

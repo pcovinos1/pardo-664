@@ -967,7 +967,7 @@ textarea:focus-visible {
   }
 
   .virtual-tour-overlay {
-    @apply fixed inset-0 z-[80] grid place-items-center p-3 md:p-5;
+    @apply fixed inset-0 z-[80] grid place-items-center p-3 md:p-4;
   }
 
   .virtual-tour-backdrop {
@@ -975,19 +975,27 @@ textarea:focus-visible {
   }
 
   .virtual-tour-panel {
-    @apply relative z-10 flex h-[calc(100vh-2rem)] w-full max-w-[1500px] flex-col overflow-hidden rounded-[1.5rem] border border-white/70 bg-paper text-ink shadow-soft;
+    @apply relative z-10 flex h-[calc(100vh-4.5rem)] w-full max-w-[1280px] flex-col overflow-hidden rounded-[1.25rem] border border-white/70 bg-paper text-ink shadow-soft;
   }
 
   .virtual-tour-panel header {
-    @apply flex shrink-0 items-center justify-between gap-4 border-b border-ink/10 px-5 py-4;
+    @apply flex shrink-0 items-center justify-between gap-4 border-b border-ink/10 px-4 py-3;
   }
 
   .virtual-tour-panel h2 {
-    @apply font-display text-4xl leading-none;
+    @apply font-display text-3xl leading-none;
+  }
+
+  .virtual-tour-panel .eyebrow {
+    @apply mb-1 text-xs;
+  }
+
+  .virtual-tour-frame {
+    @apply min-h-0 flex-1 overflow-hidden bg-white;
   }
 
   .virtual-tour-panel iframe {
-    @apply min-h-0 flex-1 border-0 bg-white;
+    @apply h-full w-full border-0 bg-white;
   }
 
   @media (max-height: 820px) and (orientation: landscape) {
@@ -1021,6 +1029,40 @@ textarea:focus-visible {
 
     .calculator-hero-result strong {
       @apply text-5xl;
+    }
+
+    .virtual-tour-panel {
+      @apply h-[calc(100vh-6.5rem)] max-w-[1040px] rounded-[1rem];
+    }
+
+    .virtual-tour-panel header {
+      @apply px-3 py-2;
+    }
+
+    .virtual-tour-panel h2 {
+      @apply text-xl;
+    }
+
+    .virtual-tour-panel .eyebrow {
+      @apply hidden;
+    }
+
+    .virtual-tour-panel .secondary-touch {
+      min-height: 2.25rem;
+      padding: 0.35rem 0.8rem;
+      font-size: 0.75rem;
+    }
+
+    .virtual-tour-panel .calculator-close {
+      min-height: 2.25rem;
+      min-width: 2.25rem;
+    }
+
+    .virtual-tour-panel iframe {
+      width: 112%;
+      height: 112%;
+      transform: scale(0.892);
+      transform-origin: top left;
     }
   }
 
