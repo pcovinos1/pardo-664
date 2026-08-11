@@ -1,4 +1,4 @@
-import { ArrowRight, ArrowUp, ArrowDown, Building2, Calculator, Check, ChevronLeft, ChevronRight, Download, FileUp, Grid3X3, Lock, Plus, RotateCcw, Save, Search, Trash2, TrendingUp, Upload, X } from "lucide-react";
+import { ArrowRight, ArrowUp, ArrowDown, Building2, Calculator, Check, ChevronLeft, ChevronRight, Download, ExternalLink, FileUp, Grid3X3, Lock, Plus, RotateCcw, Save, Search, Trash2, TrendingUp, Upload, View, X } from "lucide-react";
 import type { ReactNode } from "react";
 import { useRef, useState } from "react";
 import { FloorPlanInteractive } from "./components/FloorPlanInteractive";
@@ -21,6 +21,8 @@ const menuItems: Array<{ view: ViewKey; title: string; text: string }> = [
   { view: "contact", title: "Contacto", text: "Información comercial." }
 ];
 
+const VIRTUAL_TOUR_URL = "https://storage.net-fs.com/hosting/6849337/64/";
+
 export default function App() {
   const { project, loading, updateProject, reload, syncFromRemote } = useProject();
   const [view, setView] = useState<ViewKey>("home");
@@ -28,6 +30,7 @@ export default function App() {
   const [gallery, setGallery] = useState<{ images: GalleryImage[]; index: number } | null>(null);
   const [poiFilter, setPoiFilter] = useState("Todos");
   const [calculatorOpen, setCalculatorOpen] = useState(false);
+  const [virtualTourOpen, setVirtualTourOpen] = useState(false);
 
   const selectedTypology = project?.typologies.find((item) => item.id === selectedTypologyId) ?? project?.typologies[0];
   const showProfitabilityCalculator = ["departments", "floor", "typology", "compare"].includes(view);
@@ -51,7 +54,7 @@ export default function App() {
       {view === "amenities" && <AmenitiesPage project={project} onOpenGallery={setGallery} />}
       {view === "interiors" && <InteriorsPage project={project} onOpenGallery={setGallery} />}
       {view === "location" && <LocationPage project={project} filter={poiFilter} setFilter={setPoiFilter} onOpenGallery={setGallery} />}
-      {view === "departments" && <DepartmentsPage project={project} selectedTypologyId={selectedTypologyId} setSelectedTypologyId={setSelectedTypologyId} onNavigate={navigate} />}
+      {view === "departments" && <DepartmentsPage project={project} selectedTypologyId={selectedTypologyId} setSelectedTypologyId={setSelectedTypologyId} onNavigate={navigate} onOpenVirtualTour={() => setVirtualTourOpen(true)} />}
       {view === "floor" && (
         <FloorPage
           project={project}
@@ -69,7 +72,33 @@ export default function App() {
       {gallery ? <GalleryModal images={gallery.images} initialIndex={gallery.index} onClose={() => setGallery(null)} /> : null}
       {showProfitabilityCalculator ? <ProfitabilityButton onOpen={() => setCalculatorOpen(true)} /> : null}
       {calculatorOpen ? <ProfitabilityCalculator typologyCode={selectedTypology?.code} onClose={() => setCalculatorOpen(false)} /> : null}
+      {virtualTourOpen ? <VirtualTourModal onClose={() => setVirtualTourOpen(false)} /> : null}
     </main>
+  );
+}
+
+function VirtualTourModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="virtual-tour-overlay" role="dialog" aria-modal="true" aria-label="Recorrido virtual">
+      <button className="virtual-tour-backdrop" onClick={onClose} type="button" aria-label="Cerrar recorrido virtual" />
+      <section className="virtual-tour-panel">
+        <header>
+          <div>
+            <p className="eyebrow">Departamentos</p>
+            <h2>Recorrido virtual</h2>
+          </div>
+          <div className="flex gap-2">
+            <a className="secondary-touch" href={VIRTUAL_TOUR_URL} target="_blank" rel="noreferrer">
+              Abrir <ExternalLink className="size-4" />
+            </a>
+            <button className="calculator-close" onClick={onClose} type="button" aria-label="Cerrar">
+              <X className="size-5" />
+            </button>
+          </div>
+        </header>
+        <iframe src={VIRTUAL_TOUR_URL} title="Recorrido virtual Pardo 664" allow="fullscreen; xr-spatial-tracking; gyroscope; accelerometer" />
+      </section>
+    </div>
   );
 }
 
@@ -712,7 +741,7 @@ function ParallaxStory({ eyebrow, title, text, gallery, labels, onOpenGallery }:
   );
 }
 
-function DepartmentsPage({ project, selectedTypologyId, setSelectedTypologyId, onNavigate }: { project: Project; selectedTypologyId: string; setSelectedTypologyId: (id: string) => void; onNavigate: (view: ViewKey) => void }) {
+function DepartmentsPage({ project, selectedTypologyId, setSelectedTypologyId, onNavigate, onOpenVirtualTour }: { project: Project; selectedTypologyId: string; setSelectedTypologyId: (id: string) => void; onNavigate: (view: ViewKey) => void; onOpenVirtualTour: () => void }) {
   const [bedrooms, setBedrooms] = useState("Todos");
   const [area, setArea] = useState("Todas");
   const typologies = project.typologies.filter((item) => item.active);
@@ -733,6 +762,9 @@ function DepartmentsPage({ project, selectedTypologyId, setSelectedTypologyId, o
         ))}
         <button className="primary-touch ml-auto" onClick={() => onNavigate("floor")} type="button">
           Ver planta típica <Grid3X3 />
+        </button>
+        <button className="secondary-touch" onClick={onOpenVirtualTour} type="button">
+          Recorrido virtual <View className="size-5" />
         </button>
         <button className="secondary-touch" onClick={() => onNavigate("compare")} type="button">
           Comparar <Search />
