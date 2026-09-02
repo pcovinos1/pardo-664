@@ -992,11 +992,74 @@ textarea:focus-visible {
   }
 
   .virtual-tour-frame {
-    @apply min-h-0 flex-1 overflow-hidden bg-white;
+    @apply relative min-h-0 flex-1 cursor-grab overflow-hidden bg-ink bg-cover bg-no-repeat transition-[background-position] duration-150 active:cursor-grabbing;
+    background-size: 180% 100%;
+    touch-action: pan-y;
   }
 
-  .virtual-tour-panel iframe {
-    @apply h-full w-full border-0 bg-white;
+  .virtual-tour-body {
+    @apply grid min-h-0 flex-1 bg-ink lg:grid-cols-[280px_1fr];
+  }
+
+  .virtual-tour-scenes {
+    @apply flex gap-2 overflow-x-auto border-b border-white/10 bg-ink p-3 text-white lg:block lg:space-y-2 lg:overflow-x-visible lg:border-b-0 lg:border-r;
+  }
+
+  .virtual-tour-scenes button {
+    @apply min-h-20 min-w-52 rounded border border-white/10 bg-white/5 p-4 text-left transition hover:bg-white/10 active:scale-[0.99] lg:w-full;
+  }
+
+  .virtual-tour-scenes button.is-active {
+    @apply border-morada bg-morada text-white;
+  }
+
+  .virtual-tour-scenes span {
+    @apply block text-xs font-semibold uppercase tracking-[0.16em] text-white/50;
+  }
+
+  .virtual-tour-scenes button.is-active span {
+    @apply text-white/70;
+  }
+
+  .virtual-tour-scenes strong {
+    @apply mt-1 block text-lg leading-tight;
+  }
+
+  .virtual-tour-shade {
+    @apply pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-ink/25;
+  }
+
+  .virtual-tour-info {
+    @apply pointer-events-none absolute bottom-5 left-5 z-10 text-white;
+  }
+
+  .virtual-tour-info span {
+    @apply text-xs font-semibold uppercase tracking-[0.18em] text-white/60;
+  }
+
+  .virtual-tour-info strong {
+    @apply mt-1 block font-display text-5xl leading-none;
+  }
+
+  .virtual-tour-controls {
+    @apply absolute right-4 top-4 z-20 flex gap-2 rounded-full border border-white/20 bg-ink/40 p-1.5 text-white backdrop-blur;
+  }
+
+  .virtual-tour-controls button {
+    @apply grid min-h-10 min-w-10 place-items-center rounded-full transition hover:bg-white/15 active:scale-95;
+  }
+
+  .virtual-tour-hotspot {
+    @apply absolute z-20 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/70 bg-white px-4 py-2 text-sm font-semibold text-ink shadow-soft transition hover:scale-105 hover:bg-morada hover:text-white active:scale-95;
+  }
+
+  .virtual-tour-hotspot::before {
+    @apply absolute left-1/2 top-1/2 -z-10 h-14 w-14 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/60 content-[''];
+    animation: hotspotPulse 1.8s ease-out infinite;
+  }
+
+  .virtual-tour-hotspot span {
+    @apply whitespace-nowrap;
   }
 
   @media (max-height: 820px) and (orientation: landscape) {
@@ -1131,11 +1194,32 @@ textarea:focus-visible {
       min-width: 2.25rem;
     }
 
-    .virtual-tour-panel iframe {
-      width: 112%;
-      height: 112%;
-      transform: scale(0.892);
-      transform-origin: top left;
+    .virtual-tour-body {
+      @apply grid-cols-1;
+    }
+
+    .virtual-tour-scenes {
+      @apply min-h-[5.75rem];
+    }
+
+    .virtual-tour-scenes button {
+      @apply min-h-16 min-w-44 p-3;
+    }
+
+    .virtual-tour-scenes strong {
+      @apply text-sm;
+    }
+
+    .virtual-tour-info {
+      @apply bottom-4 left-4;
+    }
+
+    .virtual-tour-info strong {
+      @apply text-3xl;
+    }
+
+    .virtual-tour-hotspot {
+      @apply px-3 py-2 text-xs;
     }
   }
 
@@ -1256,5 +1340,17 @@ textarea:focus-visible {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes hotspotPulse {
+  from {
+    opacity: 0.75;
+    transform: translate(-50%, -50%) scale(0.65);
+  }
+
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.35);
   }
 }
