@@ -1,4 +1,4 @@
-import { ArrowRight, ArrowUp, ArrowDown, Building2, Calculator, Check, ChevronLeft, ChevronRight, Download, FileUp, Grid3X3, Lock, Plus, RotateCcw, Save, Search, Trash2, TrendingUp, Upload, View, X } from "lucide-react";
+import { ArrowRight, ArrowUp, ArrowDown, Building2, Check, ChevronLeft, ChevronRight, Download, FileUp, Grid3X3, Lock, Plus, RotateCcw, Save, Search, Trash2, Upload, View, X } from "lucide-react";
 import type { PointerEvent, ReactNode } from "react";
 import { useRef, useState } from "react";
 import { FloorPlanInteractive } from "./components/FloorPlanInteractive";
@@ -27,11 +27,9 @@ export default function App() {
   const [selectedTypologyId, setSelectedTypologyId] = useState("a-1");
   const [gallery, setGallery] = useState<{ images: GalleryImage[]; index: number } | null>(null);
   const [poiFilter, setPoiFilter] = useState("Todos");
-  const [calculatorOpen, setCalculatorOpen] = useState(false);
   const [virtualTourOpen, setVirtualTourOpen] = useState(false);
 
   const selectedTypology = project?.typologies.find((item) => item.id === selectedTypologyId) ?? project?.typologies[0];
-  const showProfitabilityCalculator = ["departments", "floor", "typology", "compare"].includes(view);
   const navigate = (next: ViewKey) => {
     if (next === "location") setPoiFilter("Todos");
     setView(next);
@@ -68,8 +66,6 @@ export default function App() {
       {view === "contact" && <ContactPage project={project} />}
       {view === "admin" && <AdminPage project={project} updateProject={updateProject} reload={reload} syncFromRemote={syncFromRemote} />}
       {gallery ? <GalleryModal images={gallery.images} initialIndex={gallery.index} onClose={() => setGallery(null)} /> : null}
-      {showProfitabilityCalculator ? <ProfitabilityButton onOpen={() => setCalculatorOpen(true)} /> : null}
-      {calculatorOpen ? <ProfitabilityCalculator typologyCode={selectedTypology?.code} onClose={() => setCalculatorOpen(false)} /> : null}
       {virtualTourOpen ? <VirtualTourModal project={project} onClose={() => setVirtualTourOpen(false)} /> : null}
     </main>
   );
@@ -192,7 +188,7 @@ function VirtualTourModal({ project, onClose }: { project: Project; onClose: () 
             <h2>Tour 360</h2>
           </div>
           <div className="flex gap-2">
-            <button className="calculator-close" onClick={onClose} type="button" aria-label="Cerrar">
+            <button className="virtual-tour-close" onClick={onClose} type="button" aria-label="Cerrar">
               <X className="size-5" />
             </button>
           </div>
@@ -248,135 +244,6 @@ function VirtualTourModal({ project, onClose }: { project: Project; onClose: () 
                 <span>{hotspot.label}</span>
               </button>
             ))}
-          </div>
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function ProfitabilityButton({ onOpen }: { onOpen: () => void }) {
-  return (
-    <button className="profitability-trigger" onClick={onOpen} type="button">
-      <Calculator className="size-5" />
-      <span>Rentabilidad</span>
-    </button>
-  );
-}
-
-function ProfitabilityCalculator({ typologyCode, onClose }: { typologyCode?: string; onClose: () => void }) {
-  const [price, setPrice] = useState("650000");
-  const [rent, setRent] = useState("3500");
-  const [expenses, setExpenses] = useState("350");
-  const [vacancy, setVacancy] = useState("5");
-  const [extraInvestment, setExtraInvestment] = useState("0");
-  const [activeField, setActiveField] = useState<"price" | "rent" | "expenses" | "vacancy" | "extraInvestment">("price");
-
-  const parseValue = (value: string) => Number(value.replace(/[^\d.]/g, "")) || 0;
-  const values = { price, rent, expenses, vacancy, extraInvestment };
-  const setters = { price: setPrice, rent: setRent, expenses: setExpenses, vacancy: setVacancy, extraInvestment: setExtraInvestment };
-  const fields = [
-    { id: "price" as const, label: "Precio", detail: "Departamento", prefix: "S/", value: price },
-    { id: "rent" as const, label: "Renta", detail: "Mensual", prefix: "S/", value: rent },
-    { id: "expenses" as const, label: "Gastos", detail: "Mensuales", prefix: "S/", value: expenses },
-    { id: "vacancy" as const, label: "Vacancia", detail: "Estimada", suffix: "%", value: vacancy },
-    { id: "extraInvestment" as const, label: "Adicional", detail: "Inversión", prefix: "S/", value: extraInvestment }
-  ];
-  const activeConfig = fields.find((field) => field.id === activeField) ?? fields[0];
-  const totalInvestment = parseValue(price) + parseValue(extraInvestment);
-  const monthlyRent = parseValue(rent);
-  const monthlyExpenses = parseValue(expenses);
-  const vacancyFactor = Math.max(0, Math.min(100, parseValue(vacancy))) / 100;
-  const annualGross = monthlyRent * 12;
-  const annualNet = Math.max(0, (monthlyRent * (1 - vacancyFactor) - monthlyExpenses) * 12);
-  const grossYield = totalInvestment ? (annualGross / totalInvestment) * 100 : 0;
-  const netYield = totalInvestment ? (annualNet / totalInvestment) * 100 : 0;
-  const monthlyNet = annualNet / 12;
-
-  const currency = (value: number) =>
-    new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN", maximumFractionDigits: 0 }).format(value);
-  const percent = (value: number) => `${value.toFixed(1)}%`;
-  const formatDisplay = (value: string, prefix?: string, suffix?: string) => {
-    const clean = value || "0";
-    return `${prefix ? `${prefix} ` : ""}${clean}${suffix ? ` ${suffix}` : ""}`;
-  };
-  const updateActive = (next: string) => setters[activeField](next.replace(/^0+(?=\d)/, ""));
-  const pressKey = (key: string) => {
-    const current = values[activeField] || "0";
-    if (key === "clear") return updateActive("0");
-    if (key === "back") return updateActive(current.length > 1 ? current.slice(0, -1) : "0");
-    if (key === "." && current.includes(".")) return;
-    const next = current === "0" && key !== "." ? key : `${current}${key}`;
-    const maxLength = activeField === "vacancy" ? 3 : activeField === "rent" || activeField === "expenses" ? 6 : 9;
-    if (next.replace(".", "").length > maxLength) return;
-    if (activeField === "vacancy" && parseValue(next) > 100) return updateActive("100");
-    updateActive(next);
-  };
-
-  return (
-    <div className="calculator-overlay" role="dialog" aria-modal="true" aria-label="Calculadora de rentabilidad">
-      <button className="calculator-backdrop" onClick={onClose} type="button" aria-label="Cerrar calculadora" />
-      <section className="calculator-panel">
-        <header className="calculator-header">
-          <div>
-            <p className="eyebrow">Herramienta comercial</p>
-            <h2>Rentabilidad estimada</h2>
-            <span>{typologyCode ? `Tipología ${typologyCode}` : "Departamentos Pardo 664"}</span>
-          </div>
-          <button className="calculator-close" onClick={onClose} type="button" aria-label="Cerrar">
-            <X className="size-5" />
-          </button>
-        </header>
-        <div className="calculator-body">
-          <div className="calculator-machine">
-            <div className="calculator-display">
-              <span>{activeConfig.label}</span>
-              <strong>{formatDisplay(activeConfig.value, activeConfig.prefix, activeConfig.suffix)}</strong>
-            </div>
-            <div className="calculator-field-grid">
-              {fields.map((field) => (
-                <button key={field.id} className={`calculator-chip ${activeField === field.id ? "is-active" : ""}`} onClick={() => setActiveField(field.id)} type="button">
-                  <span>{field.label}</span>
-                  <strong>{formatDisplay(field.value, field.prefix, field.suffix)}</strong>
-                </button>
-              ))}
-            </div>
-            <div className="calculator-keypad" aria-label="Teclado numérico">
-              {["7", "8", "9", "4", "5", "6", "1", "2", "3", "0", "00", "."].map((key) => (
-                <button key={key} onClick={() => pressKey(key)} type="button">{key}</button>
-              ))}
-              <button className="is-soft" onClick={() => pressKey("clear")} type="button">C</button>
-              <button className="is-soft" onClick={() => pressKey("back")} type="button">Borrar</button>
-              <button className="is-primary" onClick={() => setActiveField(activeField === "price" ? "rent" : activeField === "rent" ? "expenses" : activeField === "expenses" ? "vacancy" : activeField === "vacancy" ? "extraInvestment" : "price")} type="button">Siguiente</button>
-            </div>
-          </div>
-          <div className="calculator-results">
-            <div className="calculator-hero-result">
-              <TrendingUp className="size-6" />
-              <span>Rentabilidad neta anual</span>
-              <strong>{percent(netYield)}</strong>
-            </div>
-            <div className="calculator-metrics">
-              <article>
-                <span>Bruta anual</span>
-                <strong>{percent(grossYield)}</strong>
-              </article>
-              <article>
-                <span>Ingreso neto mensual</span>
-                <strong>{currency(monthlyNet)}</strong>
-              </article>
-              <article>
-                <span>Ingreso neto anual</span>
-                <strong>{currency(annualNet)}</strong>
-              </article>
-              <article>
-                <span>Inversión total</span>
-                <strong>{currency(totalInvestment)}</strong>
-              </article>
-            </div>
-            <p className="calculator-note">
-              Cálculo referencial para conversación comercial. No reemplaza una evaluación financiera formal.
-            </p>
           </div>
         </div>
       </section>

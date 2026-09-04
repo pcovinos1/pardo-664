@@ -839,134 +839,6 @@ textarea:focus-visible {
     @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#c4392f] px-6 py-3 font-semibold uppercase tracking-[0.04em] text-white shadow-soft transition hover:bg-[#ad3028] active:scale-95;
   }
 
-  .profitability-trigger {
-    @apply fixed bottom-24 right-5 z-50 inline-flex min-h-14 items-center justify-center gap-2 rounded-full border border-white/70 bg-ink px-5 py-3 font-semibold text-white shadow-soft transition hover:-translate-y-0.5 hover:bg-morada active:scale-95 md:right-10;
-  }
-
-  .calculator-overlay {
-    @apply fixed inset-0 z-[70] grid place-items-end p-3 md:place-items-center md:p-4;
-  }
-
-  .calculator-backdrop {
-    @apply absolute inset-0 bg-ink/35 backdrop-blur-sm;
-  }
-
-  .calculator-panel {
-    @apply relative z-10 w-full max-w-[920px] overflow-hidden rounded-[1.5rem] border border-white/70 bg-paper/95 p-4 text-ink shadow-soft backdrop-blur-2xl md:p-5;
-  }
-
-  .calculator-header {
-    @apply flex items-start justify-between gap-4 border-b border-ink/10 pb-3;
-  }
-
-  .calculator-header h2 {
-    @apply font-display text-3xl leading-none md:text-4xl;
-  }
-
-  .calculator-header .eyebrow {
-    @apply mb-2 text-xs;
-  }
-
-  .calculator-header span {
-    @apply mt-1 block text-xs font-semibold uppercase tracking-[0.18em] text-ink/45;
-  }
-
-  .calculator-close {
-    @apply grid min-h-11 min-w-11 place-items-center rounded-full border border-ink/10 bg-white text-ink transition hover:bg-porcelain active:scale-95;
-  }
-
-  .calculator-body {
-    @apply mt-4 grid gap-4 lg:grid-cols-[1fr_0.82fr];
-  }
-
-  .calculator-machine {
-    @apply rounded-[1.25rem] border border-ink/10 bg-white p-3;
-  }
-
-  .calculator-display {
-    @apply rounded-[1.1rem] bg-porcelain px-4 py-3 text-right;
-  }
-
-  .calculator-display span {
-    @apply block text-left text-xs font-semibold uppercase tracking-[0.2em] text-morada;
-  }
-
-  .calculator-display strong {
-    @apply mt-2 block truncate font-display text-4xl leading-none md:text-5xl;
-  }
-
-  .calculator-field-grid {
-    @apply mt-3 grid grid-cols-2 gap-2;
-  }
-
-  .calculator-chip {
-    @apply min-h-16 rounded-[0.9rem] border border-ink/10 bg-paper px-3 py-2 text-left transition active:scale-95;
-  }
-
-  .calculator-chip.is-active {
-    @apply border-morada bg-morada text-white shadow-soft;
-  }
-
-  .calculator-chip span {
-    @apply block text-xs font-semibold uppercase tracking-[0.16em] opacity-60;
-  }
-
-  .calculator-chip strong {
-    @apply mt-1 block truncate text-xl font-semibold;
-  }
-
-  .calculator-keypad {
-    @apply mt-3 grid grid-cols-3 gap-2;
-  }
-
-  .calculator-keypad button {
-    @apply min-h-12 rounded-[0.9rem] bg-porcelain text-xl font-semibold transition hover:bg-white active:scale-95;
-  }
-
-  .calculator-keypad button.is-soft {
-    @apply bg-ink/10 text-base;
-  }
-
-  .calculator-keypad button.is-primary {
-    @apply bg-morada text-base text-white;
-  }
-
-  .calculator-results {
-    @apply rounded-[1.25rem] bg-ink p-4 text-white;
-  }
-
-  .calculator-hero-result {
-    @apply rounded-[1rem] bg-white/10 p-4;
-  }
-
-  .calculator-hero-result span {
-    @apply mt-3 block text-sm font-semibold uppercase tracking-[0.2em] text-white/55;
-  }
-
-  .calculator-hero-result strong {
-    @apply mt-1 block font-display text-5xl leading-none text-white md:text-6xl;
-  }
-
-  .calculator-metrics {
-    @apply mt-3 grid gap-2 sm:grid-cols-2;
-  }
-
-  .calculator-metrics article {
-    @apply rounded-[0.9rem] bg-white/10 p-3;
-  }
-
-  .calculator-metrics span {
-    @apply block text-xs font-semibold uppercase tracking-[0.16em] text-white/45;
-  }
-
-  .calculator-metrics strong {
-    @apply mt-1 block truncate text-xl font-semibold;
-  }
-
-  .calculator-note {
-    @apply mt-3 text-xs leading-relaxed text-white/50;
-  }
-
   .virtual-tour-overlay {
     @apply fixed inset-0 z-[80] grid place-items-center p-3 md:p-4;
   }
@@ -989,6 +861,10 @@ textarea:focus-visible {
 
   .virtual-tour-panel .eyebrow {
     @apply mb-1 text-xs;
+  }
+
+  .virtual-tour-close {
+    @apply grid min-h-11 min-w-11 place-items-center rounded-full border border-ink/10 bg-white text-ink transition hover:bg-porcelain active:scale-95;
   }
 
   .virtual-tour-frame {
@@ -1063,110 +939,6 @@ textarea:focus-visible {
   }
 
   @media (max-height: 820px) and (orientation: landscape) {
-    .calculator-panel {
-      @apply max-w-[760px] rounded-[1rem] p-3;
-    }
-
-    .calculator-header {
-      @apply items-center pb-2;
-    }
-
-    .calculator-header h2 {
-      @apply text-2xl;
-    }
-
-    .calculator-header .eyebrow,
-    .calculator-header span {
-      @apply hidden;
-    }
-
-    .calculator-close {
-      min-height: 2.25rem;
-      min-width: 2.25rem;
-    }
-
-    .calculator-body {
-      @apply mt-2 gap-2 lg:grid-cols-[1fr_0.72fr];
-    }
-
-    .calculator-machine {
-      @apply rounded-[1rem] p-2;
-    }
-
-    .calculator-display {
-      @apply rounded-[0.85rem] px-3 py-2;
-    }
-
-    .calculator-display span {
-      @apply text-[10px];
-    }
-
-    .calculator-display strong {
-      @apply text-3xl;
-    }
-
-    .calculator-field-grid,
-    .calculator-keypad {
-      @apply mt-2 gap-1.5;
-    }
-
-    .calculator-chip {
-      @apply min-h-11 rounded-xl px-2 py-1.5;
-    }
-
-    .calculator-chip span {
-      @apply text-[10px];
-    }
-
-    .calculator-chip strong {
-      @apply text-base;
-    }
-
-    .calculator-keypad button {
-      @apply min-h-9 rounded-xl text-base;
-    }
-
-    .calculator-keypad button.is-soft,
-    .calculator-keypad button.is-primary {
-      @apply text-xs;
-    }
-
-    .calculator-results {
-      @apply rounded-[1rem] p-3;
-    }
-
-    .calculator-hero-result {
-      @apply rounded-xl p-3;
-    }
-
-    .calculator-hero-result span {
-      @apply mt-2 text-[10px];
-    }
-
-    .calculator-hero-result strong {
-      @apply text-4xl;
-    }
-
-    .calculator-metrics {
-      @apply mt-2 gap-1.5;
-    }
-
-    .calculator-metrics article {
-      @apply rounded-xl p-2;
-    }
-
-    .calculator-metrics span {
-      @apply text-[10px];
-    }
-
-    .calculator-metrics strong {
-      @apply text-base;
-    }
-
-    .calculator-note {
-      @apply mt-2 text-[10px];
-    }
-
     .virtual-tour-panel {
       @apply h-[calc(100vh-6.5rem)] max-w-[1040px] rounded-[1rem];
     }
@@ -1189,7 +961,7 @@ textarea:focus-visible {
       font-size: 0.75rem;
     }
 
-    .virtual-tour-panel .calculator-close {
+    .virtual-tour-panel .virtual-tour-close {
       min-height: 2.25rem;
       min-width: 2.25rem;
     }
