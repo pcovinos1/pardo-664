@@ -196,26 +196,22 @@
   line-height: 1.45;
 }
 .barrio-filters {
-  display: grid;
-  gap: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
   margin-top: 8px;
 }
-.barrio-filters label {
-  display: grid;
-  gap: 4px;
-  min-width: 0;
-  font-size: 0.76rem;
-  font-weight: 650;
-}
-.barrio-filters select {
-  min-height: 44px;
-  min-width: 0;
-  width: 100%;
-  background: #fffcf7;
+.barrio-filters button {
+  min-height: 40px;
   border: 1px solid #54297c40;
-  border-radius: 5px;
-  padding: 0 8px;
-  font-weight: 500;
+  border-radius: 999px;
+  padding: 6px 11px;
+  font-size: 0.82rem;
+}
+.barrio-filters button[aria-pressed="true"] {
+  background: var(--barrio-purple);
+  border-color: var(--barrio-purple);
+  color: white;
 }
 .barrio-map-panel {
   position: relative;
@@ -256,32 +252,46 @@
   place-items: center;
   transform: translate(-50%, -50%);
 }
-.barrio-marker span {
+.barrio-marker-dot {
   display: grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  background: #fffaf1;
-  border: 1px solid var(--barrio-purple);
-  color: var(--barrio-purple);
-  font-size: 0.7rem;
-  font-weight: 750;
+  background: var(--barrio-purple);
+  border: 2px solid #fffaf1;
+  color: white;
   box-shadow: 0 1px 4px #38264938;
+}
+.barrio-marker-name {
+  position: absolute;
+  width: max-content;
+  max-width: clamp(76px, 9vw, 112px);
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: #fffaf1;
+  color: var(--barrio-purple);
+  font-size: 0.68rem;
+  font-weight: 650;
+  line-height: 1.12;
+  text-align: center;
+  box-shadow: 0 1px 3px #38264938;
 }
 .barrio-marker:is(:hover, :focus-visible, [aria-pressed="true"]),
 .barrio-project-marker {
   z-index: 2;
 }
-.barrio-marker:is(:hover, [aria-pressed="true"]) span,
-.barrio-project-marker span {
+.barrio-marker:is(:hover, :focus-visible, [aria-pressed="true"]) {
+  z-index: 3;
+}
+.barrio-marker:is(:hover, :focus-visible, [aria-pressed="true"]) .barrio-marker-name,
+.barrio-project-marker .barrio-marker-name {
   background: var(--barrio-purple);
   color: white;
 }
-.barrio-project-marker span {
-  width: 34px;
-  height: 34px;
-  border: 2px solid white;
+.barrio-project-marker .barrio-marker-dot {
+  width: 30px;
+  height: 30px;
 }
 .barrio-zoom {
   position: absolute;
@@ -447,7 +457,6 @@
     gap: 5px;
   }
   .barrio-filters {
-    grid-template-columns: 1fr 1fr;
     margin-top: 2px;
   }
 }

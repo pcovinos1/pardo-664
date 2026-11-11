@@ -20,6 +20,7 @@ export function NeighborhoodMap({
   selected,
   onSelect,
 }: Props) {
+  const artwork = useRef<HTMLDivElement>(null);
   const viewport = useRef<HTMLDivElement>(null);
   const gesture = useRef<{
     id: number;
@@ -46,6 +47,49 @@ export function NeighborhoodMap({
     resize.observe(node);
     return () => resize.disconnect();
   }, []);
+
+  useLayoutEffect(() => {
+    const art = artwork.current!;
+    const markers = [...art.querySelectorAll<HTMLButtonElement>(".barrio-marker")];
+    const bounds = { width: art.clientWidth, height: art.clientHeight };
+    const occupied = markers.map((marker) => ({
+      x: marker.offsetLeft - marker.offsetWidth / 2,
+      y: marker.offsetTop - marker.offsetHeight / 2,
+      w: marker.offsetWidth,
+      h: marker.offsetHeight,
+    }));
+
+    for (const [index, marker] of markers.entries()) {
+      const label = marker.querySelector<HTMLElement>(".barrio-marker-name")!;
+      const w = label.offsetWidth;
+      const h = label.offsetHeight;
+      const dot = occupied[index];
+      const x = marker.offsetLeft;
+      const y = marker.offsetTop;
+      const candidates = [
+        { x: x - w / 2, y: dot.y - h - 3, w, h },
+        { x: x - w / 2, y: dot.y + dot.h + 3, w, h },
+        { x: dot.x + dot.w + 3, y: y - h / 2, w, h },
+        { x: dot.x - w - 3, y: y - h / 2, w, h },
+      ];
+      function overlap(box: (typeof candidates)[number]) {
+        return occupied.reduce((total, other) => {
+          const width = Math.max(0, Math.min(box.x + w, other.x + other.w) - Math.max(box.x, other.x));
+          const height = Math.max(0, Math.min(box.y + h, other.y + other.h) - Math.max(box.y, other.y));
+          return total + width * height;
+        }, 0);
+      }
+      const inside = candidates.filter((box) =>
+        box.x >= 0 && box.y >= 0 && box.x + w <= bounds.width && box.y + h <= bounds.height
+      );
+      const best = (inside.length ? inside : candidates).reduce((a, b) =>
+        overlap(a) <= overlap(b) ? a : b
+      );
+      label.style.left = `${best.x - dot.x}px`;
+      label.style.top = `${best.y - dot.y}px`;
+      occupied.push(best);
+    }
+  }, [points, name, position.x, position.y, width, height, zoom]);
 
   function clampPan(pan: Position, scale: number) {
     const x = Math.max(0, (width * scale - size.width) / 2);
@@ -137,6 +181,7 @@ export function NeighborhoodMap({
         }}
       >
         <div
+          ref={artwork}
           className="barrio-map-art"
           style={{
             width: width * zoom,
@@ -163,7 +208,8 @@ export function NeighborhoodMap({
               style={{ left: `${point.x}%`, top: `${point.y}%` }}
               onClick={() => onSelect(point.id)}
             >
-              <span>{point.order}</span>
+              <span className="barrio-marker-dot" aria-hidden="true" />
+              <span className="barrio-marker-name">{point.name}</span>
             </button>
           ))}
           <button
@@ -174,9 +220,10 @@ export function NeighborhoodMap({
             style={{ left: `${position.x}%`, top: `${position.y}%` }}
             onClick={() => onSelect("project")}
           >
-            <span>
+            <span className="barrio-marker-dot" aria-hidden="true">
               <MapPin size={18} />
             </span>
+            <span className="barrio-marker-name">{name}</span>
           </button>
         </div>
       </div>

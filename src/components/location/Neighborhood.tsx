@@ -225,39 +225,20 @@ export function Neighborhood({ project }: { project: Project }) {
               <p className="barrio-kicker">El barrio · Miraflores</p>
               <h1>{mapCopy.title}</h1>
               <p>{mapCopy.description}</p>
-              <div className="barrio-filters">
-                <label>
-                  Categoría
-                  <select
-                    value={filter}
-                    onChange={(event) => {
-                      setFilter(event.target.value);
+              <div className="barrio-filters" role="group" aria-label="Categorías del mapa">
+                {["", ...categories].map((category) => (
+                  <button
+                    key={category}
+                    type="button"
+                    aria-pressed={filter === category}
+                    onClick={() => {
+                      setFilter(category);
                       setSelected("");
                     }}
                   >
-                    <option value="">Todas las categorías</option>
-                    {categories.map((category) => (
-                      <option key={category} value={category}>
-                        {filterLabels[category] ?? category}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label>
-                  Ubicación
-                  <select
-                    value={selected}
-                    onChange={(event) => setSelected(event.target.value)}
-                  >
-                    <option value="">Elige un lugar</option>
-                    <option value="project">{project.name}</option>
-                    {visible.map((point) => (
-                      <option key={point.id} value={point.id}>
-                        {point.order}. {point.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                    {category ? (filterLabels[category] ?? category) : "Todos"}
+                  </button>
+                ))}
               </div>
             </aside>
             <div className="barrio-map-panel" data-map-gesture>
