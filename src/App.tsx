@@ -38,7 +38,7 @@ export default function App() {
   if (view === "admin") return <AdminCMS project={project} updateProject={updateProject} reload={reload} syncFromRemote={syncFromRemote} onExit={() => navigate("home")} />;
 
   return (
-    <main className={view === "location" ? "min-h-screen bg-paper text-ink" : "min-h-screen bg-paper pb-28 text-ink"}>
+    <main className={view === "location" ? "h-[100dvh] overflow-hidden bg-paper text-ink" : "min-h-screen bg-paper pb-28 text-ink"}>
       <GlobalNav current={view} onNavigate={navigate} />
       {view === "home" && <Home project={project} onNavigate={navigate} />}
       {view === "menu" && <MenuPage onNavigate={navigate} />}

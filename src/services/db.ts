@@ -1,5 +1,6 @@
 import { openDB } from "idb";
 import type { Project } from "../types/project";
+import { defaultPointCategory } from "../data/locationContent";
 import { initialProject } from "../data/initialProject";
 
 const DB_NAME = "pardo-664-local";
@@ -83,8 +84,8 @@ export function normalizeProject(project: Project): Project {
     ...point,
     category:
       String(point.category) === "Cafés"
-        ? ("Gastronomía" as const)
-        : point.category,
+        ? ("Cafeterías" as const)
+        : project.locationMap ? point.category : defaultPointCategory(point),
     visible: typeof point.visible === "boolean" ? point.visible : true,
     order: typeof point.order === "number" ? point.order : index + 1,
   }));
@@ -98,6 +99,9 @@ export function normalizeProject(project: Project): Project {
     about,
     galleries,
     sections,
-    pointsOfInterest,
+    pointsOfInterest:
+      project.version.version === "1.0" && !project.localStatus
+        ? initialProject.pointsOfInterest
+        : pointsOfInterest,
   };
 }

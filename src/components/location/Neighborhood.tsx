@@ -3,25 +3,20 @@ import {
   ArrowRight,
   ChevronLeft,
   ChevronRight,
-  Hand,
   MapPin,
   X,
 } from "lucide-react";
-import { useRef, useState } from "react";
-import { getNeighborhood } from "../../data/locationContent";
+import { useLayoutEffect, useRef, useState } from "react";
+import { getNeighborhood, locationCategories, placeCategory, placeDescription, placePhoto } from "../../data/locationContent";
 import type { Project } from "../../types/project";
+import facade from "../../assets/pdf-pages/hero-fachada.png";
 import { NeighborhoodMap } from "./NeighborhoodMap";
 import "./neighborhood.css";
-
-const filterLabels: Record<string, string> = {
-  Parques: "Parques y malecón",
-  Tiendas: "Comercios",
-};
 
 function canSwipe(target: EventTarget | null) {
   return (
     target instanceof Element &&
-    !target.closest("[data-map-gesture], button, select, input, a")
+    !target.closest("[data-map-gesture], [data-location-list], button, select, input, a")
   );
 }
 
@@ -30,13 +25,12 @@ function creditLink(value?: string) {
 }
 
 export function Neighborhood({ project }: { project: Project }) {
-  const { story, mapCopy, mapSrc, position } = getNeighborhood(project);
+  const { story, mapCopy, mapSrc, position, settings } = getNeighborhood(project);
   const photos = story.images.filter(
     (image) => image.visible !== false && image.src,
   );
   const [photoId, setPhotoId] = useState(photos[0]?.id);
-  const [mapOpen, setMapOpen] = useState(false);
-  const [hintSeen, setHintSeen] = useState(false);
+  const [mapOpen, setMapOpen] = useState(true);
   const [filter, setFilter] = useState("");
   const [selected, setSelected] = useState("");
   const pointer = useRef<{ id: number; x: number; y: number }>();
@@ -46,15 +40,27 @@ export function Neighborhood({ project }: { project: Project }) {
   const points = project.pointsOfInterest
     .filter((point) => point.visible)
     .sort((a, b) => a.order - b.order);
-  const categories = [...new Set(points.map((point) => point.category))];
   const visible = points.filter(
-    (point) => !filter || point.category === filter,
+    (point) => !filter || placeCategory(point) === filter,
   );
   const selectedPoint = visible.find((point) => point.id === selected);
 
+  const selectedPhoto = selectedPoint ? placePhoto(selectedPoint) : undefined;
+  const activeRow = useRef<HTMLButtonElement>(null);
+  const list = useRef<HTMLOListElement>(null);
+
+  useLayoutEffect(() => {
+    const row = activeRow.current;
+    const panel = list.current;
+    if (!row || !panel) return;
+    const bounds = panel.getBoundingClientRect();
+    const item = row.getBoundingClientRect();
+    if (item.top < bounds.top) panel.scrollTop += item.top - bounds.top;
+    if (item.bottom > bounds.bottom) panel.scrollTop += item.bottom - bounds.bottom;
+  }, [selected]);
+
   function navigate(next: boolean) {
     setMapOpen(next);
-    if (next) setHintSeen(true);
     pointer.current = undefined;
     const focused = document.activeElement;
     if (focused instanceof HTMLElement && focused.closest(".barrio-slide"))
@@ -222,53 +228,62 @@ export function Neighborhood({ project }: { project: Project }) {
             aria-label="Explora el entorno"
           >
             <aside className="barrio-map-copy">
-              <p className="barrio-kicker">El barrio · Miraflores</p>
-              <h1>{mapCopy.title}</h1>
-              <p>{mapCopy.description}</p>
-              <div className="barrio-filters" role="group" aria-label="Categorías del mapa">
-                {["", ...categories].map((category) => (
-                  <button
-                    key={category}
-                    type="button"
-                    aria-pressed={filter === category}
+              <div className="barrio-map-intro">
+                <p className="barrio-kicker">Pardo 664 / Ubicación</p>
+                <h1>{mapCopy.title}</h1>
+                <p>{mapCopy.description}</p>
+                <p className="barrio-address"><MapPin size={16} aria-hidden="true" /> Pardo 664, Miraflores.</p>
+              </div>
+              <div className="barrio-filters" role="group" aria-label="Categorías del mapa" data-location-list>
+                {["", ...locationCategories].map((category) => (
+                  <button key={category} type="button" aria-pressed={filter === category}
                     onClick={() => {
                       setFilter(category);
                       setSelected("");
-                    }}
-                  >
-                    {category ? (filterLabels[category] ?? category) : "Todos"}
+                      if (list.current) list.current.scrollTop = 0;
+                    }}>
+                    {category || "Todos"}
                   </button>
                 ))}
               </div>
+              <ol className="barrio-list" ref={list} data-location-list aria-label="Lugares del entorno">
+                {visible.map((point) => (
+                  <li key={point.id}>
+                    <button type="button" aria-pressed={selected === point.id}
+                      ref={selected === point.id ? activeRow : undefined}
+                      onClick={() => setSelected(point.id)}>
+                      <span className="barrio-list-number">{point.order}</span>
+                      <span><strong>{point.name}</strong><small>{placeCategory(point)}</small></span>
+                      <ChevronRight size={16} aria-hidden="true" />
+                    </button>
+                  </li>
+                ))}
+              </ol>
+              {!visible.length && <p className="barrio-empty">Aún no hay lugares en esta categoría.</p>}
             </aside>
             <div className="barrio-map-panel" data-map-gesture>
-              <NeighborhoodMap
-                src={mapSrc}
-                position={position}
-                name={project.name}
-                points={visible}
-                selected={selected}
-                onSelect={setSelected}
-              />
+              <NeighborhoodMap src={mapSrc} position={position} name={project.name}
+                points={visible} selected={selected} settings={settings} onSelect={setSelected} />
               {(selectedPoint || selected === "project") && (
                 <article className="barrio-place" aria-live="polite">
-                  <p className="barrio-kicker">
-                    {selectedPoint
-                      ? (filterLabels[selectedPoint.category] ??
-                        selectedPoint.category)
-                      : "Miraflores"}
-                  </p>
-                  <h2>{selectedPoint?.name ?? project.name}</h2>
-                  <p>
-                    {selectedPoint
-                      ? selectedPoint.description
-                      : project.address}
-                  </p>
-                  <button
-                    type="button"
-                    aria-label="Cerrar información del lugar"
-                    onClick={() => setSelected("")}
-                  >
+                  {(selectedPhoto || selected === "project") && (
+                    <img className="barrio-place-photo" src={selectedPhoto?.src ?? facade}
+                      alt={selectedPoint?.name ?? project.name} />
+                  )}
+                  <div>
+                    <p className="barrio-kicker">{selectedPoint ? placeCategory(selectedPoint) : "Miraflores"}</p>
+                    <h2>{selectedPoint?.name ?? project.name}</h2>
+                    <p>{selectedPoint ? placeDescription(selectedPoint) || "En el entorno de Pardo 664, Miraflores." : project.address}</p>
+                    {selectedPhoto?.credit && (
+                      <small className="barrio-attribution">
+                        <a href={selectedPhoto.creditSource} target="_blank" rel="noreferrer">{selectedPhoto.credit}</a>
+                        {" · "}
+                        <a href={selectedPhoto.creditLicense} target="_blank" rel="noreferrer">Licencia</a>
+                        {" · Encuadre vertical"}
+                      </small>
+                    )}
+                  </div>
+                  <button type="button" aria-label="Cerrar información del lugar" onClick={() => setSelected("")}>
                     <X size={19} />
                   </button>
                 </article>
@@ -288,15 +303,6 @@ export function Neighborhood({ project }: { project: Project }) {
             <i />
           </div>
         </div>
-        {!mapOpen && !hintSeen && (
-          <p className="barrio-hint">
-            <span aria-hidden="true">
-              <ArrowLeft size={15} />
-              <Hand size={20} />
-            </span>
-            Desliza hacia la izquierda para explorar el mapa
-          </p>
-        )}
         {!mapOpen && (
           <button
             type="button"

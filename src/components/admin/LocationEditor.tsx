@@ -1,7 +1,21 @@
-import { getNeighborhood } from "../../data/locationContent";
-import { useRef, useState } from "react";
-import type { PointOfInterest, Project } from "../../types/project";
+import { useState } from "react";
+import {
+  defaultMapSettings,
+  getNeighborhood,
+  placeDescription,
+  placePhoto,
+  pointCategories,
+} from "../../data/locationContent";
+import type {
+  FloatingPhoto,
+  LocationMapSettings,
+  PointOfInterest,
+  Project,
+} from "../../types/project";
 import { ImageLibrary, MediaInput } from "./MediaLibrary";
+
+const tabs = ["Contenido", "Lugares", "Mapa"] as const;
+
 export function LocationEditor({
   project,
   update,
@@ -9,290 +23,142 @@ export function LocationEditor({
   project: Project;
   update: (fn: (p: Project) => Project) => Promise<void>;
 }) {
-  const [selected, setSelected] = useState(
-    project.pointsOfInterest[0]?.id || "",
+  const [selected, setSelected] = useState(project.pointsOfInterest[0]?.id ?? "");
+  const [tab, setTab] = useState<(typeof tabs)[number]>("Contenido");
+  const [adding, setAdding] = useState(false);
+  const { story, mapCopy, mapSrc, position, settings } = getNeighborhood(project);
+  const poi = project.pointsOfInterest.find((point) => point.id === selected);
+  const available = project.pointsOfInterest.filter(
+    (point) => point.visible && placePhoto(point),
   );
-  const [block, setBlock] = useState("story");
-  const dragging = useRef<string | null>(null);
-  const frame = useRef<HTMLDivElement>(null);
-  const gallery = project.galleries.find((g) => g.id === "barrio");
-  const poi = project.pointsOfInterest.find((p) => p.id === selected);
-  const { story, mapCopy, position } = getNeighborhood(project);
+
   const patch = (data: Partial<PointOfInterest>) =>
-    update((p) => ({
-      ...p,
-      pointsOfInterest: p.pointsOfInterest.map((i) =>
-        i.id === selected ? { ...i, ...data } : i,
+    update((current) => ({
+      ...current,
+      locationMap: current.locationMap ?? defaultMapSettings,
+      pointsOfInterest: current.pointsOfInterest.map((point) =>
+        point.id === selected ? { ...point, ...data } : point,
       ),
     }));
-  const place = (e: React.PointerEvent) => {
-    if (!dragging.current) return;
-    const r = frame.current!.getBoundingClientRect();
-    const id = dragging.current;
-    const pos = {
-      x: Math.max(0, Math.min(100, ((e.clientX - r.left) / r.width) * 100)),
-      y: Math.max(0, Math.min(100, ((e.clientY - r.top) / r.height) * 100)),
-    };
-    void update((p) =>
-      id === "project"
-        ? { ...p, mapProjectPosition: pos }
-        : {
-            ...p,
-            pointsOfInterest: p.pointsOfInterest.map((i) =>
-              i.id === id ? { ...i, ...pos } : i,
-            ),
-          },
-    );
-  };
+
+  const patchSettings = (data: Partial<LocationMapSettings>) =>
+    update((current) => ({
+      ...current,
+      locationMap: { ...(current.locationMap ?? defaultMapSettings), ...data },
+    }));
+
+  function patchPhoto(index: number, patch: Partial<FloatingPhoto>) {
+    void patchSettings({
+      floatingPhotos: settings.floatingPhotos.map((photo, slot) =>
+        slot === index ? { ...photo, ...patch } : photo,
+      ),
+    });
+  }
+
+  function addPlace(x: number, y: number) {
+    const id = crypto.randomUUID();
+    void update((current) => ({
+      ...current,
+      pointsOfInterest: [...current.pointsOfInterest, {
+        id, x, y, name: "Nuevo lugar", category: "Servicios", visible: false,
+        order: Math.max(0, ...current.pointsOfInterest.map((point) => point.order)) + 1,
+      }],
+    }));
+    setSelected(id);
+    setAdding(false);
+  }
+
   return (
     <>
-      <div className="cms-actions">
-        <button
-          className={block === "story" ? "cms-primary" : ""}
-          aria-pressed={block === "story"}
-          onClick={() => setBlock("story")}
-        >
-          Fotografías del barrio
-        </button>
-        <button
-          className={block === "map" ? "cms-primary" : ""}
-          aria-pressed={block === "map"}
-          onClick={() => setBlock("map")}
-        >
-          Mapa del entorno
-        </button>
+      <div className="cms-actions" role="group" aria-label="Opciones de ubicación">
+        {tabs.map((label) => (
+          <button key={label} className={tab === label ? "cms-primary" : ""}
+            aria-pressed={tab === label} onClick={() => setTab(label)}>
+            {label}
+          </button>
+        ))}
       </div>
-      {block === "story" ? (
+      {tab === "Contenido" && (
         <section className="cms-card">
-          <h2>Fotografías del barrio</h2>
+          <h2>Contenido de ubicación</h2>
           <label>
             Título
-            <input
-              className="field"
-              value={story.title}
-              onChange={(e) =>
-                void update((p) => ({
-                  ...p,
-                  locationStory: { ...story, title: e.target.value },
-                }))
-              }
-            />
+            <input className="field" value={mapCopy.title}
+              onChange={({ target: { value } }) => void update((p) => ({
+                ...p, locationMapCopy: { ...getNeighborhood(p).mapCopy, title: value },
+              }))} />
           </label>
           <label>
             Descripción
-            <textarea
-              className="field"
-              value={story.description}
-              onChange={(e) =>
-                void update((p) => ({
-                  ...p,
-                  locationStory: { ...story, description: e.target.value },
-                }))
-              }
-            />
+            <textarea className="field" value={mapCopy.description}
+              onChange={({ target: { value } }) => void update((p) => ({
+                ...p, locationMapCopy: { ...getNeighborhood(p).mapCopy, description: value },
+              }))} />
           </label>
-          <ImageLibrary
-            category="barrio"
-            complementary={false}
-            images={story.images}
-            onChange={(images) =>
-              void update((p) => ({
-                ...p,
-                locationStory: { ...story, images },
-              }))
-            }
-          />
+          <details>
+            <summary>Presentación fotográfica del barrio</summary>
+            <label>
+              Título de la presentación
+              <input className="field" value={story.title}
+                onChange={({ target: { value } }) => void update((p) => ({
+                  ...p, locationStory: { ...getNeighborhood(p).story, title: value },
+                }))} />
+            </label>
+            <label>
+              Descripción de la presentación
+              <textarea className="field" value={story.description}
+                onChange={({ target: { value } }) => void update((p) => ({
+                  ...p, locationStory: { ...getNeighborhood(p).story, description: value },
+                }))} />
+            </label>
+            <ImageLibrary category="barrio" complementary={false} images={story.images}
+              onChange={(images) => void update((p) => ({
+                ...p, locationStory: { ...getNeighborhood(p).story, images },
+              }))} />
+          </details>
         </section>
-      ) : (
+      )}
+      {tab === "Lugares" && (
         <div className="cms-plan-layout">
           <section className="cms-card">
-            <h2>Mapa del entorno</h2>
-            <label>
-              Título
-              <input
-                className="field"
-                value={mapCopy.title}
-                onChange={(event) => {
-                  const title = event.target.value;
-                  void update((p) => ({
-                    ...p,
-                    locationMapCopy: { ...mapCopy, title },
-                  }));
-                }}
-              />
-            </label>
-            <label>
-              Descripción
-              <textarea
-                className="field"
-                value={mapCopy.description}
-                onChange={(event) => {
-                  const description = event.target.value;
-                  void update((p) => ({
-                    ...p,
-                    locationMapCopy: { ...mapCopy, description },
-                  }));
-                }}
-              />
-            </label>
-            <label>
-              Dirección del proyecto
-              <input
-                className="field"
-                value={project.address}
-                onChange={(event) => {
-                  const address = event.target.value;
-                  void update((p) => ({ ...p, address }));
-                }}
-              />
-            </label>
-            <p>
-              Selecciona un lugar y toca el mapa para ubicarlo, o arrastra su
-              marcador. El mapa queda disponible offline.
-            </p>
-            <div
-              ref={frame}
-              className="cms-plan"
-              onPointerDown={(e) => {
-                if (!poi && selected !== "project") return;
-                dragging.current = selected;
-                e.currentTarget.setPointerCapture(e.pointerId);
-                place(e);
-              }}
-              onPointerMove={place}
-              onPointerUp={() => (dragging.current = null)}
-              onPointerCancel={() => (dragging.current = null)}
-            >
-              <img
-                src={gallery?.images[0]?.src}
-                alt="Mapa del distrito"
-                draggable={false}
-              />
-              {
-                <button
-                  className="cms-map-marker selected"
-                  title="Pardo 664"
-                  onClick={() => setSelected("project")}
-                  style={{
-                    left: `${position.x}%`,
-                    top: `${position.y}%`,
-                  }}
-                  onPointerDown={(e) => {
-                    e.stopPropagation();
-                    setSelected("project");
-                    dragging.current = "project";
-                    e.currentTarget.setPointerCapture(e.pointerId);
-                  }}
-                >
-                  P
-                </button>
-              }
-              {project.pointsOfInterest.map((p) => (
-                <button
-                  key={p.id}
-                  className={`cms-map-marker ${selected === p.id ? "selected" : ""}`}
-                  style={{
-                    left: `${p.x}%`,
-                    top: `${p.y}%`,
-                    opacity: p.visible ? 1 : 0.4,
-                  }}
-                  onPointerDown={(e) => {
-                    e.stopPropagation();
-                    setSelected(p.id);
-                    dragging.current = p.id;
-                    e.currentTarget.setPointerCapture(e.pointerId);
-                  }}
-                  title={p.name}
-                  onClick={() => setSelected(p.id)}
-                >
-                  {p.order}
+            <h2>Lugares del entorno</h2>
+            <button type="button" className="cms-primary" aria-pressed={adding}
+              onClick={() => setAdding(!adding)}>
+              {adding ? "Cancelar nuevo lugar" : "Agregar lugar"}
+            </button>
+            {adding && <p>Toca el mapa para ubicar el nuevo lugar. Luego completa sus datos y actívalo.</p>}
+            <div className="cms-plan cms-location-preview" style={{ cursor: adding ? "crosshair" : undefined }}
+              onClick={(event) => {
+                if (!adding) return;
+                const rect = event.currentTarget.getBoundingClientRect();
+                addPlace(100 * (event.clientX - rect.left) / rect.width,
+                  100 * (event.clientY - rect.top) / rect.height);
+              }}>
+              <img src={mapSrc} alt="Mapa de Miraflores" draggable={false} />
+              <span className="cms-map-marker selected" style={{
+                left: `${position.x}%`, top: `${position.y}%`, pointerEvents: "none",
+              }} aria-label="Pardo 664">P</span>
+              {project.pointsOfInterest.map((point) => (
+                <button key={point.id} type="button"
+                  className={`cms-map-marker ${selected === point.id ? "selected" : ""}`}
+                  style={{ left: `${point.x}%`, top: `${point.y}%`, opacity: point.visible ? 1 : 0.45 }}
+                  title={point.name} aria-label={point.name}
+                  onClick={(event) => {
+                    if (adding) return;
+                    event.stopPropagation();
+                    setSelected(point.id);
+                  }}>
+                  {point.order}
                 </button>
               ))}
             </div>
-            <details>
-              <summary>Reemplazar mapa offline</summary>
-              <MediaInput
-                preserve
-                removeLabel={false}
-                src={gallery?.images[0]?.src}
-                onChange={(src) => {
-                  if (src)
-                    void update((p) => ({
-                      ...p,
-                      galleries: p.galleries.map((g) =>
-                        g.id === "barrio"
-                          ? {
-                              ...g,
-                              images: [
-                                { ...g.images[0], src },
-                                ...g.images.slice(1),
-                              ],
-                            }
-                          : g,
-                      ),
-                    }));
-                }}
-              />
-            </details>
           </section>
-          <aside className="cms-card">
-            <div className="cms-actions">
-              <button onClick={() => setSelected("project")}>
-                Ubicar Pardo 664
-              </button>
-              {project.mapProjectPosition && (
-                <button
-                  onClick={() =>
-                    void update((p) => ({
-                      ...p,
-                      mapProjectPosition: undefined,
-                    }))
-                  }
-                >
-                  Restaurar ubicación del proyecto
-                </button>
-              )}
-            </div>
-            {selected === "project" && (
-              <p>Toca el mapa para colocar el marcador del proyecto.</p>
-            )}
-            <button
-              onClick={() => {
-                const id = crypto.randomUUID();
-                setSelected(id);
-                void update((p) => ({
-                  ...p,
-                  pointsOfInterest: [
-                    ...p.pointsOfInterest,
-                    {
-                      id,
-                      name: "Nuevo lugar",
-                      category: "Parques",
-                      x: 50,
-                      y: 50,
-                      order: p.pointsOfInterest.length + 1,
-                      visible: true,
-                    },
-                  ],
-                }));
-              }}
-            >
-              ＋ Agregar lugar
-            </button>
+          <section className="cms-card">
             <label>
               Lugar
-              <select
-                className="field"
-                value={selected}
-                onChange={(e) => setSelected(e.target.value)}
-              >
-                {selected === "project" && (
-                  <option value="project">Pardo 664</option>
-                )}
-                {project.pointsOfInterest.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
+              <select className="field" value={selected} onChange={(event) => setSelected(event.target.value)}>
+                {project.pointsOfInterest.map((point) => (
+                  <option key={point.id} value={point.id}>{point.order}. {point.name}</option>
                 ))}
               </select>
             </label>
@@ -300,83 +166,86 @@ export function LocationEditor({
               <>
                 <label>
                   Nombre
-                  <input
-                    className="field"
-                    value={poi.name}
-                    onChange={(e) => void patch({ name: e.target.value })}
-                  />
+                  <input className="field" value={poi.name}
+                    onChange={(event) => void patch({ name: event.target.value })} />
                 </label>
                 <label>
                   Categoría
-                  <select
-                    className="field"
-                    value={poi.category}
-                    onChange={(e) =>
-                      void patch({
-                        category: e.target.value as PointOfInterest["category"],
-                      })
-                    }
-                  >
-                    {[
-                      "Gastronomía",
-                      "Parques",
-                      "Educación",
-                      "Tiendas",
-                      "Entretenimiento",
-                      "Cultura",
-                      "Servicios",
-                    ].map((c) => (
-                      <option key={c}>{c}</option>
-                    ))}
+                  <select className="field" value={poi.category}
+                    onChange={(event) => void patch({ category: event.target.value as PointOfInterest["category"] })}>
+                    {pointCategories.map((category) => <option key={category}>{category}</option>)}
                   </select>
                 </label>
                 <label>
                   Descripción
-                  <textarea
-                    className="field"
-                    value={poi.description || ""}
-                    onChange={(e) =>
-                      void patch({ description: e.target.value })
-                    }
-                  />
+                  <textarea className="field" value={placeDescription(poi)}
+                    onChange={(event) => void patch({ description: event.target.value })} />
                 </label>
                 <label>
-                  Orden
-                  <input
-                    className="field"
-                    type="number"
-                    min="1"
-                    value={poi.order}
-                    onChange={(e) =>
-                      void patch({ order: Number(e.target.value) })
-                    }
-                  />
+                  <input type="checkbox" checked={poi.visible}
+                    onChange={(event) => void patch({ visible: event.target.checked })} />
+                  {" "}Lugar activo
                 </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={poi.visible}
-                    onChange={(e) => void patch({ visible: e.target.checked })}
-                  />{" "}
-                  Mostrar
-                </label>
-                <button
-                  onClick={() => {
-                    if (confirm("¿Eliminar lugar?"))
-                      void update((p) => ({
-                        ...p,
-                        pointsOfInterest: p.pointsOfInterest.filter(
-                          (i) => i.id !== selected,
-                        ),
-                      }));
-                  }}
-                >
-                  Eliminar lugar
-                </button>
+                <h3>Fotografía del lugar</h3>
+                <MediaInput key={poi.id} src={placePhoto(poi)?.src} recommendation="Encuadre vertical · JPG, PNG o WebP"
+                  onChange={(photoSrc) => void patch({ photoSrc })} />
               </>
             )}
-          </aside>
+          </section>
         </div>
+      )}
+      {tab === "Mapa" && (
+        <section className="cms-card">
+          <h2>Mapa y fotografías flotantes</h2>
+          <label>
+            Zoom inicial · {settings.initialZoom.toFixed(2)}×
+            <input className="field" type="range" min="1" max="4" step="0.05" value={settings.initialZoom}
+              onChange={(event) => void patchSettings({ initialZoom: Number(event.target.value) })} />
+          </label>
+          <p>Configura hasta tres fotografías de lugares activos. La posición se mide como porcentaje del área visible del mapa.</p>
+          {settings.floatingPhotos.map((photo, index) => (
+            <fieldset className="cms-card" key={index}>
+              <legend>Fotografía {index + 1}</legend>
+              <label>
+                Lugar
+                <select className="field" value={photo.pointId}
+                  onChange={(event) => patchPhoto(index, { pointId: event.target.value })}>
+                  {!available.some((point) => point.id === photo.pointId) && (
+                    <option value={photo.pointId}>Lugar inactivo o sin fotografía</option>
+                  )}
+                  {available.filter((point) => point.id === photo.pointId ||
+                    !settings.floatingPhotos.some((item) => item.pointId === point.id))
+                    .map((point) => <option key={point.id} value={point.id}>{point.order}. {point.name}</option>)}
+                </select>
+              </label>
+              <label>
+                Posición horizontal · {photo.x}%
+                <input className="field" type="range" min="0" max="100" value={photo.x}
+                  onChange={(event) => patchPhoto(index, { x: Number(event.target.value) })} />
+              </label>
+              <label>
+                Posición vertical · {photo.y}%
+                <input className="field" type="range" min="0" max="100" value={photo.y}
+                  onChange={(event) => patchPhoto(index, { y: Number(event.target.value) })} />
+              </label>
+              <button type="button" onClick={() => void patchSettings({
+                floatingPhotos: settings.floatingPhotos.filter((_, slot) => slot !== index),
+              })}>Quitar fotografía flotante</button>
+            </fieldset>
+          ))}
+          {settings.floatingPhotos.length < 3 && (
+            <button type="button" onClick={() => {
+              const point = available.find((item) =>
+                !settings.floatingPhotos.some((photo) => photo.pointId === item.id),
+              );
+              if (point) void patchSettings({
+                floatingPhotos: [...settings.floatingPhotos, { pointId: point.id, x: 75, y: 75 }],
+              });
+            }} disabled={available.every((point) => settings.floatingPhotos.some((photo) => photo.pointId === point.id))}>
+              Agregar fotografía flotante
+            </button>
+          )}
+        </section>
       )}
     </>
   );

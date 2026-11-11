@@ -1,0 +1,335 @@
+[
+  {
+    "id": "poi-1",
+    "name": "Dolce Capriccio",
+    "category": "Gastronomía",
+    "x": 44.9,
+    "y": 25.6,
+    "visible": true,
+    "order": 1
+  },
+  {
+    "id": "poi-2",
+    "name": "Xoma",
+    "category": "Gastronomía",
+    "x": 49.7,
+    "y": 32.6,
+    "visible": true,
+    "order": 2
+  },
+  {
+    "id": "poi-3",
+    "name": "Cervecería del Valle",
+    "category": "Gastronomía",
+    "x": 55.4,
+    "y": 28.8,
+    "visible": true,
+    "order": 3
+  },
+  {
+    "id": "poi-4",
+    "name": "Panchita",
+    "category": "Gastronomía",
+    "x": 68.3,
+    "y": 29,
+    "visible": true,
+    "order": 4
+  },
+  {
+    "id": "poi-5",
+    "name": "Matsuei",
+    "category": "Gastronomía",
+    "x": 73,
+    "y": 33.5,
+    "visible": true,
+    "order": 5
+  },
+  {
+    "id": "poi-6",
+    "name": "La Gloria",
+    "category": "Gastronomía",
+    "x": 72.6,
+    "y": 27.2,
+    "visible": true,
+    "order": 6
+  },
+  {
+    "id": "poi-7",
+    "name": "La Cabrera",
+    "category": "Gastronomía",
+    "x": 76.4,
+    "y": 29.6,
+    "visible": true,
+    "order": 7
+  },
+  {
+    "id": "poi-8",
+    "name": "La Lucha Sanguchería",
+    "category": "Gastronomía",
+    "x": 73.6,
+    "y": 47.6,
+    "visible": true,
+    "order": 8
+  },
+  {
+    "id": "poi-9",
+    "name": "Tori",
+    "category": "Gastronomía",
+    "x": 56.8,
+    "y": 51.7,
+    "visible": true,
+    "order": 9
+  },
+  {
+    "id": "poi-10",
+    "name": "Tomo Cocina Nikkei",
+    "category": "Gastronomía",
+    "x": 63.5,
+    "y": 47.8,
+    "visible": true,
+    "order": 10
+  },
+  {
+    "id": "poi-11",
+    "name": "La Cantina di Epicuro",
+    "category": "Gastronomía",
+    "x": 49.1,
+    "y": 41.5,
+    "visible": true,
+    "order": 11
+  },
+  {
+    "id": "poi-12",
+    "name": "La Mora",
+    "category": "Gastronomía",
+    "x": 50.9,
+    "y": 52.3,
+    "visible": true,
+    "order": 12
+  },
+  {
+    "id": "poi-13",
+    "name": "Rutina Café",
+    "category": "Gastronomía",
+    "x": 48.7,
+    "y": 59.5,
+    "visible": true,
+    "order": 13
+  },
+  {
+    "id": "poi-14",
+    "name": "Edo",
+    "category": "Gastronomía",
+    "x": 43.6,
+    "y": 45.5,
+    "visible": true,
+    "order": 14
+  },
+  {
+    "id": "poi-15",
+    "name": "Punto Azul",
+    "category": "Gastronomía",
+    "x": 36.7,
+    "y": 48,
+    "visible": true,
+    "order": 15
+  },
+  {
+    "id": "570ee2e7-3aa9-41c2-a56e-54c4ae07c73f",
+    "name": "Mariaté",
+    "category": "Gastronomía",
+    "x": 45.1,
+    "y": 11.7,
+    "visible": true,
+    "order": 16
+  },
+  {
+    "id": "poi-16",
+    "name": "Mariaté",
+    "category": "Gastronomía",
+    "x": 53.6,
+    "y": 14,
+    "visible": true,
+    "order": 16
+  },
+  {
+    "id": "poi-17",
+    "name": "La Porteña",
+    "category": "Gastronomía",
+    "x": 30.9,
+    "y": 23.4,
+    "visible": true,
+    "order": 17
+  },
+  {
+    "id": "poi-18",
+    "name": "Latte Bakery",
+    "category": "Gastronomía",
+    "x": 34.3,
+    "y": 21.5,
+    "visible": true,
+    "order": 18
+  },
+  {
+    "id": "poi-19",
+    "name": "Panadería Cultivo",
+    "category": "Gastronomía",
+    "x": 33.2,
+    "y": 26.8,
+    "visible": true,
+    "order": 19
+  },
+  {
+    "id": "poi-20",
+    "name": "Mattoni",
+    "category": "Gastronomía",
+    "x": 12.4,
+    "y": 19.5,
+    "visible": true,
+    "order": 20
+  },
+  {
+    "id": "poi-21",
+    "name": "Punto Café",
+    "category": "Gastronomía",
+    "x": 16.1,
+    "y": 18.9,
+    "visible": true,
+    "order": 21
+  },
+  {
+    "id": "poi-22",
+    "name": "La Negra Panadería de Barrio",
+    "category": "Gastronomía",
+    "x": 14.3,
+    "y": 20,
+    "visible": true,
+    "order": 22
+  },
+  {
+    "id": "poi-23",
+    "name": "La Caffetteria di Lonato",
+    "category": "Gastronomía",
+    "x": 14,
+    "y": 15.1,
+    "visible": true,
+    "order": 23
+  },
+  {
+    "id": "poi-24",
+    "name": "Café de Lima",
+    "category": "Gastronomía",
+    "x": 24.9,
+    "y": 7,
+    "visible": true,
+    "order": 24
+  },
+  {
+    "id": "poi-25",
+    "name": "Raw Café",
+    "category": "Gastronomía",
+    "x": 63,
+    "y": 5.3,
+    "visible": true,
+    "order": 25
+  },
+  {
+    "id": "poi-26",
+    "name": "Colegio San Silvestre",
+    "category": "Educación",
+    "x": 17.7,
+    "y": 14.6,
+    "visible": true,
+    "order": 26
+  },
+  {
+    "id": "poi-27",
+    "name": "Colegio Inmaculado Corazón",
+    "category": "Educación",
+    "x": 28.4,
+    "y": 4.8,
+    "visible": true,
+    "order": 27
+  },
+  {
+    "id": "poi-28",
+    "name": "Colegio Mater Purissima",
+    "category": "Educación",
+    "x": 23.2,
+    "y": 52.4,
+    "visible": true,
+    "order": 28
+  },
+  {
+    "id": "poi-29",
+    "name": "Universidad de Piura",
+    "category": "Educación",
+    "x": 73.3,
+    "y": 43,
+    "visible": true,
+    "order": 29
+  },
+  {
+    "id": "poi-30",
+    "name": "Falabella",
+    "category": "Tiendas",
+    "x": 79.4,
+    "y": 35.5,
+    "visible": true,
+    "order": 30
+  },
+  {
+    "id": "poi-31",
+    "name": "Wong",
+    "category": "Tiendas",
+    "x": 62.3,
+    "y": 65.2,
+    "visible": true,
+    "order": 31
+  },
+  {
+    "id": "poi-32",
+    "name": "Metro",
+    "category": "Tiendas",
+    "x": 75.9,
+    "y": 61.4,
+    "visible": true,
+    "order": 32
+  },
+  {
+    "id": "poi-33",
+    "name": "Kennedy",
+    "category": "Parques",
+    "x": 76.6,
+    "y": 51.1,
+    "visible": true,
+    "order": 33
+  },
+  {
+    "id": "poi-34",
+    "name": "Malecón de Miraflores",
+    "category": "Parques",
+    "x": 33.8,
+    "y": 73.7,
+    "visible": true,
+    "order": 34
+  },
+  {
+    "id": "poi-35",
+    "name": "El Principito",
+    "category": "Parques",
+    "x": 10.4,
+    "y": 58.6,
+    "visible": true,
+    "order": 35
+  },
+  {
+    "id": "poi-36",
+    "name": "Manuel Solari Swayne",
+    "category": "Parques",
+    "x": 58.1,
+    "y": 12.3,
+    "visible": true,
+    "order": 36
+  }
+]

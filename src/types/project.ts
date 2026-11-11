@@ -102,9 +102,10 @@ export interface Typology {
 
 export interface PointOfInterest {
   description?: string;
+  photoSrc?: string;
   id: string;
   name: string;
-  category: "Gastronomía" | "Parques" | "Educación" | "Tiendas" | "Entretenimiento" | "Cultura" | "Servicios";
+  category: "Gastronomía" | "Cafeterías" | "Parques" | "Educación" | "Tiendas" | "Entretenimiento" | "Cultura" | "Servicios";
   x: number;
   y: number;
   visible: boolean;
@@ -151,7 +152,19 @@ export interface AboutContent {
   projects: AboutProject[];
 }
 
+export interface FloatingPhoto {
+  pointId: string;
+  x: number;
+  y: number;
+}
+
+export interface LocationMapSettings {
+  initialZoom: number;
+  floatingPhotos: FloatingPhoto[];
+}
+
 export interface Project {
+  locationMap?: LocationMapSettings;
   locationMapCopy?: { title: string; description: string };
   mapProjectPosition?: {x: number; y: number};
   home?: { mediaSrc?: string; mediaType?: "image" | "video"; primaryButton?: string; secondaryButton?: string };

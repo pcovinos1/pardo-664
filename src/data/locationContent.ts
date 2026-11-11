@@ -2,7 +2,10 @@ import gastronomia from "../assets/miraflores/gastronomia.jpg";
 import cultura from "../assets/miraflores/cultura.jpg";
 import arquitectura from "../assets/miraflores/arquitectura.jpg";
 import espacios from "../assets/miraflores/espacios.jpg";
-import type { GalleryImage, Project } from "../types/project";
+import kennedy from "../assets/miraflores/kennedy.jpg";
+import laLucha from "../assets/miraflores/la-lucha.jpg";
+import mapaPardo from "../assets/pdf-pages/mapa-pardo664.svg";
+import type { GalleryImage, LocationMapSettings, PointOfInterest, Project } from "../types/project";
 
 const photos = [
   [
@@ -59,7 +62,7 @@ const defaultPhotos: GalleryImage[] = photos.map(
 export const defaultMapCopy = {
   title: "Todo cerca de tu morada.",
   description:
-    "Descubre los espacios, lugares y experiencias que forman parte de Miraflores.",
+    "Descubre Miraflores a través de su gastronomía, cultura, espacios verdes y lugares que forman parte del barrio.",
 };
 
 // Center at the foot of the building artwork in the original district map.
@@ -76,7 +79,87 @@ export function getNeighborhood(project: Project) {
       images: legacyPhotos?.length ? legacyPhotos : defaultPhotos,
     },
     mapCopy: project.locationMapCopy ?? defaultMapCopy,
-    mapSrc: gallery?.images[0]?.src,
+    mapSrc: mapaPardo,
+    settings: project.locationMap ?? defaultMapSettings,
     position: project.mapProjectPosition ?? defaultProjectPosition,
   };
+}
+
+export const locationCategories = [
+  "Gastronomía", "Cafeterías", "Tiendas", "Arte y cultura", "Espacios abiertos", "Otros",
+] as const;
+
+export const pointCategories: PointOfInterest["category"][] = [
+  "Gastronomía", "Cafeterías", "Tiendas", "Cultura", "Parques",
+  "Educación", "Entretenimiento", "Servicios",
+];
+
+const cafeIds = new Set([
+  "poi-1", "poi-12", "poi-13", "poi-16", "poi-18", "poi-19", "poi-21", "poi-22",
+  "poi-23", "poi-24", "poi-25", "570ee2e7-3aa9-41c2-a56e-54c4ae07c73f",
+]);
+
+export function placeCategory(point: PointOfInterest) {
+  if (point.category === "Parques") return "Espacios abiertos";
+  if (point.category === "Cultura") return "Arte y cultura";
+  if (point.category === "Educación" || point.category === "Entretenimiento" || point.category === "Servicios") return "Otros";
+  return point.category;
+}
+
+export function defaultPointCategory(point: PointOfInterest): PointOfInterest["category"] {
+  return point.category === "Gastronomía" && cafeIds.has(point.id) ? "Cafeterías" : point.category;
+}
+
+const placePhotos: Record<string, Pick<GalleryImage, "src" | "credit" | "creditSource" | "creditLicense">> = {
+  "poi-34": defaultPhotos[0],
+  "poi-33": {
+    src: kennedy,
+    credit: "Municipalidad de Miraflores",
+    creditSource: "https://commons.wikimedia.org/wiki/File:Parque_Kennedy.jpg",
+    creditLicense: "https://creativecommons.org/licenses/by/2.0/",
+  },
+  "poi-8": {
+    src: laLucha,
+    credit: "Art DiNo",
+    creditSource: "https://commons.wikimedia.org/wiki/File:La_Lucha_sangucher%C3%ADa_(2016).jpg",
+    creditLicense: "https://creativecommons.org/licenses/by-sa/2.0/",
+  },
+};
+
+export function placePhoto(point: PointOfInterest): (typeof placePhotos)[string] | undefined {
+  if (point.photoSrc === "") return undefined;
+  if (point.photoSrc) return { src: point.photoSrc };
+  return placePhotos[point.id];
+}
+
+export const defaultMapSettings: LocationMapSettings = {
+  initialZoom: 1,
+  floatingPhotos: [
+    { pointId: "poi-34", x: 19, y: 82 },
+    { pointId: "poi-33", x: 84, y: 70 },
+    { pointId: "poi-8", x: 47, y: 69 },
+  ],
+};
+
+const placeDescriptions: Record<string, string> = {
+  "poi-1": "Cafetería y pastelería en Miraflores.",
+  "poi-3": "Cervecería artesanal.",
+  "poi-4": "Restaurante de cocina criolla peruana.",
+  "poi-5": "Restaurante de cocina japonesa.",
+  "poi-7": "Parrilla de tradición argentina.",
+  "poi-8": "Sanguchería peruana en Miraflores.",
+  "poi-10": "Restaurante de cocina nikkei.",
+  "poi-12": "Cafetería y pastelería.",
+  "poi-18": "Cafetería y panadería.",
+  "poi-19": "Panadería de barrio.",
+  "poi-22": "Panadería de barrio.",
+  "poi-30": "Tienda por departamentos.",
+  "poi-31": "Supermercado.",
+  "poi-32": "Supermercado.",
+  "poi-33": "Parque del centro de Miraflores, junto a la avenida Diagonal.",
+  "poi-34": "Paseos y áreas verdes sobre los acantilados, con vistas al Pacífico.",
+};
+
+export function placeDescription(point: PointOfInterest) {
+  return point.description ?? placeDescriptions[point.id] ?? "";
 }
