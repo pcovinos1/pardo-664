@@ -1,4 +1,4 @@
-import type { Apartment, Gallery, Hotspot, Project, Room, Typology } from "../types/project";
+import type { Gallery, Project, Typology } from "../types/project";
 import heroFachada from "../assets/pdf-pages/hero-fachada.png";
 import proyecto from "../assets/pdf-pages/proyecto.png";
 import arquitecturaNomena from "../assets/pdf-pages/arquitectura-nomena.png";
@@ -9,21 +9,10 @@ import interiores2 from "../assets/pdf-pages/interiores-2.png";
 import interiores3 from "../assets/pdf-pages/interiores-3.png";
 import fachadaDetalle from "../assets/pdf-pages/fachada-detalle.png";
 import fichaProyecto from "../assets/pdf-pages/ficha-proyecto.png";
-import plantaTipica from "../assets/pdf-pages/planta-tipica.png";
-import planoA1 from "../assets/pdf-pages/plano-a-1.png";
-import planoA2 from "../assets/pdf-pages/plano-a-2.png";
-import planoA3 from "../assets/pdf-pages/plano-a-3.png";
-import planoA4 from "../assets/pdf-pages/plano-a-4.png";
-import planoA5 from "../assets/pdf-pages/plano-a-5.png";
-import planoB1 from "../assets/pdf-pages/plano-b-1.png";
-import planoB2 from "../assets/pdf-pages/plano-b-2.png";
-import planoB3 from "../assets/pdf-pages/plano-b-3.png";
+import pardoPlans from "./pardoPlans.json";
 
 const today = "2026-06-02";
-
-const apartments = (items: string[]): Apartment[] => items.map((label) => ({ id: label, label }));
-const rooms = (items: Array<[string, string?]>): Room[] =>
-  items.map(([name, dimensions], index) => ({ id: `${index + 1}`.padStart(2, "0"), name, dimensions }));
+const planUrl = (path: string) => import.meta.env.BASE_URL + path;
 
 const galleries: Gallery[] = [
   {
@@ -92,233 +81,13 @@ const aboutProjects = Array.from({ length: 13 }, (_, index) => {
   };
 });
 
-const hotspotSeed: Array<[string, number, number, number, number]> = [
-  ["a-1", 24, 47, 10, 20],
-  ["a-2", 34, 45, 11, 22],
-  ["a-3", 45, 45, 10, 22],
-  ["a-4", 56, 43, 11, 25],
-  ["a-5", 66, 43, 11, 25],
-  ["b-1", 25, 21, 13, 20],
-  ["b-2", 40, 21, 14, 20],
-  ["b-3", 55, 22, 13, 19]
-];
-
-const hotspots: Hotspot[] = hotspotSeed.map(([typologyId, x, y, width, height]) => ({
-  id: `hotspot-${typologyId}`,
-  typologyId,
-  x,
-  y,
-  width,
-  height
+const typologies: Typology[] = pardoPlans.typologies.map((typology) => ({
+  ...typology,
+  format: typology.format === "Duplex" ? "Duplex" : "Flat",
+  planSrc: planUrl(typology.planSrc),
+  thumbnailSrc: planUrl(typology.thumbnailSrc),
+  floorThumbnailSrc: planUrl(typology.floorThumbnailSrc)
 }));
-
-const typologies: Typology[] = [
-  {
-    id: "a-1",
-    code: "A-1",
-    areaM2: 61,
-    bedrooms: 1,
-    bathrooms: 2,
-    format: "Flat",
-    active: true,
-    planSrc: planoA1,
-    thumbnailSrc: planoA1,
-    floorThumbnailSrc: plantaTipica,
-    rooms: rooms([
-      ["Sala comedor", "3.55 x 2.90"],
-      ["Terraza 01"],
-      ["Kitchenette", "3.40 x 2.90"],
-      ["Centro de lavado"],
-      ["Baño de visita"],
-      ["Dormitorio 01", "3.35 x 2.90"],
-      ["Baño 01"],
-      ["Terraza 02"]
-    ]),
-    apartments: apartments(["401", "501", "601", "701", "801", "901", "1001", "1101", "1201", "1301", "1401", "1501", "1601", "1701", "1801", "1901", "2001", "2101"]),
-    features: { terrace: true },
-    updatedAt: today
-  },
-  {
-    id: "a-2",
-    code: "A-2",
-    areaM2: 63,
-    bedrooms: 1,
-    bathrooms: 2,
-    format: "Flat",
-    active: true,
-    planSrc: planoA2,
-    thumbnailSrc: planoA2,
-    floorThumbnailSrc: plantaTipica,
-    rooms: rooms([
-      ["Sala comedor", "4.10 x 3.45"],
-      ["Terraza"],
-      ["Kitchenette"],
-      ["Centro de lavado"],
-      ["Estudio", "3.75 x 2.35"],
-      ["Dormitorio 01", "3.15 x 2.40"],
-      ["Baño 01"],
-      ["Baño 02"]
-    ]),
-    apartments: apartments(["201", "302", "402", "502", "602", "702", "802", "902", "1002", "1102", "1202", "1302", "1402", "1502", "1602", "1702", "1802"]),
-    features: { terrace: true, study: true },
-    updatedAt: today
-  },
-  {
-    id: "a-3",
-    code: "A-3",
-    areaM2: 60,
-    bedrooms: 1,
-    bathrooms: 2,
-    format: "Flat",
-    active: true,
-    planSrc: planoA3,
-    thumbnailSrc: planoA3,
-    floorThumbnailSrc: plantaTipica,
-    rooms: rooms([
-      ["Sala comedor", "3.00 x 2.85"],
-      ["Terraza"],
-      ["Kitchenette", "2.50 x 2.80"],
-      ["Centro de lavado"],
-      ["Estudio"],
-      ["Dormitorio 01", "2.90 x 3.60"],
-      ["Baño 01"],
-      ["Baño 02"]
-    ]),
-    apartments: apartments(["403", "503", "603", "703", "803", "903", "1003", "1103", "1203", "1303", "1403", "1503", "1603", "1703", "1803"]),
-    features: { terrace: true, study: true },
-    updatedAt: today
-  },
-  {
-    id: "a-4",
-    code: "A-4",
-    areaM2: 75,
-    bedrooms: 2,
-    bathrooms: 2,
-    format: "Flat",
-    active: true,
-    planSrc: planoA4,
-    thumbnailSrc: planoA4,
-    floorThumbnailSrc: plantaTipica,
-    rooms: rooms([
-      ["Sala comedor", "2.70 x 5.30"],
-      ["Kitchenette", "2.90 x 3.25"],
-      ["Terraza"],
-      ["Hall"],
-      ["Centro de lavado"],
-      ["Dormitorio 01", "2.95 x 3.50"],
-      ["Dormitorio 02", "2.25 x 2.30"],
-      ["Baño 01"],
-      ["Walk-in closet"],
-      ["Baño 02"]
-    ]),
-    apartments: apartments(["304", "404", "504", "604", "704", "805", "904", "1004", "1104", "1204"]),
-    features: { terrace: true, walkInCloset: true },
-    updatedAt: today
-  },
-  {
-    id: "a-5",
-    code: "A-5",
-    areaM2: 74,
-    bedrooms: 3,
-    bathrooms: 2,
-    format: "Flat",
-    active: true,
-    planSrc: planoA5,
-    thumbnailSrc: planoA5,
-    floorThumbnailSrc: plantaTipica,
-    rooms: rooms([
-      ["Sala comedor", "3.10 x 5.15"],
-      ["Terraza"],
-      ["Kitchenette", "2.95 x 3.30"],
-      ["Centro de lavado"],
-      ["Estudio"],
-      ["Dormitorio 01", "2.55 x 3.70"],
-      ["Baño 01"],
-      ["Dormitorio 02", "1.75 x 2.70"],
-      ["Baño 02"]
-    ]),
-    apartments: apartments(["405", "505", "605", "705", "805", "905", "1005", "1105", "1205", "1305", "1405", "1505", "1605"]),
-    features: { terrace: true, study: true },
-    updatedAt: today
-  },
-  {
-    id: "b-1",
-    code: "B-1",
-    areaM2: 74,
-    bedrooms: 2,
-    bathrooms: 2,
-    format: "Flat",
-    active: true,
-    planSrc: planoB1,
-    thumbnailSrc: planoB1,
-    floorThumbnailSrc: plantaTipica,
-    rooms: rooms([
-      ["Sala comedor", "3.60 x 3.70"],
-      ["Terraza"],
-      ["Kitchenette", "3.15 x 3.05"],
-      ["Centro de lavado"],
-      ["Dormitorio 01", "4.35 x 2.75"],
-      ["Walk-in closet"],
-      ["Baño 01"],
-      ["Dormitorio 02", "3.95 x 2.65"],
-      ["Baño 02"]
-    ]),
-    apartments: apartments(["201", "301", "401", "501", "601", "701", "801", "901", "1001", "1101", "1201", "1301", "1401", "1501", "1601", "1701", "1801", "1901", "2001", "2101"]),
-    features: { terrace: true, walkInCloset: true },
-    updatedAt: today
-  },
-  {
-    id: "b-2",
-    code: "B-2",
-    areaM2: 75,
-    bedrooms: 2,
-    bathrooms: 2,
-    format: "Flat",
-    active: true,
-    planSrc: planoB2,
-    thumbnailSrc: planoB2,
-    floorThumbnailSrc: plantaTipica,
-    rooms: rooms([
-      ["Sala comedor", "3.95 x 3.55"],
-      ["Terraza"],
-      ["Kitchenette", "3.20 x 3.15"],
-      ["Centro de lavado"],
-      ["Dormitorio 01", "2.80 x 3.45"],
-      ["Walk-in closet"],
-      ["Baño 01"],
-      ["Dormitorio 02", "2.85 x 3.45"],
-      ["Baño 02"]
-    ]),
-    apartments: apartments(["202", "302", "402", "502", "602", "702", "802", "902", "1002", "1102", "1202", "1302", "1402", "1502", "1602", "1702", "1802", "1902", "2002", "2102"]),
-    features: { terrace: true, walkInCloset: true },
-    updatedAt: today
-  },
-  {
-    id: "b-3",
-    code: "B-3",
-    areaM2: 62,
-    bedrooms: 2,
-    bathrooms: 2,
-    format: "Flat",
-    active: true,
-    planSrc: planoB3,
-    thumbnailSrc: planoB3,
-    floorThumbnailSrc: plantaTipica,
-    rooms: rooms([
-      ["Sala comedor", "3.05 x 3.45"],
-      ["Terraza"],
-      ["Kitchenette", "2.80 x 2.20"],
-      ["Centro de lavado"],
-      ["Estudio"],
-      ["Dormitorio 01", "3.70 x 2.40"],
-      ["Baño 01"],
-      ["Baño 02"]
-    ]),
-    apartments: apartments(["203", "303", "403", "503", "603", "703", "803", "903", "1003", "1103", "1203", "1303", "1403", "1503", "1603", "1703", "1803", "1903", "2003", "2103", "2203"]),
-    features: { terrace: true, study: true },
-    updatedAt: today
-  }
-];
 
 export const initialProject: Project = {
   id: "pardo-664",
@@ -334,7 +103,7 @@ export const initialProject: Project = {
   architect: "Nómena Arquitectura",
   certification: "LEED",
   status: "Lanzamiento",
-  areaRange: "Desde 60 m² hasta 112 m²",
+  areaRange: pardoPlans.areaRange,
   typologySummary: "Flats y dúplex de 1, 2 y 3 dormitorios",
   sharedAreas: ["Lobby", "Sala de espera", "Coworking", "Gimnasio", "SUM", "Zona de parrillas", "Piscina", "Pet-wash", "Laundry-room", "Jardín"],
   leedAttributes: ["Paneles solares", "Luces con sensores de movimiento", "Estacionamientos para bicicletas", "Tratamiento y reutilización de aguas residuales"],
@@ -379,12 +148,13 @@ export const initialProject: Project = {
   ],
   galleries,
   floorPlan: {
-    id: "typical-floor",
-    title: "Planta típica",
-    imageSrc: plantaTipica,
-    hotspots,
-    updatedAt: today
+    ...pardoPlans.floorPlan,
+    imageSrc: planUrl(pardoPlans.floorPlan.imageSrc)
   },
+  buildingPlans: pardoPlans.buildingPlans.map((plan) => ({
+    ...plan,
+    imageSrc: planUrl(plan.imageSrc)
+  })),
   typologies,
   pointsOfInterest: [
     { id: "poi-1", name: "Dolce Capriccio", category: "Gastronomía", x: 22, y: 43, visible: true, order: 1 },
@@ -429,7 +199,7 @@ export const initialProject: Project = {
     publishedAt: today,
     changes: [
       { id: "c1", date: today, text: "Se cargó contenido inicial desde PARDO-SMART-JUNIO2026-v2.pdf." },
-      { id: "c2", date: today, text: "Se configuraron hotspots demostrativos editables en la planta típica." }
+      { id: "planos-v10", date: pardoPlans.floorPlan.updatedAt, text: "Se incorporaron los planos finales V10 de Pardo 664." }
     ]
   },
   adminPin: "6640"

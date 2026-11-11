@@ -72,6 +72,12 @@ export interface FloorPlan {
   updatedAt: string;
 }
 
+export interface BuildingPlan {
+  id: string;
+  title: string;
+  imageSrc: string;
+}
+
 export interface Typology {
   id: string;
   code: string;
@@ -171,6 +177,7 @@ export interface Project {
   sections: ProjectSection[];
   galleries: Gallery[];
   floorPlan: FloorPlan;
+  buildingPlans?: BuildingPlan[];
   typologies: Typology[];
   pointsOfInterest: PointOfInterest[];
   version: ProjectVersion;

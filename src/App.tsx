@@ -524,7 +524,7 @@ function DepartmentsPage({ project, selectedTypologyId, setSelectedTypologyId, o
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {filtered.map((typology) => (
           <article key={typology.id} className={`relative rounded border bg-porcelain p-4 focus-within:ring-2 focus-within:ring-morada/30 ${selectedTypologyId === typology.id ? "border-morada" : "border-ink/10"}`}>
-            <img className="h-44 w-full rounded border border-ink/10 bg-white object-contain" src={typology.thumbnailSrc} alt={`Plano ${typology.code}`} />
+            <img className="h-44 w-full rounded border border-ink/10 bg-white object-contain" src={typology.thumbnailSrc} alt={`Plano ${typology.code}`} loading="lazy" />
             <div className="mt-4 flex items-start justify-between">
               <div>
                 <h2 className="font-display text-4xl">{typology.code}</h2>
@@ -546,9 +546,11 @@ function DepartmentsPage({ project, selectedTypologyId, setSelectedTypologyId, o
               >
                 Ver plano
               </button>
-              <button className="secondary-touch relative z-10 flex-1" onClick={() => { setSelectedTypologyId(typology.id); onNavigate("floor"); }} type="button">
-                En planta
-              </button>
+              {project.floorPlan.hotspots.some((hotspot) => hotspot.typologyId === typology.id) && (
+                <button className="secondary-touch relative z-10 flex-1" onClick={() => { setSelectedTypologyId(typology.id); onNavigate("floor"); }} type="button">
+                  En planta
+                </button>
+              )}
             </div>
           </article>
         ))}
@@ -570,7 +572,12 @@ function DepartmentsPage({ project, selectedTypologyId, setSelectedTypologyId, o
 }
 
 function FloorPage({ project, selectedTypologyId, setSelectedTypologyId, onNavigate }: { project: Project; selectedTypologyId: string; setSelectedTypologyId: (id: string) => void; onNavigate: (view: ViewKey) => void }) {
-  const typology = project.typologies.find((item) => item.active && item.id === selectedTypologyId);
+  const [buildingPlanId, setBuildingPlanId] = useState<string | null>(null);
+  const buildingPlan = project.buildingPlans?.find((item) => item.id === buildingPlanId);
+  const typology = project.typologies.find((item) =>
+    item.active && item.id === selectedTypologyId &&
+    project.floorPlan.hotspots.some((hotspot) => hotspot.typologyId === item.id)
+  );
   return (
     <section className="page-wrap">
       <PageHeading eyebrow="Planta típica" title="Pisos 3 al 12" text="La planta típica exhibida corresponde a los pisos 3 al 12 y se muestra únicamente para fines ilustrativos." />
@@ -587,9 +594,28 @@ function FloorPage({ project, selectedTypologyId, setSelectedTypologyId, onNavig
                 Ver plano <ArrowRight />
               </button>
             </>
-          ) : null}
+          ) : <p className="text-ink/70">Selecciona un departamento en la planta para ver su plano.</p>}
         </aside>
       </div>
+      {!!project.buildingPlans?.length && (
+        <section className="mt-8">
+          <h2 className="mb-4 font-display text-3xl">Otros planos del edificio</h2>
+          <div className="mb-4 flex flex-wrap gap-3">
+            {project.buildingPlans.map((plan) => (
+              <button
+                key={plan.id}
+                className={`pill ${buildingPlanId === plan.id ? "pill-active" : ""}`}
+                aria-pressed={buildingPlanId === plan.id}
+                onClick={() => setBuildingPlanId(plan.id)}
+                type="button"
+              >
+                {plan.title}
+              </button>
+            ))}
+          </div>
+          {buildingPlan && <PlanViewer key={buildingPlan.id} src={buildingPlan.imageSrc} title={buildingPlan.title} />}
+        </section>
+      )}
     </section>
   );
 }

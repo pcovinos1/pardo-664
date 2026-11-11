@@ -244,6 +244,9 @@ export async function fetchRemoteProject(
     );
   }
   if (current && compareProjectVersions(parsed, current) <= 0) return null;
+  for (const { src, write } of assetEntries(parsed)) {
+    if (src.startsWith("content/plans-v10/")) write(new URL(src, base).pathname);
+  }
   return parsed;
 }
 
