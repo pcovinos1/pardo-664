@@ -1,12 +1,27 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { getProject, saveProject } from "../services/db";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import {
+  getProject,
+  saveProject,
+  normalizeProject,
+  backupProject,
+} from "../services/db";
 import { fetchRemoteProject } from "../services/files";
 import type { Project } from "../types/project";
 
 interface ProjectContextValue {
   project: Project | null;
   loading: boolean;
-  updateProject: (updater: Project | ((project: Project) => Project)) => Promise<void>;
+  updateProject: (
+    updater: Project | ((project: Project) => Project),
+  ) => Promise<void>;
   reload: () => Promise<void>;
   syncFromRemote: () => Promise<Project | null>;
 }
@@ -17,45 +32,81 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const latest = useRef<Project | null>(null);
+  const pending = useRef(false);
   const reload = useCallback(async () => {
-    setLoading(true);
     const next = await getProject();
+    latest.current = next;
     setProject(next);
     setLoading(false);
-    void fetchRemoteProject(next)
-      .then(async (remote) => {
-        if (!remote) return;
-        await saveProject(remote);
-        setProject(remote);
-      })
-      .catch(() => undefined);
   }, []);
+
+  const updateProject = useCallback(
+    async (updater: Project | ((project: Project) => Project)) => {
+      const current = latest.current;
+      if (!current) return;
+      const next = typeof updater === "function" ? updater(current) : updater;
+      pending.current = true;
+      try {
+        await saveProject(next);
+        latest.current = next;
+        setProject(next);
+      } finally {
+        pending.current = false;
+      }
+    },
+    [],
+  );
+
+  const syncFromRemote = useCallback(
+    async (automatic = false) => {
+      const current = latest.current;
+      const editing = () =>
+        document.documentElement.dataset.pardoEditing === "true";
+      if (
+        !current ||
+        pending.current ||
+        (automatic &&
+          (editing() ||
+            current.localStatus === "local" ||
+            current.localStatus === "published-local"))
+      )
+        return null;
+      const remote = await fetchRemoteProject(current);
+      if (
+        !remote ||
+        latest.current !== current ||
+        pending.current ||
+        (automatic && editing())
+      )
+        return null;
+      if (automatic) {
+        const remoteIds = new Set(remote.typologies.map((item) => item.id));
+        if (current.typologies.some((item) => !remoteIds.has(item.id)))
+          return null;
+        if (!current.localStatus) await backupProject(current);
+        if (latest.current !== current || pending.current || editing())
+          return null;
+      }
+      const next: Project = {
+        ...normalizeProject(remote),
+        localStatus: "github",
+      };
+      await updateProject(next);
+      return next;
+    },
+    [updateProject],
+  );
 
   useEffect(() => {
-    reload();
-  }, [reload]);
-
-  const updateProject = useCallback(async (updater: Project | ((project: Project) => Project)) => {
-    setProject((current) => {
-      if (!current) return current;
-      const next = typeof updater === "function" ? updater(current) : updater;
-      void saveProject(next);
-      return next;
-    });
-  }, []);
-
-  const syncFromRemote = useCallback(async () => {
-    const current = await getProject();
-    const remote = await fetchRemoteProject(current);
-    if (!remote) return null;
-    await saveProject(remote);
-    setProject(remote);
-    return remote;
-  }, []);
+    void reload()
+      .then(() => syncFromRemote(true))
+      .catch(() => setLoading(false));
+  }, [reload, syncFromRemote]);
 
   useEffect(() => {
     const syncWhenOnline = () => {
-      if (navigator.onLine) void syncFromRemote().catch(() => undefined);
+      if (navigator.onLine) void syncFromRemote(true).catch(() => undefined);
     };
     const syncWhenVisible = () => {
       if (document.visibilityState === "visible") syncWhenOnline();
@@ -72,8 +123,13 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     };
   }, [syncFromRemote]);
 
-  const value = useMemo(() => ({ project, loading, updateProject, reload, syncFromRemote }), [project, loading, updateProject, reload, syncFromRemote]);
-  return <ProjectContext.Provider value={value}>{children}</ProjectContext.Provider>;
+  const value = useMemo(
+    () => ({ project, loading, updateProject, reload, syncFromRemote }),
+    [project, loading, updateProject, reload, syncFromRemote],
+  );
+  return (
+    <ProjectContext.Provider value={value}>{children}</ProjectContext.Provider>
+  );
 }
 
 export function useProject() {

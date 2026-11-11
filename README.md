@@ -104,77 +104,30 @@ PIN inicial:
 6640
 ```
 
-Desde el administrador se puede:
+El administrador tiene ocho pestañas en el orden de la presentación. Puedes editar portada, contenido institucional, proyecto, ubicación, áreas comunes, interiores y departamentos. Usa **Vista previa** para revisar el borrador. En las galerías, arrastra las fotos o usa las flechas para reordenarlas.
 
-- Editar información general.
-- Cambiar metrajes, dormitorios, baños, ambientes y departamentos.
-- Activar o desactivar tipologías.
-- Reemplazar el plano de la tipología seleccionada.
-- Configurar zonas clicables de la planta típica con porcentajes.
-- Publicar cambios localmente.
-- Exportar una actualización ZIP.
-- Descargar `project.json` para publicar contenido maestro en GitHub.
-- Importar una actualización ZIP.
-- Sincronizar contenido desde GitHub.
-- Restaurar el contenido inicial.
+- **Ubicación:** el mapa es un archivo local. Arrastra un marcador existente o selecciona un lugar y toca el mapa para colocarlo.
+- **Departamentos:** elige una tipología, pulsa **Dibujar zona** y arrastra sobre la planta. Para corregir una zona, muévela desde el centro o arrastra la esquina. Puedes reasignarla o eliminarla desde el mismo panel.
+- **Guardado:** **Guardar cambios** escribe el borrador en IndexedDB. **Publicar en este dispositivo** también genera una versión nueva para distribuir. Ninguna de estas acciones publica en GitHub.
 
 ## Actualizar contenido
 
-### Opción A: actualización manual por ZIP
+### Opción A: paquete ZIP
 
-1. Entrar al administrador.
-2. Editar textos, tipologías o planos.
-3. Revisar la vista previa dentro de la app.
-4. Presionar “Publicar cambios”.
-5. Presionar “Exportar actualización”.
-6. Llevar el ZIP a otra tablet o computadora.
-7. En la segunda instalación, entrar al administrador y elegir “Importar actualización”.
+1. En **Configuración**, publica en el dispositivo si quieres generar una nueva versión.
+2. Selecciona **Exportar actualización ZIP**. El paquete incluye los archivos de imagen, video y planos referenciados.
+3. Abre el administrador actualizado en el otro dispositivo, selecciona **Importar actualización ZIP** y revisa el borrador.
+4. Guarda los cambios para aplicar el contenido. También se pueden importar paquetes anteriores de Pardo 664.
 
 ### Opción B: contenido maestro en GitHub
 
-Esta opción permite que otras computadoras o tablets reciban el contenido nuevo desde GitHub cuando tengan internet, y luego lo mantengan guardado offline.
-
-1. En la computadora principal, entrar al administrador.
-2. Editar fotos, textos, planos, logo, mapa o puntos de interés.
-3. Presionar “Publicar cambios”.
-4. Presionar “Descargar project.json para GitHub”.
-5. En GitHub Desktop, abrir el repositorio.
-6. Reemplazar o agregar el archivo:
-
-```text
-public/content/project.json
-```
-
-7. Hacer commit y push.
-8. Esperar a que GitHub Pages publique la nueva versión.
-9. En cada tablet o computadora, abrir la app con internet.
-10. La app revisará automáticamente si existe una versión más nueva en GitHub.
-11. Si la encuentra, la guarda en IndexedDB y queda disponible offline.
-
-También se puede entrar al administrador y presionar “Sincronizar desde GitHub” para forzar la revisión.
-
-La sincronización automática ocurre:
-
-- Al abrir la app.
-- Al volver a enfocar la app.
-- Al recuperar conexión a internet.
-- Cada 60 segundos mientras la app esté abierta.
-
-Importante: GitHub no recibe automáticamente las fotos subidas desde el administrador. Primero se debe descargar `project.json` y subirlo al repositorio.
+1. En **Configuración**, elige **Publicar en este dispositivo** y después **Descargar project.json**.
+2. Reemplaza `public/content/project.json` en este repositorio. Haz commit y push para que el flujo de GitHub Pages publique el cambio en `/pardo-664/`.
+3. Las instalaciones sin cambios locales comprueban versiones nuevas al abrir, al recuperar conexión, al recibir el foco y cada minuto. Cuando haya cambios guardados localmente, usa **Sincronizar desde GitHub** en Configuración para revisar una versión nueva y decidir si reemplazar el contenido de ese dispositivo.
 
 ## Copia de seguridad
 
-Usar “Exportar actualización” antes de reemplazar planos o importar contenido nuevo.
-
-El ZIP contiene:
-
-- `pardo-664-project.json`
-- versión
-- fecha de publicación
-- textos
-- rutas o archivos embebidos en formato Data URL
-- configuración de planta típica
-- tipologías y planos reemplazados desde el administrador
+Exporta un ZIP antes de cambios importantes. El CMS también guarda una copia del contenido vigente antes de una operación de guardado, importación, sincronización manual o restauración. **Recuperar último respaldo** carga esa copia como borrador para que puedas revisarla antes de aplicarla.
 
 ## Datos iniciales extraídos del PDF
 

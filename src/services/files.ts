@@ -10,103 +10,96 @@ export function fileToDataUrl(file: File): Promise<string> {
   });
 }
 
-export function isAllowedAsset(file: File): boolean {
-  return ["image/png", "image/jpeg", "image/svg+xml", "application/pdf"].includes(file.type);
-}
-
-export function formatBytes(bytes: number): string {
-  if (!bytes) return "0 B";
-  const units = ["B", "KB", "MB", "GB"];
-  const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
-  return `${(bytes / 1024 ** index).toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
-}
-
 export async function exportProjectZip(project: Project): Promise<void> {
   const zip = new JSZip();
-  zip.file("pardo-664-project.json", serializeProject(project));
+  const copy = portableProject(project);
+  const entries = assetEntries(copy);
+  const paths = new Map<string, Promise<string>>();
+  await Promise.all(
+    entries.map(async ({ src, write }) => {
+      if (!paths.has(src)) {
+        const index = paths.size + 1;
+        paths.set(
+          src,
+          (async () => {
+            const response = await fetch(src);
+            if (!response.ok)
+              throw new Error(
+                "No se pudo copiar un archivo. Comprueba que esté disponible antes de exportar.",
+              );
+            const blob = await response.blob();
+            if (
+              !blob.type.startsWith("image/") &&
+              !blob.type.startsWith("video/")
+            )
+              throw new Error(
+                "No se pudo copiar un archivo de imagen o video.",
+              );
+            const extension =
+              extensionFromMime(blob.type) ?? extensionFromSource(src) ?? "bin";
+            const path = `assets/asset-${String(index).padStart(3, "0")}.${extension}`;
+            zip.file(path, blob);
+            return `pardo-asset:${path}`;
+          })(),
+        );
+      }
+      write(await paths.get(src)!);
+    }),
+  );
+  zip.file("pardo-664-project.json", JSON.stringify(copy, null, 2));
   zip.file(
     "README.txt",
-    `Pardo 664 Morada\nVersion: ${project.version.version}\nPublicado: ${project.version.publishedAt}\n\nImporta este ZIP desde el panel administrador de la app.`
+    `Pardo 664 Morada\nVersión: ${copy.version.version}\nImporta este paquete autónomo desde el administrador de Pardo 664.`,
   );
-  const assets = collectAssetSources(project);
-  await Promise.all(
-    assets.map(async (src, index) => {
-      try {
-        const blob = src.startsWith("data:") ? dataUrlToBlob(src) : await fetch(src).then((response) => response.blob());
-        const extension = extensionFromMime(blob.type) ?? extensionFromSource(src) ?? "bin";
-        zip.file(`assets/asset-${String(index + 1).padStart(3, "0")}.${extension}`, blob);
-      } catch {
-        zip.file(`assets/asset-${String(index + 1).padStart(3, "0")}.txt`, `No se pudo copiar este asset: ${src}`);
-      }
-    })
+  downloadBlob(
+    await zip.generateAsync({ type: "blob" }),
+    `pardo-664-${copy.version.version}-${copy.version.publishedAt}.zip`,
   );
-  const blob = await zip.generateAsync({ type: "blob" });
-  downloadBlob(blob, `pardo-664-${project.version.version}-${project.version.publishedAt}.zip`);
 }
 
 export async function exportProjectJson(project: Project): Promise<void> {
-  const optimizedProject = await optimizeProjectForJson(project);
-  const blob = new Blob([serializeProject(optimizedProject)], { type: "application/json" });
-  downloadBlob(blob, "project.json");
-}
-
-async function optimizeProjectForJson(project: Project): Promise<Project> {
-  const cloned = JSON.parse(serializeProject(project)) as Project;
-  const optimize = async (src: string, maxDimension = 2200) => {
-    if (!src.startsWith("data:image/") || src.startsWith("data:image/svg+xml")) return src;
-    if (src.length < 1_200_000) return src;
-    return compressRasterDataUrl(src, maxDimension, 0.84).catch(() => src);
-  };
-
-  cloned.logoSrc = cloned.logoSrc ? await optimize(cloned.logoSrc, 900) : cloned.logoSrc;
-  cloned.floorPlan.imageSrc = await optimize(cloned.floorPlan.imageSrc, 2600);
-  for (const gallery of cloned.galleries) {
-    for (const image of gallery.images) {
-      image.src = await optimize(image.src, gallery.id === "barrio" ? 2600 : 2200);
-    }
-  }
-  for (const typology of cloned.typologies) {
-    typology.planSrc = await optimize(typology.planSrc, 2600);
-    typology.thumbnailSrc = await optimize(typology.thumbnailSrc, 1400);
-    typology.floorThumbnailSrc = await optimize(typology.floorThumbnailSrc, 1800);
-  }
-  return cloned;
-}
-
-async function compressRasterDataUrl(src: string, maxDimension: number, quality: number): Promise<string> {
-  const response = await fetch(src);
-  const blob = await response.blob();
-  const bitmap = await createImageBitmap(blob);
-  const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
-  const width = Math.max(1, Math.round(bitmap.width * scale));
-  const height = Math.max(1, Math.round(bitmap.height * scale));
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const context = canvas.getContext("2d");
-  if (!context) return src;
-  context.fillStyle = "#ffffff";
-  context.fillRect(0, 0, width, height);
-  context.drawImage(bitmap, 0, 0, width, height);
-  bitmap.close();
-  const next = canvas.toDataURL("image/jpeg", quality);
-  return next.length < src.length ? next : src;
-}
-
-function serializeProject(project: Project): string {
-  const seen = new WeakSet<object>();
-  return JSON.stringify(
-    project,
-    (key, value) => {
-      if (key === "lastPublishedSnapshot") return undefined;
-      if (value && typeof value === "object") {
-        if (seen.has(value)) return undefined;
-        seen.add(value);
-      }
-      return value;
-    },
-    2
+  downloadBlob(
+    new Blob([JSON.stringify(portableProject(project), null, 2)], {
+      type: "application/json",
+    }),
+    "project.json",
   );
+}
+
+function portableProject({
+  lastPublishedSnapshot: _snapshot,
+  localStatus: _status,
+  ...project
+}: Project): Project {
+  return structuredClone(project);
+}
+
+function assetEntries(project: Project) {
+  const entries: Array<{ src: string; write: (src: string) => void }> = [];
+  const visit = (value: unknown) => {
+    if (Array.isArray(value)) {
+      value.forEach(visit);
+      return;
+    }
+    if (!value || typeof value !== "object") return;
+    const record = value as Record<string, unknown>;
+    for (const [key, item] of Object.entries(record)) {
+      if (
+        (key === "src" || key.endsWith("Src")) &&
+        typeof item === "string" &&
+        item
+      )
+        entries.push({
+          src: item,
+          write: (src) => {
+            record[key] = src;
+          },
+        });
+      else visit(item);
+    }
+  };
+  visit(project);
+  return entries;
 }
 
 function downloadBlob(blob: Blob, filename: string): void {
@@ -124,39 +117,25 @@ function downloadBlob(blob: Blob, filename: string): void {
   }, 500);
 }
 
-function collectAssetSources(project: Project): string[] {
-  const sources = new Set<string>();
-  sources.add(project.floorPlan.imageSrc);
-  project.galleries.forEach((gallery) => gallery.images.forEach((image) => sources.add(image.src)));
-  project.typologies.forEach((typology) => {
-    sources.add(typology.planSrc);
-    sources.add(typology.thumbnailSrc);
-    sources.add(typology.floorThumbnailSrc);
-  });
-  return [...sources].filter(Boolean);
-}
-
-function dataUrlToBlob(dataUrl: string): Blob {
-  const [meta, value] = dataUrl.split(",");
-  const mime = meta.match(/data:(.*?);base64/)?.[1] ?? "application/octet-stream";
-  const binary = atob(value);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
-  return new Blob([bytes], { type: mime });
-}
-
 function extensionFromMime(mime: string): string | undefined {
   const map: Record<string, string> = {
     "image/png": "png",
     "image/jpeg": "jpg",
     "image/svg+xml": "svg",
-    "application/pdf": "pdf"
+    "image/webp": "webp",
+    "video/mp4": "mp4",
+    "video/webm": "webm",
   };
   return map[mime];
 }
 
 function extensionFromSource(src: string): string | undefined {
-  return src.split("?")[0]?.split(".").pop()?.replace(/[^a-z0-9]/gi, "").toLowerCase();
+  return src
+    .split("?")[0]
+    ?.split(".")
+    .pop()
+    ?.replace(/[^a-z0-9]/gi, "")
+    .toLowerCase();
 }
 
 export async function importProjectZip(file: File): Promise<Project> {
@@ -165,10 +144,55 @@ export async function importProjectZip(file: File): Promise<Project> {
   if (!json) throw new Error("El ZIP no contiene pardo-664-project.json.");
   const content = await json.async("string");
   const parsed = JSON.parse(content) as Project;
-  if (!parsed.id || !parsed.typologies || !parsed.floorPlan) {
-    throw new Error("El paquete no parece ser una actualización válida de Pardo 664.");
+  if (!isPardoProject(parsed)) {
+    throw new Error(
+      "El paquete no parece ser una actualización válida de Pardo 664.",
+    );
   }
+  const files = new Map<string, Promise<string>>();
+  await Promise.all(
+    assetEntries(parsed).map(async ({ src, write }) => {
+      if (!src.startsWith("pardo-asset:")) return;
+      const path = src.slice("pardo-asset:".length);
+      if (!files.has(path))
+        files.set(
+          path,
+          (async () => {
+            const asset = zip.file(path);
+            if (!asset) throw new Error(`Falta un archivo en el ZIP: ${path}`);
+            const mime = (
+              {
+                png: "image/png",
+                jpg: "image/jpeg",
+                svg: "image/svg+xml",
+                webp: "image/webp",
+                mp4: "video/mp4",
+                webm: "video/webm",
+              } as Record<string, string>
+            )[path.split(".").pop() ?? ""];
+            if (!mime)
+              throw new Error(`Formato de archivo no compatible: ${path}`);
+            return `data:${mime};base64,${await asset.async("base64")}`;
+          })(),
+        );
+      write(await files.get(path)!);
+    }),
+  );
   return parsed;
+}
+
+function isPardoProject(project: Project): boolean {
+  return (
+    project?.id === "pardo-664" &&
+    typeof project.name === "string" &&
+    typeof project.version?.version === "string" &&
+    Array.isArray(project.version.changes) &&
+    Array.isArray(project.sections) &&
+    Array.isArray(project.galleries) &&
+    Array.isArray(project.typologies) &&
+    Array.isArray(project.floorPlan?.hotspots) &&
+    typeof project.floorPlan.imageSrc === "string"
+  );
 }
 
 export function bumpVersion(project: Project, change: string): Project {
@@ -183,25 +207,41 @@ export function bumpVersion(project: Project, change: string): Project {
       version,
       previousVersion: project.version.version,
       publishedAt: date,
-      changes: [{ id: crypto.randomUUID(), date, text: change }, ...project.version.changes]
-    }
+      changes: [
+        { id: crypto.randomUUID(), date, text: change },
+        ...project.version.changes,
+      ],
+    },
   };
 }
 
 export function compareProjectVersions(a: Project, b: Project): number {
-  const versionResult = compareVersionStrings(a.version.version, b.version.version);
+  const versionResult = compareVersionStrings(
+    a.version.version,
+    b.version.version,
+  );
   if (versionResult !== 0) return versionResult;
   return a.version.publishedAt.localeCompare(b.version.publishedAt);
 }
 
-export async function fetchRemoteProject(current?: Project): Promise<Project | null> {
+export async function fetchRemoteProject(
+  current?: Project,
+): Promise<Project | null> {
   const base = new URL(import.meta.env.BASE_URL, window.location.origin);
   const url = new URL("content/project.json", base);
-  const response = await fetch(url, { cache: "no-store" });
-  if (!response.ok) return null;
+  url.searchParams.set("sync", "1");
+  const response = await fetch(url, { cache: "no-store" }).catch(() => {
+    throw new Error("No se pudo conectar con el contenido publicado.");
+  });
+  if (!response.ok)
+    throw new Error(
+      "No se pudo consultar la versión publicada. Revisa la conexión e inténtalo de nuevo.",
+    );
   const parsed = (await response.json()) as Project;
-  if (!parsed.id || !parsed.version || !parsed.galleries || !parsed.floorPlan || !parsed.typologies) {
-    throw new Error("El contenido publicado en GitHub no tiene un formato válido.");
+  if (!isPardoProject(parsed)) {
+    throw new Error(
+      "El contenido publicado en GitHub no tiene un formato válido.",
+    );
   }
   if (current && compareProjectVersions(parsed, current) <= 0) return null;
   return parsed;
@@ -212,7 +252,9 @@ function compareVersionStrings(a: string, b: string): number {
   const right = b.split(".").map((part) => Number(part));
   const length = Math.max(left.length, right.length);
   for (let index = 0; index < length; index += 1) {
-    const diff = (Number.isFinite(left[index]) ? left[index] : 0) - (Number.isFinite(right[index]) ? right[index] : 0);
+    const diff =
+      (Number.isFinite(left[index]) ? left[index] : 0) -
+      (Number.isFinite(right[index]) ? right[index] : 0);
     if (diff !== 0) return diff;
   }
   return 0;

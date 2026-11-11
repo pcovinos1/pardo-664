@@ -23,6 +23,9 @@ export interface ProjectSection {
 }
 
 export interface GalleryImage {
+  visible?: boolean;
+  environment?: string;
+  gallery?: GalleryImage[];
   id: string;
   title: string;
   description?: string;
@@ -89,6 +92,7 @@ export interface Typology {
 }
 
 export interface PointOfInterest {
+  description?: string;
   id: string;
   name: string;
   category: "Gastronomía" | "Parques" | "Educación" | "Tiendas" | "Entretenimiento";
@@ -139,6 +143,10 @@ export interface AboutContent {
 }
 
 export interface Project {
+  mapProjectPosition?: {x: number; y: number};
+  home?: { mediaSrc?: string; mediaType?: "image" | "video"; primaryButton?: string; secondaryButton?: string };
+  localStatus?: "local" | "published-local" | "github";
+  locationStory?: { title: string; description: string; images: GalleryImage[] };
   id: string;
   name: string;
   developer: string;

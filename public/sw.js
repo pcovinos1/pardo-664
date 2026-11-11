@@ -1,83 +1,49 @@
-const CACHE_NAME = "pardo-664-v5";
+const CACHE_NAME = "pardo-664-v7";
 const APP_SHELL = ["./", "index.html", "manifest.webmanifest", "icon.svg", "offline-cache-manifest.json"];
-
-async function offlineFiles() {
-  try {
-    const response = await fetch(new URL("offline-cache-manifest.json", self.registration.scope), { cache: "no-store" });
-    if (!response.ok) return APP_SHELL;
-    const manifest = await response.json();
-    return [...new Set([...APP_SHELL, ...(manifest.files || [])])];
-  } catch {
-    return APP_SHELL;
-  }
-}
+const scoped = (path) => new URL(path, self.registration.scope).href;
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(async (cache) => {
-      const files = await offlineFiles();
-      await cache.addAll(files);
-    })
-  );
-  self.skipWaiting();
+  event.waitUntil((async () => {
+    const response = await fetch(scoped("offline-cache-manifest.json"), { cache: "no-store" });
+    if (!response.ok) throw new Error("No se pudo preparar el contenido offline.");
+    const manifest = await response.json();
+    const files = [...new Set([...APP_SHELL, ...manifest.files])];
+    const cache = await caches.open(CACHE_NAME);
+    await cache.addAll(files.map(scoped));
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    caches
-      .keys()
-      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
-  );
-  self.clients.claim();
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter((key) => /^pardo-664-v\d+$/.test(key) && key !== CACHE_NAME).map((key) => caches.delete(key)));
+    await self.clients.claim();
+  })());
 });
 
 self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") return;
+  if (event.request.method !== "GET" || !event.request.url.startsWith(self.registration.scope)) return;
   const url = new URL(event.request.url);
-  if (url.origin !== self.location.origin) return;
+  const content = url.pathname.endsWith("/content/project.json");
+  if (content && url.searchParams.has("sync")) return;
 
-  if (event.request.mode === "navigate") {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put("index.html", clone));
-          }
-          return response;
-        })
-        .catch(() => caches.match(new URL("index.html", self.registration.scope)))
-    );
-    return;
-  }
-
-  if (url.pathname.endsWith("/content/project.json")) {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-          }
-          return response;
-        })
-        .catch(() => caches.match(event.request))
-    );
-    return;
-  }
-
-  event.respondWith(
-    caches.match(event.request).then(async (cached) => {
-      if (cached) return cached;
-      return fetch(event.request)
-        .then((response) => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-          }
-          return response;
-        })
-        .catch(() => caches.match(new URL("index.html", self.registration.scope)));
-    })
-  );
+  event.respondWith((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    const navigation = event.request.mode === "navigate";
+    const key = navigation ? scoped("index.html") : url.href;
+    // The precache request and a module request can carry different Origin headers.
+    const cached = () => cache.match(key, { ignoreVary: true });
+    if (!navigation && !content) {
+      const found = await cached();
+      if (found) return found;
+    }
+    try {
+      const response = await fetch(event.request);
+      if (response.ok && response.status !== 206) await cache.put(key, response.clone()).catch(() => undefined);
+      return response;
+    } catch {
+      return await cached() ?? Response.error();
+    }
+  })());
 });
