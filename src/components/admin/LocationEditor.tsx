@@ -1,3 +1,4 @@
+import { getNeighborhood } from "../../data/locationContent";
 import { useRef, useState } from "react";
 import type { PointOfInterest, Project } from "../../types/project";
 import { ImageLibrary, MediaInput } from "./MediaLibrary";
@@ -16,11 +17,7 @@ export function LocationEditor({
   const frame = useRef<HTMLDivElement>(null);
   const gallery = project.galleries.find((g) => g.id === "barrio");
   const poi = project.pointsOfInterest.find((p) => p.id === selected);
-  const story = project.locationStory || {
-    title: "Descubre Miraflores",
-    description: "",
-    images: gallery?.images.slice(1) || [],
-  };
+  const { story, mapCopy, position } = getNeighborhood(project);
   const patch = (data: Partial<PointOfInterest>) =>
     update((p) => ({
       ...p,
@@ -52,20 +49,22 @@ export function LocationEditor({
       <div className="cms-actions">
         <button
           className={block === "story" ? "cms-primary" : ""}
+          aria-pressed={block === "story"}
           onClick={() => setBlock("story")}
         >
-          Descubre Miraflores
+          Fotografías del barrio
         </button>
         <button
           className={block === "map" ? "cms-primary" : ""}
+          aria-pressed={block === "map"}
           onClick={() => setBlock("map")}
         >
-          Todo cerca de tu morada
+          Mapa del entorno
         </button>
       </div>
       {block === "story" ? (
         <section className="cms-card">
-          <h2>Descubre Miraflores</h2>
+          <h2>Fotografías del barrio</h2>
           <label>
             Título
             <input
@@ -94,6 +93,7 @@ export function LocationEditor({
           </label>
           <ImageLibrary
             category="barrio"
+            complementary={false}
             images={story.images}
             onChange={(images) =>
               void update((p) => ({
@@ -106,7 +106,46 @@ export function LocationEditor({
       ) : (
         <div className="cms-plan-layout">
           <section className="cms-card">
-            <h2>Todo cerca de tu morada</h2>
+            <h2>Mapa del entorno</h2>
+            <label>
+              Título
+              <input
+                className="field"
+                value={mapCopy.title}
+                onChange={(event) => {
+                  const title = event.target.value;
+                  void update((p) => ({
+                    ...p,
+                    locationMapCopy: { ...mapCopy, title },
+                  }));
+                }}
+              />
+            </label>
+            <label>
+              Descripción
+              <textarea
+                className="field"
+                value={mapCopy.description}
+                onChange={(event) => {
+                  const description = event.target.value;
+                  void update((p) => ({
+                    ...p,
+                    locationMapCopy: { ...mapCopy, description },
+                  }));
+                }}
+              />
+            </label>
+            <label>
+              Dirección del proyecto
+              <input
+                className="field"
+                value={project.address}
+                onChange={(event) => {
+                  const address = event.target.value;
+                  void update((p) => ({ ...p, address }));
+                }}
+              />
+            </label>
             <p>
               Selecciona un lugar y toca el mapa para ubicarlo, o arrastra su
               marcador. El mapa queda disponible offline.
@@ -129,13 +168,14 @@ export function LocationEditor({
                 alt="Mapa del distrito"
                 draggable={false}
               />
-              {project.mapProjectPosition && (
+              {
                 <button
                   className="cms-map-marker selected"
                   title="Pardo 664"
+                  onClick={() => setSelected("project")}
                   style={{
-                    left: `${project.mapProjectPosition.x}%`,
-                    top: `${project.mapProjectPosition.y}%`,
+                    left: `${position.x}%`,
+                    top: `${position.y}%`,
                   }}
                   onPointerDown={(e) => {
                     e.stopPropagation();
@@ -146,7 +186,7 @@ export function LocationEditor({
                 >
                   P
                 </button>
-              )}
+              }
               {project.pointsOfInterest.map((p) => (
                 <button
                   key={p.id}
@@ -163,6 +203,7 @@ export function LocationEditor({
                     e.currentTarget.setPointerCapture(e.pointerId);
                   }}
                   title={p.name}
+                  onClick={() => setSelected(p.id)}
                 >
                   {p.order}
                 </button>
@@ -208,7 +249,7 @@ export function LocationEditor({
                     }))
                   }
                 >
-                  Quitar marcador del proyecto
+                  Restaurar ubicación del proyecto
                 </button>
               )}
             </div>
@@ -282,6 +323,8 @@ export function LocationEditor({
                       "Educación",
                       "Tiendas",
                       "Entretenimiento",
+                      "Cultura",
+                      "Servicios",
                     ].map((c) => (
                       <option key={c}>{c}</option>
                     ))}

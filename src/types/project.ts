@@ -25,6 +25,9 @@ export interface ProjectSection {
 export interface GalleryImage {
   visible?: boolean;
   environment?: string;
+  credit?: string;
+  creditSource?: string;
+  creditLicense?: string;
   gallery?: GalleryImage[];
   id: string;
   title: string;
@@ -95,7 +98,7 @@ export interface PointOfInterest {
   description?: string;
   id: string;
   name: string;
-  category: "Gastronomía" | "Parques" | "Educación" | "Tiendas" | "Entretenimiento";
+  category: "Gastronomía" | "Parques" | "Educación" | "Tiendas" | "Entretenimiento" | "Cultura" | "Servicios";
   x: number;
   y: number;
   visible: boolean;
@@ -143,6 +146,7 @@ export interface AboutContent {
 }
 
 export interface Project {
+  locationMapCopy?: { title: string; description: string };
   mapProjectPosition?: {x: number; y: number};
   home?: { mediaSrc?: string; mediaType?: "image" | "video"; primaryButton?: string; secondaryButton?: string };
   localStatus?: "local" | "published-local" | "github";

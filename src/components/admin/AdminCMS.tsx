@@ -460,15 +460,7 @@ export function AdminCMS({
                   )}
                 </>
               )}
-              {tab === "location" && (
-                <>
-                  {sections(["location"])}
-                  <section className="cms-card">
-                    {field("address", "Dirección del proyecto")}
-                  </section>
-                  <LocationEditor project={draft} update={update} />
-                </>
-              )}
+              {tab === "location" && <LocationEditor project={draft} update={update} />}
               {tab === "amenities" && (
                 <>
                   {sections(["amenities"])}

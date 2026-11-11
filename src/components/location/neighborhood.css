@@ -1,0 +1,471 @@
+.barrio {
+  --barrio-purple: #54297c;
+  --barrio-paper: #fbf7f0;
+  --barrio-ink: #271d2d;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  height: calc(100dvh - 88px);
+  min-height: 470px;
+  background: var(--barrio-paper);
+  color: var(--barrio-ink);
+  touch-action: pan-y;
+  overscroll-behavior-x: contain;
+}
+
+.barrio-window {
+  overflow: hidden;
+}
+.barrio-track {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
+  width: 200%;
+  height: 100%;
+  transition: transform 380ms cubic-bezier(0.22, 0.72, 0.24, 1);
+}
+.barrio[data-screen="map"] .barrio-track {
+  transform: translateX(-50%);
+}
+.barrio-slide {
+  min-width: 0;
+  position: relative;
+  transition: visibility 0s;
+}
+.barrio-slide[aria-hidden="true"] {
+  visibility: hidden;
+  transition-delay: 380ms;
+}
+.barrio-slide[aria-hidden="true"] * {
+  pointer-events: none;
+}
+.barrio-story {
+  isolation: isolate;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  align-items: end;
+  background: #342638;
+  color: #fffaf3;
+  padding: clamp(18px, 3vw, 54px) clamp(22px, 5vw, 88px)
+    clamp(16px, 2.4vh, 28px);
+}
+.barrio-hero,
+.barrio-story-shade {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.barrio-hero {
+  z-index: -2;
+  object-fit: cover;
+  object-position: center 48%;
+  user-select: none;
+  animation: barrio-reveal 280ms ease both;
+}
+.barrio-story-shade {
+  z-index: -1;
+  background:
+    linear-gradient(90deg, #16101cd4, #16101c62 53%, #16101c0a 90%),
+    linear-gradient(0deg, #16101cde, transparent 42%);
+}
+.barrio-story-copy {
+  align-self: center;
+  max-width: 670px;
+  padding-top: 25px;
+}
+.barrio-kicker {
+  font-size: 0.67rem;
+  font-weight: 700;
+  letter-spacing: 0.19em;
+  text-transform: uppercase;
+}
+.barrio h1,
+.barrio h2 {
+  font-family: Georgia, serif;
+  letter-spacing: -0.05em;
+  font-weight: 400;
+}
+.barrio-story h1 {
+  font-size: clamp(2.45rem, 5.8vw, 6.25rem);
+  line-height: 0.99;
+  margin: 0.22em 0 0.28em;
+  max-width: 13ch;
+}
+.barrio-story-copy > p:last-child {
+  max-width: 44ch;
+  font-size: clamp(0.95rem, 1.35vw, 1.25rem);
+  line-height: 1.5;
+}
+.barrio-arrows {
+  position: absolute;
+  right: clamp(22px, 5vw, 88px);
+  top: clamp(14px, 3vh, 32px);
+  display: flex;
+  gap: 8px;
+}
+.barrio button {
+  min-width: 44px;
+  min-height: 44px;
+}
+.barrio button:focus-visible,
+.barrio select:focus-visible,
+.barrio [tabindex]:focus-visible {
+  outline: 3px solid #bd97e5;
+  outline-offset: 2px;
+}
+.barrio-arrows button,
+.barrio-zoom button,
+.barrio-place button {
+  display: grid;
+  place-items: center;
+  border: 1px solid #54297c29;
+  border-radius: 50%;
+  background: var(--barrio-paper);
+}
+.barrio-arrows button {
+  color: white;
+  background: #20162775;
+  border-color: #fff7;
+}
+.barrio-story-bottom {
+  min-width: 0;
+}
+.barrio-credit {
+  font-size: 0.75rem;
+  margin: 8px 0;
+}
+.barrio-credit a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.barrio-thumbnails {
+  display: flex;
+  gap: clamp(6px, 1vw, 14px);
+  overflow-x: auto;
+  padding: 3px;
+}
+.barrio-thumbnails button {
+  flex: 0 0 clamp(106px, 13vw, 180px);
+  position: relative;
+  min-height: 52px;
+  height: clamp(54px, 9vh, 94px);
+  border: 1px solid #fff8;
+  overflow: hidden;
+  background: #362b3d;
+  border-radius: 5px;
+  text-align: left;
+}
+.barrio-thumbnails button[aria-pressed="true"] {
+  outline: 2px solid #dbb6ff;
+  outline-offset: 1px;
+}
+.barrio-thumbnails img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.barrio-thumbnails span {
+  position: absolute;
+  inset: auto 0 0;
+  padding: 16px 7px 6px;
+  background: linear-gradient(transparent, #170d20f0);
+  font-size: clamp(0.69rem, 1vw, 0.88rem);
+  font-weight: 650;
+}
+.barrio-explore {
+  display: grid;
+  grid-template-columns: minmax(185px, 1fr) minmax(0, 4fr);
+}
+.barrio-map-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+  padding: clamp(14px, 2.2vw, 40px);
+  overflow: auto;
+}
+.barrio-map-copy .barrio-kicker {
+  color: var(--barrio-purple);
+}
+.barrio-map-copy h1 {
+  font-size: clamp(1.95rem, 3.2vw, 3.65rem);
+  line-height: 1;
+}
+.barrio-map-copy > p:not(.barrio-kicker) {
+  font-size: clamp(0.87rem, 1.15vw, 1.05rem);
+  line-height: 1.45;
+}
+.barrio-filters {
+  display: grid;
+  gap: 10px;
+  margin-top: 8px;
+}
+.barrio-filters label {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  font-size: 0.76rem;
+  font-weight: 650;
+}
+.barrio-filters select {
+  min-height: 44px;
+  min-width: 0;
+  width: 100%;
+  background: #fffcf7;
+  border: 1px solid #54297c40;
+  border-radius: 5px;
+  padding: 0 8px;
+  font-weight: 500;
+}
+.barrio-map-panel {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+.barrio-map,
+.barrio-map-viewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #fbf4ea;
+}
+.barrio-map-viewport {
+  touch-action: none;
+  user-select: none;
+}
+.barrio-map-viewport[data-zoomed="true"] {
+  cursor: grab;
+}
+.barrio-map-viewport:active {
+  cursor: grabbing;
+}
+.barrio-map-art {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+}
+.barrio-map-art > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.barrio-marker {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  transform: translate(-50%, -50%);
+}
+.barrio-marker span {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fffaf1;
+  border: 1px solid var(--barrio-purple);
+  color: var(--barrio-purple);
+  font-size: 0.7rem;
+  font-weight: 750;
+  box-shadow: 0 1px 4px #38264938;
+}
+.barrio-marker:is(:hover, :focus-visible, [aria-pressed="true"]),
+.barrio-project-marker {
+  z-index: 2;
+}
+.barrio-marker:is(:hover, [aria-pressed="true"]) span,
+.barrio-project-marker span {
+  background: var(--barrio-purple);
+  color: white;
+}
+.barrio-project-marker span {
+  width: 34px;
+  height: 34px;
+  border: 2px solid white;
+}
+.barrio-zoom {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: grid;
+  gap: 6px;
+}
+.barrio-zoom button:disabled {
+  opacity: 0.46;
+}
+.barrio-place {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  max-width: min(380px, calc(100% - 24px));
+  background: var(--barrio-paper);
+  padding: 12px 54px 12px 14px;
+  border: 1px solid #54297c29;
+  border-radius: 8px;
+  box-shadow: 0 6px 26px #2c1c3224;
+}
+.barrio-place h2 {
+  font-size: 1.45rem;
+  line-height: 1.15;
+}
+.barrio-place > p {
+  font-size: 0.82rem;
+}
+.barrio-place button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+.barrio-footer {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 2vw, 24px);
+  min-height: 76px;
+  padding: 9px clamp(14px, 5vw, 88px);
+  border-bottom: 1px solid #54297c20;
+}
+.barrio-progress {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  gap: 4px 9px;
+  flex: 0 0 auto;
+  font-size: 0.78rem;
+}
+.barrio-progress strong {
+  color: var(--barrio-purple);
+  font-size: 1rem;
+}
+.barrio-progress-track {
+  grid-column: 1/-1;
+  display: flex;
+  gap: 4px;
+}
+.barrio-progress-track i {
+  flex: 1;
+  height: 3px;
+  border-radius: 3px;
+  background: #54297c2e;
+}
+.barrio-progress-track i:first-child,
+.barrio[data-screen="map"] .barrio-progress-track i {
+  background: var(--barrio-purple);
+}
+.barrio-hint {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+  font-size: 0.76rem;
+  color: var(--barrio-purple);
+  animation: barrio-hint 7s both;
+}
+.barrio-hint span {
+  display: inline-flex;
+  align-items: center;
+  animation: barrio-hand 1.45s ease-in-out 4;
+}
+.barrio-map-preview {
+  position: relative;
+  overflow: hidden;
+  width: 68px;
+  height: 52px;
+  border: 1px solid #54297c45;
+  border-radius: 5px;
+  background: #fbf4ea;
+  margin-left: auto;
+}
+.barrio-hint + .barrio-map-preview {
+  margin-left: 0;
+}
+.barrio-map-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+.barrio-map-preview svg {
+  position: absolute;
+  color: var(--barrio-purple);
+  transform: translate(-50%, -65%);
+  fill: #faf4ff;
+}
+.barrio-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px clamp(9px, 2vw, 24px);
+  border-radius: 5px;
+  background: var(--barrio-purple);
+  color: white;
+  font-size: clamp(0.72rem, 1.2vw, 0.93rem);
+  font-weight: 650;
+}
+.barrio[data-screen="map"] .barrio-action {
+  margin-left: auto;
+}
+@keyframes barrio-hand {
+  50% {
+    transform: translateX(-6px);
+  }
+}
+@keyframes barrio-hint {
+  0%,
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+  8%,
+  88% {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+@keyframes barrio-reveal {
+  from {
+    opacity: 0.45;
+  }
+}
+@media (max-width: 760px), (max-width: 1024px) and (orientation: portrait) {
+  .barrio-hint {
+    position: absolute;
+    z-index: 3;
+    bottom: 166px;
+    left: 12px;
+    margin: 0;
+    padding: 5px 9px;
+    border-radius: 6px;
+    background: var(--barrio-paper);
+    pointer-events: none;
+  }
+  .barrio-explore {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .barrio-map-copy {
+    padding: 12px 16px;
+    gap: 5px;
+  }
+  .barrio-filters {
+    grid-template-columns: 1fr 1fr;
+    margin-top: 2px;
+  }
+}
+@media (min-width: 761px) and (max-height: 590px) {
+  .barrio-map-copy {
+    gap: 8px;
+  }
+  .barrio-story h1 {
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .barrio-track,
+  .barrio-slide {
+    transition: none;
+  }
+  .barrio-hero,
+  .barrio-hint span {
+    animation: none;
+  }
+}

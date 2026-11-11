@@ -1,4 +1,4 @@
-const CACHE_NAME = "pardo-664-v7";
+const CACHE_NAME = "pardo-664-v9";
 const APP_SHELL = ["./", "index.html", "manifest.webmanifest", "icon.svg", "offline-cache-manifest.json"];
 const scoped = (path) => new URL(path, self.registration.scope).href;
 

@@ -352,7 +352,19 @@ export function ImageLibrary({
                 </div>
                 <MediaInput
                   src={image.src}
-                  onChange={(src) => patch(image.id, { src })}
+                  onChange={(src) =>
+                    patch(
+                      image.id,
+                      category === "barrio" && src !== image.src
+                        ? {
+                            src,
+                            credit: undefined,
+                            creditSource: undefined,
+                            creditLicense: undefined,
+                          }
+                        : { src },
+                    )
+                  }
                 />
                 <details>
                   <summary>
@@ -360,7 +372,9 @@ export function ImageLibrary({
                     Editar
                   </summary>
                   <label>
-                    Nombre
+                    {category === "barrio"
+                      ? "Nombre de la categoría"
+                      : "Nombre"}
                     <input
                       className="field"
                       value={
@@ -381,6 +395,42 @@ export function ImageLibrary({
                       }
                     />
                   </label>
+                  {category === "barrio" && (
+                    <div className="cms-fields">
+                      <label>
+                        Crédito fotográfico
+                        <input
+                          className="field"
+                          value={image.credit ?? ""}
+                          onChange={(e) =>
+                            patch(image.id, { credit: e.target.value })
+                          }
+                        />
+                      </label>
+                      <label>
+                        Enlace a la fuente
+                        <input
+                          className="field"
+                          type="url"
+                          value={image.creditSource ?? ""}
+                          onChange={(e) =>
+                            patch(image.id, { creditSource: e.target.value })
+                          }
+                        />
+                      </label>
+                      <label>
+                        Enlace a la licencia
+                        <input
+                          className="field"
+                          type="url"
+                          value={image.creditLicense ?? ""}
+                          onChange={(e) =>
+                            patch(image.id, { creditLicense: e.target.value })
+                          }
+                        />
+                      </label>
+                    </div>
+                  )}
                   {category === "interiores" && (
                     <label>
                       Ambiente
