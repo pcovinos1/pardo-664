@@ -262,6 +262,7 @@ export function AdminCMS({
                 autoFocus
                 className="field"
                 type="password"
+                inputMode="numeric"
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
               />

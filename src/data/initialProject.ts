@@ -169,5 +169,5 @@ export const initialProject: Project = {
       { id: "planos-v10", date: pardoPlans.floorPlan.updatedAt, text: "Se incorporaron los planos finales V10 de Pardo 664." }
     ]
   },
-  adminPin: "6640"
+  adminPin: "664"
 };

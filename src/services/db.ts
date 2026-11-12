@@ -92,6 +92,7 @@ export function normalizeProject(project: Project): Project {
 
   return {
     ...project,
+    adminPin: project.adminPin === "6640" ? initialProject.adminPin : project.adminPin,
     localStatus:
       project.localStatus ??
       (project.lastPublishedSnapshot ? "published-local" : undefined),

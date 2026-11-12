@@ -101,7 +101,7 @@ Acceso desde el botón discreto de la portada o desde el botón de engranaje.
 PIN inicial:
 
 ```text
-6640
+664
 ```
 
 El administrador tiene ocho pestañas en el orden de la presentación. Puedes editar portada, contenido institucional, proyecto, ubicación, áreas comunes, interiores y departamentos. Usa **Vista previa** para revisar el borrador. En las galerías, arrastra las fotos o usa las flechas para reordenarlas.
