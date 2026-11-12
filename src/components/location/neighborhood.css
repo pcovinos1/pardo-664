@@ -272,7 +272,7 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
-  background: #f7f1e7;
+  background: #fff;
 }
 .barrio-map-viewport {
   touch-action: none;
@@ -312,8 +312,8 @@
   height: 27px;
   border-radius: 50%;
   border: 1px solid #8c68a4;
-  background: #fffbf4;
-  color: var(--barrio-purple);
+  background: var(--barrio-purple);
+  color: #fff;
   box-shadow: 0 2px 4px #38264925;
   font-size: 0.76rem;
   font-weight: 650;
@@ -324,10 +324,9 @@
 .barrio-project-marker {
   z-index: 2;
 }
-.barrio-marker:is(:hover, :focus-visible, [aria-pressed="true"]) .barrio-marker-dot,
-.barrio-project-marker .barrio-marker-dot {
-  background: var(--barrio-purple);
-  color: white;
+.barrio-marker:not(.barrio-project-marker):is(:hover, :focus-visible, [aria-pressed="true"]) .barrio-marker-dot {
+  outline: 2px solid #8c68a4;
+  outline-offset: 2px;
 }
 .barrio-project-marker .barrio-marker-dot {
   width: 37px;
@@ -462,7 +461,7 @@
   height: 52px;
   border: 1px solid #54297c45;
   border-radius: 5px;
-  background: #f7f1e7;
+  background: #fff;
   margin-left: auto;
 }
 .barrio-map-preview img {

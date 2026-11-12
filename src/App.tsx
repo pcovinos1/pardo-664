@@ -581,16 +581,17 @@ function FloorPage({ project, selectedTypologyId, setSelectedTypologyId, onNavig
   return (
     <section className="page-wrap">
       <PageHeading eyebrow="Planta típica" title="Pisos 3 al 12" text="La planta típica exhibida corresponde a los pisos 3 al 12 y se muestra únicamente para fines ilustrativos." />
-      <div className="grid gap-6 lg:grid-cols-[1fr_330px]">
+      <div className="grid gap-4">
         <FloorPlanInteractive floorPlan={project.floorPlan} typologies={project.typologies} selectedId={selectedTypologyId} onSelect={setSelectedTypologyId} />
-        <aside className="rounded border border-ink/10 bg-porcelain p-5">
+        <aside className="flex flex-wrap items-center gap-4 rounded border border-ink/10 bg-porcelain p-4">
           {typology ? (
             <>
-              <p className="text-sm uppercase tracking-[0.25em] text-morada">Seleccionado</p>
-              <h2 className="mt-3 font-display text-6xl">{typology.code}</h2>
-              <p className="mt-2 text-xl">Tipología activa en planta</p>
-              <img className="mt-5 h-48 w-full rounded bg-white object-contain" src={typology.thumbnailSrc} alt={`Miniatura ${typology.code}`} />
-              <button className="primary-touch mt-6 w-full" onClick={() => onNavigate("typology")} type="button">
+              <img className="h-16 w-24 rounded bg-white object-contain" src={typology.thumbnailSrc} alt={`Miniatura ${typology.code}`} />
+              <div className="flex-1">
+                <p className="text-sm text-morada">Tipología seleccionada</p>
+                <h2 className="font-display text-3xl">{typology.code}</h2>
+              </div>
+              <button className="primary-touch w-full sm:w-auto" onClick={() => onNavigate("typology")} type="button">
                 Ver plano <ArrowRight />
               </button>
             </>
