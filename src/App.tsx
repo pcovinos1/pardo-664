@@ -521,6 +521,7 @@ function DepartmentsPage({ project, selectedTypologyId, setSelectedTypologyId, o
           Comparar <Search />
         </button>
       </div>
+      <BuildingPlans plans={project.buildingPlans} className="mb-6" />
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {filtered.map((typology) => (
           <article key={typology.id} className={`relative rounded border bg-porcelain p-4 focus-within:ring-2 focus-within:ring-morada/30 ${selectedTypologyId === typology.id ? "border-morada" : "border-ink/10"}`}>
@@ -572,8 +573,6 @@ function DepartmentsPage({ project, selectedTypologyId, setSelectedTypologyId, o
 }
 
 function FloorPage({ project, selectedTypologyId, setSelectedTypologyId, onNavigate }: { project: Project; selectedTypologyId: string; setSelectedTypologyId: (id: string) => void; onNavigate: (view: ViewKey) => void }) {
-  const [buildingPlanId, setBuildingPlanId] = useState<string | null>(null);
-  const buildingPlan = project.buildingPlans?.find((item) => item.id === buildingPlanId);
   const typology = project.typologies.find((item) =>
     item.active && item.id === selectedTypologyId &&
     project.floorPlan.hotspots.some((hotspot) => hotspot.typologyId === item.id)
@@ -598,25 +597,33 @@ function FloorPage({ project, selectedTypologyId, setSelectedTypologyId, onNavig
           ) : <p className="text-ink/70">Selecciona un departamento en la planta para ver su plano.</p>}
         </aside>
       </div>
-      {!!project.buildingPlans?.length && (
-        <section className="mt-8">
-          <h2 className="mb-4 font-display text-3xl">Otros planos del edificio</h2>
-          <div className="mb-4 flex flex-wrap gap-3">
-            {project.buildingPlans.map((plan) => (
-              <button
-                key={plan.id}
-                className={`pill ${buildingPlanId === plan.id ? "pill-active" : ""}`}
-                aria-pressed={buildingPlanId === plan.id}
-                onClick={() => setBuildingPlanId(plan.id)}
-                type="button"
-              >
-                {plan.title}
-              </button>
-            ))}
-          </div>
-          {buildingPlan && <PlanViewer key={buildingPlan.id} src={buildingPlan.imageSrc} title={buildingPlan.title} />}
-        </section>
-      )}
+      <BuildingPlans plans={project.buildingPlans} className="mt-8" />
+    </section>
+  );
+}
+
+function BuildingPlans({ plans, className }: { plans: Project["buildingPlans"]; className: string }) {
+  const [buildingPlanId, setBuildingPlanId] = useState<string | null>(null);
+  const buildingPlan = plans?.find((item) => item.id === buildingPlanId);
+  if (!plans?.length) return null;
+
+  return (
+    <section className={className}>
+      <h2 className="mb-4 font-display text-3xl">Otros planos del edificio</h2>
+      <div className="mb-4 flex flex-wrap gap-3">
+        {plans.map((plan) => (
+          <button
+            key={plan.id}
+            className={`pill ${buildingPlanId === plan.id ? "pill-active" : ""}`}
+            aria-pressed={buildingPlanId === plan.id}
+            onClick={() => setBuildingPlanId(plan.id)}
+            type="button"
+          >
+            {plan.title}
+          </button>
+        ))}
+      </div>
+      {buildingPlan && <PlanViewer key={buildingPlan.id} src={buildingPlan.imageSrc} title={buildingPlan.title} />}
     </section>
   );
 }
