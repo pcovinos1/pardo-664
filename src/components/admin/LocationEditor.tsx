@@ -14,7 +14,7 @@ import type {
 } from "../../types/project";
 import { ImageLibrary, MediaInput } from "./MediaLibrary";
 
-const tabs = ["Contenido", "Lugares", "Mapa"] as const;
+const tabs = ["Portada de Miraflores", "Lugares", "Mapa"] as const;
 
 export function LocationEditor({
   project,
@@ -24,7 +24,7 @@ export function LocationEditor({
   update: (fn: (p: Project) => Project) => Promise<void>;
 }) {
   const [selected, setSelected] = useState(project.pointsOfInterest[0]?.id ?? "");
-  const [tab, setTab] = useState<(typeof tabs)[number]>("Contenido");
+  const [tab, setTab] = useState<(typeof tabs)[number]>("Portada de Miraflores");
   const [adding, setAdding] = useState(false);
   const { story, mapCopy, mapSrc, position, settings } = getNeighborhood(project);
   const poi = project.pointsOfInterest.find((point) => point.id === selected);
@@ -78,44 +78,27 @@ export function LocationEditor({
           </button>
         ))}
       </div>
-      {tab === "Contenido" && (
+      {tab === "Portada de Miraflores" && (
         <section className="cms-card">
-          <h2>Contenido de ubicación</h2>
+          <h2>Portada de Miraflores</h2>
           <label>
-            Título
-            <input className="field" value={mapCopy.title}
+            Título de la presentación
+            <input className="field" value={story.title}
               onChange={({ target: { value } }) => void update((p) => ({
-                ...p, locationMapCopy: { ...getNeighborhood(p).mapCopy, title: value },
+                ...p, locationStory: { ...getNeighborhood(p).story, title: value },
               }))} />
           </label>
           <label>
-            Descripción
-            <textarea className="field" value={mapCopy.description}
+            Descripción de la presentación
+            <textarea className="field" value={story.description}
               onChange={({ target: { value } }) => void update((p) => ({
-                ...p, locationMapCopy: { ...getNeighborhood(p).mapCopy, description: value },
+                ...p, locationStory: { ...getNeighborhood(p).story, description: value },
               }))} />
           </label>
-          <details>
-            <summary>Presentación fotográfica del barrio</summary>
-            <label>
-              Título de la presentación
-              <input className="field" value={story.title}
-                onChange={({ target: { value } }) => void update((p) => ({
-                  ...p, locationStory: { ...getNeighborhood(p).story, title: value },
-                }))} />
-            </label>
-            <label>
-              Descripción de la presentación
-              <textarea className="field" value={story.description}
-                onChange={({ target: { value } }) => void update((p) => ({
-                  ...p, locationStory: { ...getNeighborhood(p).story, description: value },
-                }))} />
-            </label>
-            <ImageLibrary category="barrio" complementary={false} images={story.images}
-              onChange={(images) => void update((p) => ({
-                ...p, locationStory: { ...getNeighborhood(p).story, images },
-              }))} />
-          </details>
+          <ImageLibrary category="barrio" complementary={false} images={story.images}
+            onChange={(images) => void update((p) => ({
+              ...p, locationStory: { ...getNeighborhood(p).story, images },
+            }))} />
         </section>
       )}
       {tab === "Lugares" && (
@@ -196,6 +179,21 @@ export function LocationEditor({
       )}
       {tab === "Mapa" && (
         <section className="cms-card">
+          <h2>Texto del mapa</h2>
+          <label>
+            Título
+            <input className="field" value={mapCopy.title}
+              onChange={({ target: { value } }) => void update((p) => ({
+                ...p, locationMapCopy: { ...getNeighborhood(p).mapCopy, title: value },
+              }))} />
+          </label>
+          <label>
+            Descripción
+            <textarea className="field" value={mapCopy.description}
+              onChange={({ target: { value } }) => void update((p) => ({
+                ...p, locationMapCopy: { ...getNeighborhood(p).mapCopy, description: value },
+              }))} />
+          </label>
           <h2>Mapa y fotografías flotantes</h2>
           <label>
             Zoom inicial · {settings.initialZoom.toFixed(2)}×

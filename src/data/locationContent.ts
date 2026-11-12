@@ -86,7 +86,7 @@ export function getNeighborhood(project: Project) {
 }
 
 export const locationCategories = [
-  "Gastronomía", "Cafeterías", "Tiendas", "Arte y cultura", "Espacios abiertos", "Otros",
+  "Gastronomía", "Cafeterías", "Tiendas", "Espacios abiertos", "Otros",
 ] as const;
 
 export const pointCategories: PointOfInterest["category"][] = [
