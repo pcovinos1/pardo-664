@@ -521,7 +521,6 @@ function DepartmentsPage({ project, selectedTypologyId, setSelectedTypologyId, o
           Comparar <Search />
         </button>
       </div>
-      <BuildingPlans plans={project.buildingPlans} className="mb-6" />
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {filtered.map((typology) => (
           <article key={typology.id} className={`relative rounded border bg-porcelain p-4 focus-within:ring-2 focus-within:ring-morada/30 ${selectedTypologyId === typology.id ? "border-morada" : "border-ink/10"}`}>
@@ -556,6 +555,7 @@ function DepartmentsPage({ project, selectedTypologyId, setSelectedTypologyId, o
           </article>
         ))}
       </div>
+      <BuildingPlans plans={project.buildingPlans} className="mt-8" />
       {openPlan && (
         <FullscreenPlanViewer
           src={openPlan.planSrc}
