@@ -24,12 +24,17 @@ const menuItems: Array<{ view: ViewKey; title: string; text: string }> = [
 
 export default function App() {
   const { project, loading, updateProject, reload, syncFromRemote } = useProject();
+  const [presentationUnlocked, setPresentationUnlocked] = useState(false);
   const [view, setView] = useState<ViewKey>("home");
   const [selectedTypologyId, setSelectedTypologyId] = useState("a-1");
   const [gallery, setGallery] = useState<{ images: GalleryImage[]; index: number } | null>(null);
 
   const selectedTypology = project?.typologies.find((item) => item.active && item.id === selectedTypologyId) ?? project?.typologies.find((item) => item.active);
   const navigate = setView;
+
+  if (!presentationUnlocked) {
+    return <PresentationLogin onUnlock={() => setPresentationUnlocked(true)} />;
+  }
 
   if (loading || !project) {
     return <div className="grid min-h-screen place-items-center bg-paper text-ink">Cargando Pardo 664...</div>;
@@ -63,6 +68,43 @@ export default function App() {
       {view === "compare" && <ComparePage project={project} />}
       {view === "contact" && <ContactPage project={project} />}
       {gallery ? <GalleryModal images={gallery.images} initialIndex={gallery.index} onClose={() => setGallery(null)} /> : null}
+    </main>
+  );
+}
+
+function PresentationLogin({ onUnlock }: { onUnlock: () => void }) {
+  const [pin, setPin] = useState("");
+  const [incorrect, setIncorrect] = useState(false);
+
+  return (
+    <main className="cms-login">
+      <section className="cms-card">
+        <p className="cms-eyebrow">MORADA · PARDO 664</p>
+        <h1>Presentación Pardo 664</h1>
+        <form onSubmit={(event) => {
+          event.preventDefault();
+          if (pin === "664") onUnlock();
+          else setIncorrect(true);
+        }}>
+          <label>
+            PIN de acceso
+            <input
+              className="field"
+              type="password"
+              inputMode="numeric"
+              autoFocus
+              required
+              value={pin}
+              onChange={(event) => {
+                setPin(event.target.value);
+                setIncorrect(false);
+              }}
+            />
+          </label>
+          <button className="cms-primary" type="submit">Ingresar</button>
+          <p role="status">{incorrect ? "PIN incorrecto." : ""}</p>
+        </form>
+      </section>
     </main>
   );
 }

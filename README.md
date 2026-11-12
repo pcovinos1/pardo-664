@@ -98,10 +98,12 @@ Importante: no instales la tablet desde `npm run dev`. El modo desarrollo no pre
 
 Acceso desde el botón discreto de la portada o desde el botón de engranaje.
 
-PIN inicial:
+Para abrir la presentación, ingresa el PIN `664`.
+
+PIN inicial del administrador:
 
 ```text
-664
+6640
 ```
 
 El administrador tiene ocho pestañas en el orden de la presentación. Puedes editar portada, contenido institucional, proyecto, ubicación, áreas comunes, interiores y departamentos. Usa **Vista previa** para revisar el borrador. En las galerías, arrastra las fotos o usa las flechas para reordenarlas.

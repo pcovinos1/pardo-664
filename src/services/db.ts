@@ -7,9 +7,18 @@ const DB_NAME = "pardo-664-local";
 const STORE = "project";
 const PROJECT_KEY = "active";
 
-const dbPromise = openDB(DB_NAME, 1, {
-  upgrade(db) {
-    db.createObjectStore(STORE);
+const dbPromise = openDB(DB_NAME, 2, {
+  async upgrade(db, oldVersion, _newVersion, transaction) {
+    if (oldVersion === 0) {
+      db.createObjectStore(STORE);
+      return;
+    }
+
+    const store = transaction.objectStore(STORE);
+    const project: Project | undefined = await store.get(PROJECT_KEY);
+    if (project?.adminPin === "664") {
+      await store.put({ ...project, adminPin: initialProject.adminPin }, PROJECT_KEY);
+    }
   },
 });
 
@@ -92,7 +101,6 @@ export function normalizeProject(project: Project): Project {
 
   return {
     ...project,
-    adminPin: project.adminPin === "6640" ? initialProject.adminPin : project.adminPin,
     localStatus:
       project.localStatus ??
       (project.lastPublishedSnapshot ? "published-local" : undefined),
