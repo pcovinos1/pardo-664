@@ -30,7 +30,7 @@ export function Neighborhood({ project }: { project: Project }) {
     (image) => image.visible !== false && image.src,
   );
   const [photoId, setPhotoId] = useState(photos[0]?.id);
-  const [mapOpen, setMapOpen] = useState(true);
+  const [mapOpen, setMapOpen] = useState(false);
   const [filter, setFilter] = useState("");
   const [selected, setSelected] = useState("");
   const pointer = useRef<{ id: number; x: number; y: number }>();
